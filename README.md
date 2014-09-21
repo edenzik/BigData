@@ -1,4 +1,24 @@
-BigData
+BigData PA01
 =======
 
-Big Data
+Team 1:
+ - Eden Zik
+ - Nick Cummins
+ - Kahlil Oppenheimer
+ - Mike Partridge
+
+### Credentials:
+
+Cluster: **deerstalker.cs.brandeis.edu**
+
+Username: **hadoop01**
+
+Password: **7Gtxz6kwn~Qd**
+
+### SSH Login:
+
+```
+$ ssh hadoop01@deerstalker.cs.brandeis.edu
+```
+
+### Hadoop Setup:
