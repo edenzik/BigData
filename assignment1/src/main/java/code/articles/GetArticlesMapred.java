@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.net.URI;
 
@@ -19,6 +20,7 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import edu.umd.cloud9.collection.wikipedia.WikipediaPage;
 import util.WikipediaPageInputFormat;
+import util.StringIntegerList;
 
 /**
  * This class is used for Section A of assignment 1. You are supposed to
@@ -39,11 +41,11 @@ public class GetArticlesMapred {
 	 *
 	 */
 	//@formatter:on
-	public static class GetArticlesMapper extends Mapper<LongWritable, WikipediaPage, Text, Text> {
+	public static class GetArticlesMapper extends Mapper<LongWritable, WikipediaPage, Text, StringIntegerList> {
 		public static Set<String> peopleArticlesTitles = new HashSet<String>();
 
 		@Override
-		protected void setup(Mapper<LongWritable, WikipediaPage, Text, Text>.Context context)
+		protected void setup(Mapper<LongWritable, WikipediaPage, Text, StringIntegerList>.Context context)
 				throws IOException, InterruptedException {
 			// TODO: You should implement people articles load from
 			// DistributedCache here
@@ -55,43 +57,33 @@ public class GetArticlesMapred {
 			while((name = reader.readLine()) != null){
 				peopleArticlesTitles.add(name);
 			}
-
-			
-
 		}
 
 		@Override
 		public void map(LongWritable offset, WikipediaPage inputPage, Context context)
 				throws IOException, InterruptedException {
-			// TODO: You should implement getting article mapper here
-			Text title = new Text();
-			Text body = new Text();		
+			// TODO: You should implement getting article mapper here	
 			if(peopleArticlesTitles.contains(inputPage.getTitle())){
+				Text title = new Text();
 				title.set(inputPage.getTitle());
-				body.set(inputPage.getContent());
-				context.write(title, body);
+				StringIntegerList indices = 
+					new StringIntegerList(TokenizeLemmatize.parse(inputPage.getContent()));
+				context.write(title, indices);
 			}
 		}
 	}
 
-	public static void main(String[] args) {
-		// TODO: you should implement the Job Configuration and Job call
-		// here
-		try{
-			Configuration conf = new Configuration();
-    		Job job = Job.getInstance(conf, "get articles");
-    		job.addCacheFile(GetArticlesMapred.class.getResource("/code/articles/data/people.txt").toURI());
-  		  	job.setJarByClass(GetArticlesMapred.class);
-    		job.setMapperClass(GetArticlesMapper.class);
-    		job.setNumReduceTasks(0);
-    		job.setInputFormatClass(WikipediaPageInputFormat.class);
-    		job.setOutputKeyClass(LongWritable.class);
-    		job.setOutputValueClass(WikipediaPage.class);
-    		FileInputFormat.addInputPath(job, new Path(args[0]));
-    		FileOutputFormat.setOutputPath(job, new Path(args[1]));
-    		System.exit(job.waitForCompletion(true) ? 0 : 1);
-    	} catch(Exception e){
-    		e.printStackTrace();
-    	}
+	public static void main(String[] args){
+		Configuration conf1 = new Configuration();
+    	Job job1 = Job.getInstance(conf1, "get articles");
+    	job1.addCacheFile(GetArticlesMapred.class.getResource("/code/articles/data/people.txt").toURI());
+  		job1.setJarByClass(getClass());
+    	job1.setMapperClass(GetArticlesMapper.class);
+    	job1.setNumReduceTasks(0);
+    	job1.setInputFormatClass(WikipediaPageInputFormat.class);
+    	job1.setOutputKeyClass(Text.class);
+    	job1.setOutputValueClass(StringIntegerList.class);
+    	FileInputFormat.addInputPath(job1, new Path(args[0]));
+    	FileOutputFormat.setOutputPath(job1, new Path(args[1]));
 	}
 }
