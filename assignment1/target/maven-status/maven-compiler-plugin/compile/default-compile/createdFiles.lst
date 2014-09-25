@@ -1,6 +1,8 @@
 util/XMLInputFormat$XMLRecordReader.class
 code/articles/GetArticlesMapred$GetArticlesMapper.class
+job/JobController.class
 code/articles/GetArticlesMapred.class
+code/articles/GetArticlesMapred$SecondMapper.class
 util/StringIntegerList.class
 util/XMLInputFormat.class
 util/WikipediaPageInputFormat.class
