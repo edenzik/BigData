@@ -1,0 +1,9 @@
+util/XMLInputFormat$XMLRecordReader.class
+code/articles/GetArticlesMapred$GetArticlesMapper.class
+code/articles/GetArticlesMapred.class
+util/StringIntegerList.class
+util/XMLInputFormat.class
+util/WikipediaPageInputFormat.class
+util/WikipediaPageInputFormat$WikipediaPageRecordReader.class
+util/StringIntegerList$StringInteger.class
+util/IndexableFileInputFormat.class
