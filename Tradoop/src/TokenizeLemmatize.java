@@ -1,7 +1,3 @@
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.*;
 
 
@@ -10,9 +6,6 @@ import java.util.*;
  *
  */
 public class TokenizeLemmatize {
-	
-	//file of stop words
-	private static final String STOP_WORD_FILE="stoplists/aggregate.txt";
 	
 	// set of all stop words as decided by STOP_WORD_FILE
 	private static Set<String> stopWords = new HashSet<String>();
@@ -26,10 +19,10 @@ public class TokenizeLemmatize {
 	public static void main(String[] args) {
 
 		// place holder for real article text
-		final String TEST_ARTICLE="Well, this is an      article \t\tabout\r\r foo and bar. \nBut what we're all really " +
-				"wondering is why foo? \nAnd why bar? Why not just continue on like jolly old souls, Mr.Foo and Mrs.Bar?";
+//		final String TEST_ARTICLE="Well, this is an      article \t\tabout\r\r foo and bar. \nBut what we're all really " +
+//				"wondering is why foo? \nAnd why bar? Why not just continue on like jolly old souls, Mr.Foo and Mrs.Bar?";
 
-		parse(TEST_ARTICLE);
+//		parse(TEST_ARTICLE);
 
 		//This block for unit testing:
 //		Iterator<Entry<String, Integer>> output =  wordCount.entrySet().iterator();
@@ -50,7 +43,7 @@ public class TokenizeLemmatize {
 	public static Map<String, Integer> parse(String article) {
 
 		// call this with actual title and article parameters
-		stopWords = readStopWords(new File(STOP_WORD_FILE));
+		stopWords = readStopWords(stopListText);
 
 		//Make new wordCount for output
 		wordCount = new HashMap<String, Integer>();
@@ -115,16 +108,13 @@ public class TokenizeLemmatize {
 	
 	// input: File containing stop words, each on a new line
 	// output: set of all those stop words
-	private static Set<String> readStopWords(File f) {
+	private static Set<String> readStopWords(String[] list) {
 		Set<String> stopWords = new HashSet<String>();
-		try (BufferedReader br = new BufferedReader(new FileReader(f))) {
-			String nextWord = null;
-			while((nextWord = br.readLine()) != null) {
-				stopWords.add(nextWord);
-			}
-		} catch(IOException e) {
-			e.printStackTrace();
+		
+		for(String nextWord : list) {
+			stopWords.add(nextWord);
 		}
+
 		return stopWords;
 	}
 	
@@ -139,5 +129,74 @@ public class TokenizeLemmatize {
 
 	}		//End of wordCount()
 	
+	static String[] stopListText = {"need", "thats", "using", "he'd", "said", "higher", "particular", "parts", "until", "becoming", 
+			"over", "thanks", "began", "she", "thereby", "something", "right", "opened", "these", "asked", "else", 
+			"once", "respectively", "number", "he", "theirs", "apart", "shows", "few", "further", "he's", "opening", 
+			"herself", "downwards", "somebody", "each", "big", "wherever", "go", "t's", "she's", "before", "made", 
+			"accordingly", "indicate", "parted", "namely", "needing", "interested", "six", "hereafter", "she'd", 
+			"side", "could", "consider", "usually", "do", "tell", "interesting", "whither", "man", "member", 
+			"look", "f", "thorough", "ex", "g", "d", "may", "e", "b", "noone", "c", "needs", "a", "n", "o", 
+			"l", "m", "won't", "j", "ones", "backing", "k", "h", "i", "yes", "w", "v", "eg", "u", "new", "t", 
+			"s", "what", "r", "newer", "q", "p", "nothing", "having", "et", "z", "y", "yet", "x", "here's", 
+			"thru", "anywhere", "least", "you'd", "took", "by", "long", "enough", "same", "has", "backs", "who", 
+			"couldn't", "would", "wanting", "facts", "any", "overall", "everybody", "had", "be", "think", "get", 
+			"seeing", "likely", "far", "a's", "much", "and", "particularly", "co", "gotten", "near", "differently", 
+			"i'd", "often", "better", "against", "containing", "doing", "areas", "seeming", "orders", "example", 
+			"i'm", "make", "large", "thing", "room", "does", "shan't", "saying", "ignored", "today", "tried", 
+			"former", "through", "possible", "following", "area", "especially", "generally", "name", "showing", 
+			"men", "edu", "tries", "members", "all", "sides", "keeps", "five", "obviously", "she'll", "at", 
+			"as", "still", "neither", "hello", "therefore", "never", "great", "which", "see", "i'll", "am", 
+			"anyone", "take", "an", "there", "off", "thoroughly", "why", "nobody", "they", "somehow", "no", 
+			"you've", "nine", "otherwise", "ours", "ourselves", "anyways", "of", "help", "given", "asks", "among", 
+			"youngest", "says", "only", "on", "anybody", "ok", "her", "everyone", "fully", "that's", "itself", 
+			"oh", "thoughts", "maybe", "or", "done", "pointed", "regarding", "third", "sensible", "them", "then", 
+			"will", "ought", "furthermore", "small", "novel", "upon", "different", "indeed", "getting", "thought", 
+			"most", "thanx", "followed", "aside", "across", "clear", "looking", "thank", "normally", "furthers", 
+			"unless", "where's", "rather", "me", "aren't", "kept", "mr", "smallest", "beings", "don't", "it's", 
+			"my", "whereupon", "differ", "okay", "specified", "it'd", "per", "how's", "thinks", "nd", "sometime", 
+			"pointing", "within", "thereupon", "furthered", "described", "truly", "follows", "you're", "cause", 
+			"tends", "last", "second", "sometimes", "finds", "being", "newest", "contains", "since", "actually", 
+			"him", "where", "every", "eight", "almost", "unto", "looks", "more", "his", "inc", "grouped", "we'd", 
+			"when", "someone", "wonder", "value", "useful", "none", "certainly", "younger", "seriously", "everywhere", 
+			"asking", "onto", "appropriate", "isn't", "such", "c's", "hers", "liked", "whereafter", "here", 
+			"presents", "whole", "this", "causes", "appreciate", "becomes", "goods", "way", "from", "hi", "believe", 
+			"smaller", "while", "was", "ain't", "allows", "able", "if", "corresponding", "ie", "seemed", "below", 
+			"various", "wherein", "lest", "between", "less", "those", "is", "it", "besides", "ourselves", "gives", 
+			"important", "your", "gets", "into", "problem", "howbeit", "in", "know", "two", "away", "felt", 
+			"necessary", "things", "themselves", "lets", "also", "changes", "greater", "appear", "etc", "knew", 
+			"they'll", "hopefully", "ours", "its", "yourselves", "turning", "showed", "exactly", "although", 
+			"c'mon", "formerly", "interest", "greetings", "year", "it'll", "points", "entirely", "along", "place", 
+			"secondly", "serious", "alone", "awfully", "turn", "going", "nowhere", "ends", "relatively", "how", 
+			"under", "downed", "available", "became", "always", "indicated", "theres", "inward", "own", "specify", 
+			"indicates", "try", "ways", "we", "reasonably", "face", "give", "specifying", "i've", "next", "states", 
+			"use", "hardly", "vs", "consequently", "mrs", "when's", "numbers", "older", "worked", "whenever", 
+			"best", "mostly", "definitely", "unfortunately", "whatever", "we'll", "later", "back", "come", "us", 
+			"seen", "young", "un", "cannot", "seem", "works", "up", "downing", "gave", "either", "fact", "presenting", 
+			"seconds", "insofar", "sorry", "doesn't", "they'd", "down", "part", "happens", "keep", "to", "faces", 
+			"com", "both", "inner", "uucp", "become", "you'll", "good", "ended", "somewhere", "must", "parting", 
+			"th", "didn't", "after", "nevertheless", "whereby", "who's", "considering", "sees", "ordering", 
+			"taken", "welcome", "presented", "what's", "however", "so", "whose", "behind", "gone", "places", 
+			"willing", "that", "whereas", "associated", "than", "several", "thence", "unlikely", "whom", "case", 
+			"ltd", "got", "oldest", "early", "hereby", "sub", "can", "about", "well", "re", "sup", "longest", 
+			"rd", "above", "que", "qv", "four", "placed", "too", "yours", "furthering", "thus", "moreover", 
+			"provides", "you", "soon", "needed", "general", "immediate", "anything", "seven", "ordered", "whoever", 
+			"high", "certain", "latest", "somewhat", "our", "brief", "out", "very", "forth", "via", "hereupon", 
+			"for", "everything", "towards", "zero", "whether", "beyond", "elsewhere", "went", "course", "open", 
+			"whence", "are", "grouping", "can't", "shouldn't", "yourself", "working", "groups", "rooms", "therein", 
+			"thereafter", "plus", "problems", "others", "we're", "mainly", "viz", "again", "did", "wasn't", 
+			"like", "without", "non", "shall", "not", "many", "present", "he'll", "nor", "haven't", "anyhow", 
+			"now", "cant", "backed", "say", "myself", "saw", "years", "ask", "some", "why's", "outside", "might", 
+			"put", "self", "trying", "wanted", "kind", "according", "they've", "seems", "twice", "latter", "presumably", 
+			"probably", "inasmuch", "end", "want", "regardless", "just", "hence", "fifth", "cases", "let", "evenly", 
+			"already", "should", "wouldn't", "point", "really", "beforehand", "mustn't", "clearly", "despite", 
+			"hither", "old", "but", "afterwards", "meanwhile", "herein", "wish", "hadn't", "amongst", "little", 
+			"show", "used", "been", "though", "together", "hasn't", "anyway", "sent", "were", "turned", "please", 
+			"toward", "puts", "there's", "three", "longer", "concerning", "sure", "work", "throughout", "except", 
+			"goes", "regards", "we've", "comes", "himself", "wants", "knows", "contain", "latterly", "even", 
+			"known", "perhaps", "ever", "wells", "other", "allow", "interests", "have", "highest", "one", "state", 
+			"selves", "currently", "turns", "merely", "let's", "because", "another", "order", "full", "during", 
+			"mean", "lately", "making", "they're", "find", "weren't", "with", "greatest", "nearly", "opens", 
+			"came", "the", "ending", "around", "beside", "quite", "largely", "instead", "downs", "uses", "group", 
+			"their", "first"};
 	
 }	//End of Class
