@@ -1,0 +1,4 @@
+<property>
+	<name>mapreduce.job.queuename</name>
+	<value>hadoop01</value>
+</property>
