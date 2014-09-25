@@ -19,26 +19,25 @@ public class TestApp {
     }
 
     public static void main(String [] args) throws Throwable {
-	if (args.length < 2) {
+	if (false && args.length < 2) {
             usage();
             return;
         }
 
-	Class stemClass = Class.forName("org.tartarus.snowball.ext." +
-					args[0] + "Stemmer");
+	Class stemClass = Class.forName("org.tartarus.snowball.ext.englishStemmer");
         SnowballStemmer stemmer = (SnowballStemmer) stemClass.newInstance();
 
 	Reader reader;
-	reader = new InputStreamReader(new FileInputStream(args[1]));
+	reader = new InputStreamReader(new FileInputStream("/Users/edenzik/Documents/school/year3/cs129a/pa1/libstemmer_java/sample/alice_in_wonderland.txt"));
 	reader = new BufferedReader(reader);
 
 	StringBuffer input = new StringBuffer();
 
         OutputStream outstream;
 
-	if (args.length > 2) {
-            if (args.length >= 4 && args[2].equals("-o")) {
-                outstream = new FileOutputStream(args[3]);
+	if (true || args.length > 2) {
+            if (true || (args.length >= 4 && args[2].equals("-o"))) {
+                outstream = new FileOutputStream("/Users/edenzik/Documents/school/year3/cs129a/pa1/libstemmer_java/sample/alice_in_wonderland_output.txt");
             } else {
                 usage();
                 return;
