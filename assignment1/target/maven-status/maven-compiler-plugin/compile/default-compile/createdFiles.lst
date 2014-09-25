@@ -1,5 +1,14 @@
 util/XMLInputFormat$XMLRecordReader.class
+util/Among.class
+code/articles/GetArticlesMapred$GetArticlesMapper.class
+util/EnglishStemmer.class
+code/articles/GetArticlesMapred.class
 util/StringIntegerList.class
+util/IndexableFileInputFormat.class
+util/TokenizeLemmatize.class
+util/SnowballProgram.class
+util/SnowballStemmer.class
 util/XMLInputFormat.class
 util/StringIntegerList$StringInteger.class
-util/IndexableFileInputFormat.class
+util/WikipediaPageInputFormat$WikipediaPageRecordReader.class
+util/WikipediaPageInputFormat.class

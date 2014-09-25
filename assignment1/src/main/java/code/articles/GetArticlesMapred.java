@@ -21,6 +21,7 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import edu.umd.cloud9.collection.wikipedia.WikipediaPage;
 import util.WikipediaPageInputFormat;
 import util.StringIntegerList;
+import util.TokenizeLemmatize;
 
 /**
  * This class is used for Section A of assignment 1. You are supposed to
@@ -73,11 +74,12 @@ public class GetArticlesMapred {
 		}
 	}
 
-	public static void main(String[] args){
+	public static void main(String[] args) throws Exception{
+
 		Configuration conf1 = new Configuration();
     	Job job1 = Job.getInstance(conf1, "get articles");
     	job1.addCacheFile(GetArticlesMapred.class.getResource("/code/articles/data/people.txt").toURI());
-  		job1.setJarByClass(getClass());
+  		job1.setJarByClass(GetArticlesMapred.class);
     	job1.setMapperClass(GetArticlesMapper.class);
     	job1.setNumReduceTasks(0);
     	job1.setInputFormatClass(WikipediaPageInputFormat.class);
@@ -85,5 +87,7 @@ public class GetArticlesMapred {
     	job1.setOutputValueClass(StringIntegerList.class);
     	FileInputFormat.addInputPath(job1, new Path(args[0]));
     	FileOutputFormat.setOutputPath(job1, new Path(args[1]));
+    	System.exit(job1.waitForCompletion(true) ? 0 : 1);
+
 	}
 }
