@@ -45,7 +45,7 @@ public class GetArticlesMapred {
 		public static Set<String> peopleArticlesTitles = new HashSet<String>();
 
 		@Override
-		protected void setup(Mapper<LongWritable, WikipediaPage, Text, Text>.Context context)
+		protected void setup(Mapper<LongWritable, WikipediaPage, Text, StringIntegerList>.Context context)
 				throws IOException, InterruptedException {
 			// TODO: You should implement people articles load from
 			// DistributedCache here
@@ -63,28 +63,27 @@ public class GetArticlesMapred {
 		public void map(LongWritable offset, WikipediaPage inputPage, Context context)
 				throws IOException, InterruptedException {
 			// TODO: You should implement getting article mapper here	
-			if(peopleArticlesTitles.contains(inputPage.title())){
+			if(peopleArticlesTitles.contains(inputPage.getTitle())){
 				Text title = new Text();
 				title.set(inputPage.getTitle());
 				StringIntegerList indices = 
-					new StringIntegerList(TokenizeLemmatize.parse(inputPage.content()));
+					new StringIntegerList(TokenizeLemmatize.parse(inputPage.getContent()));
 				context.write(title, indices);
 			}
 		}
 	}
 
-	public static class SecondMapper extends Mapper<Text, Text, Text, Text> {
-		public static Set<String> peopleArticlesTitles = new HashSet<String>();
-
-
-		@Override
-		public void map(Text title, Text content, Context context)
-				throws IOException, InterruptedException {
-			// TODO: You should implement getting article mapper here
-				Text works = new Text();
-				works.set("IT WORKS BITCH");
-				context.write(works, content);
-			
-		}
+	public static void main(String[] args){
+		Configuration conf1 = new Configuration();
+    	Job job1 = Job.getInstance(conf1, "get articles");
+    	job1.addCacheFile(GetArticlesMapred.class.getResource("/code/articles/data/people.txt").toURI());
+  		job1.setJarByClass(getClass());
+    	job1.setMapperClass(GetArticlesMapper.class);
+    	job1.setNumReduceTasks(0);
+    	job1.setInputFormatClass(WikipediaPageInputFormat.class);
+    	job1.setOutputKeyClass(Text.class);
+    	job1.setOutputValueClass(StringIntegerList.class);
+    	FileInputFormat.addInputPath(job1, new Path(args[0]));
+    	FileOutputFormat.setOutputPath(job1, new Path(args[1]));
 	}
 }
