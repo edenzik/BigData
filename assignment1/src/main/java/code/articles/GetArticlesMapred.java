@@ -32,7 +32,7 @@ import util.TokenizeLemmatize;
  */
 public class GetArticlesMapred {
 
-	private static String people_path = "/home/hadoop01/people.txt";
+	private static String people_path;
 	//@formatter:off
 	/**
 	 * Input:
@@ -53,8 +53,14 @@ public class GetArticlesMapred {
 			// DistributedCache here
 			super.setup(context);
 		
-			File f = new File("resources/people.txt");
-			
+			//NEW CORRECT WAY
+			File f = new File(people_path);
+
+			//OLD WAY FOR TESTING
+			//URI[] localPaths = context.getCacheFiles();
+			//File f = new File(localPaths[0].getPath());
+
+
 			BufferedReader reader = new BufferedReader(new FileReader(f));
 			String name;
 			while((name = reader.readLine()) != null){
@@ -78,19 +84,31 @@ public class GetArticlesMapred {
 	
 	public static void main(String[] args) throws Exception{
 
-		Configuration conf1 = new Configuration();
-    	Job job1 = Job.getInstance(conf1, "get articles");
+		Configuration conf = new Configuration();
+    	Job job = Job.getInstance(conf, "get articles");
+
+
  //   	job1.addCacheFile(new Path("people.txt").toUri());
 //    	job1.addCacheFile(Paths.get("/code/articles/data/people.txt").toUri());
-  		job1.setJarByClass(GetArticlesMapred.class);
-    	job1.setMapperClass(GetArticlesMapper.class);
-    	job1.setNumReduceTasks(0);
-    	job1.setInputFormatClass(WikipediaPageInputFormat.class);
-    	job1.setOutputKeyClass(Text.class);
-    	job1.setOutputValueClass(StringIntegerList.class);
-    	FileInputFormat.addInputPath(job1, new Path(args[0]));
-    	FileOutputFormat.setOutputPath(job1, new Path(args[1]));
-    	System.exit(job1.waitForCompletion(true) ? 0 : 1);
+    	//REMOVE AFTER TEST
+    	//job1.addCacheFile(GetArticlesMapred.class.getResource("/code/articles/data/people.txt").toURI());
+
+  		job.setJarByClass(GetArticlesMapred.class);
+    	job.setMapperClass(GetArticlesMapper.class);
+    	job.setNumReduceTasks(0);
+    	job.setInputFormatClass(WikipediaPageInputFormat.class);
+    	job.setOutputKeyClass(Text.class);
+    	job.setOutputValueClass(StringIntegerList.class);
+    	
+    	if(args.length > 2){
+    		people_path = args[2];
+    	} else {
+    		people_path = "resources/people.txt";
+    	}
+
+    	FileInputFormat.addInputPath(job, new Path(args[0]));
+    	FileOutputFormat.setOutputPath(job, new Path(args[1]));
+    	System.exit(job.waitForCompletion(true) ? 0 : 1);
 
 	}
 }

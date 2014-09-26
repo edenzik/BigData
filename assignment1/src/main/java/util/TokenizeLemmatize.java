@@ -1,4 +1,5 @@
 package util;
+
 import java.util.*;
 
 
@@ -20,10 +21,10 @@ public class TokenizeLemmatize {
 	public static void main(String[] args) {
 
 		// place holder for real article text
-//		final String TEST_ARTICLE="Well, this is an      article \t\tabout\r\r foo and bar. \nBut what we're all really " +
-//				"wondering is why foo? \nAnd why bar? Why not just continue on like jolly old souls, Mr.Foo and Mrs.Bar?";
+		final String TEST_ARTICLE="\"Kahlil's and Mic's Snowball Parser's output contains loosy-goosy punctation marks\"";
 
-//		parse(TEST_ARTICLE);
+		System.out.println(parse(TEST_ARTICLE).keySet());
+		System.out.println(parse(TEST_ARTICLE).size());
 
 		//This block for unit testing:
 //		Iterator<Entry<String, Integer>> output =  wordCount.entrySet().iterator();
@@ -100,9 +101,15 @@ public class TokenizeLemmatize {
 		//Drop case
 		s = s.toLowerCase();
 		
-		//Smart remove punctuation, keeping *'t, removing *'s including s
+		// Smart remove punctuation, keeping *'t, removing *'s including s
 		s = s.replaceAll("'s", "");
-		s = s.replaceAll("[^a-z \"'t\"]", " ");
+		// Remove everything that's not a letter, single quote, or whitespace
+		s = s.replaceAll("[^a-z\'\\s]", " ");
+		// Remove all single quotes except those followed by a t
+		s = s.replaceAll("\'[^t]", "");
+		
+		// Old regexp which left behind quote-detritus
+		//s = s.replaceAll("[^a-z \"'t\"]", " ");
 		
 		return s;
 	}
@@ -122,6 +129,10 @@ public class TokenizeLemmatize {
 	// input: list of all stemmed words in a given article
 	// output: each word mapped to its number of appearances in that article
 	private static void wordCount(String stem) {
+		// makes sure that no nulls make it through
+		if(stem == null) return;
+		// weeds out the empty string as a stem
+		if(stem.length() == 0) return;
 		if(!wordCount.containsKey(stem)) {
 			wordCount.put(stem, 1);
 		} else {
