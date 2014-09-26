@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.net.URI;
+//import java.io.file.Paths;
 
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
@@ -51,8 +52,9 @@ public class GetArticlesMapred {
 			// TODO: You should implement people articles load from
 			// DistributedCache here
 			super.setup(context);
-			URI[] localPaths = context.getCacheFiles();
-			File f = new File(localPaths[0].getPath()); //LOOK ME UP
+		
+			File f = new File("resources/people.txt");
+			
 			BufferedReader reader = new BufferedReader(new FileReader(f));
 			String name;
 			while((name = reader.readLine()) != null){
@@ -73,12 +75,13 @@ public class GetArticlesMapred {
 			}
 		}
 	}
-
+	
 	public static void main(String[] args) throws Exception{
 
 		Configuration conf1 = new Configuration();
     	Job job1 = Job.getInstance(conf1, "get articles");
-    	job1.addCacheFile(new Path("people.txt").toUri());
+ //   	job1.addCacheFile(new Path("people.txt").toUri());
+//    	job1.addCacheFile(Paths.get("/code/articles/data/people.txt").toUri());
   		job1.setJarByClass(GetArticlesMapred.class);
     	job1.setMapperClass(GetArticlesMapper.class);
     	job1.setNumReduceTasks(0);
