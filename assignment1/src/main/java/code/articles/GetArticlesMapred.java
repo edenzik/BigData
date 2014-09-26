@@ -1,20 +1,18 @@
 package code.articles;
 
-import java.io.IOException;
-import java.io.File;
-import java.io.BufferedReader;
-import java.io.FileReader;
+import java.io.*;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.net.URI;
 //import java.io.file.Paths;
+import java.nio.file.Paths;
 
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.*;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
@@ -32,7 +30,7 @@ import util.TokenizeLemmatize;
  */
 public class GetArticlesMapred {
 
-	private static String people_path;
+	private static String people_path = "hdfs://deerstalker.cs.brandeis.edu:54645/user/hadoop01/resources/people.txt";
 	//@formatter:off
 	/**
 	 * Input:
@@ -54,7 +52,7 @@ public class GetArticlesMapred {
 			super.setup(context);
 		
 			//NEW CORRECT WAY
-			File f = new File(people_path);
+			//File f = new File(people_path);
 
 			//OLD WAY FOR TESTING
 			//URI[] localPaths = context.getCacheFiles();
