@@ -60,8 +60,8 @@ public class GetArticlesMapred {
 			//URI[] localPaths = context.getCacheFiles();
 			//File f = new File(localPaths[0].getPath());
 
-
-			BufferedReader reader = new BufferedReader(new FileReader(f));
+            FileSystem fs = FileSystem.get(context.getConfiguration());
+			BufferedReader reader = new BufferedReader(new InputStreamReader(fs.open(new Path(people_path))));
 			String name;
 			while((name = reader.readLine()) != null){
 				peopleArticlesTitles.add(name);
@@ -103,7 +103,7 @@ public class GetArticlesMapred {
     	if(args.length > 2){
     		people_path = args[2];
     	} else {
-    		people_path = "resources/people.txt";
+    		people_path = "hdfs://deerstalker.cs.brandeis.edu:54645/user/hadoop01/resources/people.txt";
     	}
 
     	FileInputFormat.addInputPath(job, new Path(args[0]));
