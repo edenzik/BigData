@@ -57,7 +57,8 @@ public class InvertedIndexMapred {
 			// TODO: You should implement inverted index reducer here
 			ArrayList<StringInteger> list = new ArrayList<StringInteger>();
 			for(StringInteger strInt : articlesAndFreqs){
-				list.add(strInt);
+				StringInteger temp = new StringInteger(strInt.getString(), strInt.getValue());
+				list.add(temp);
 			}
 
 			StringIntegerList out = new StringIntegerList(list);
