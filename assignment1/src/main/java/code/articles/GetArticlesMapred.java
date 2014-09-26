@@ -78,7 +78,7 @@ public class GetArticlesMapred {
 
 		Configuration conf1 = new Configuration();
     	Job job1 = Job.getInstance(conf1, "get articles");
-    	job1.addCacheFile(GetArticlesMapred.class.getResource("/code/articles/data/people.txt").toURI());
+    	job1.addCacheFile(new Path("people.txt").toUri());
   		job1.setJarByClass(GetArticlesMapred.class);
     	job1.setMapperClass(GetArticlesMapper.class);
     	job1.setNumReduceTasks(0);
