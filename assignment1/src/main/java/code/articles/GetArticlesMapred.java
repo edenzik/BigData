@@ -51,13 +51,6 @@ public class GetArticlesMapred {
 			// DistributedCache here
 			super.setup(context);
 		
-			//NEW CORRECT WAY
-			//File f = new File(people_path);
-
-			//OLD WAY FOR TESTING
-			//URI[] localPaths = context.getCacheFiles();
-			//File f = new File(localPaths[0].getPath());
-
             FileSystem fs = FileSystem.get(context.getConfiguration());
 			BufferedReader reader = new BufferedReader(new InputStreamReader(fs.open(new Path(people_path))));
 			String name;
@@ -84,12 +77,6 @@ public class GetArticlesMapred {
 
 		Configuration conf = new Configuration();
     	Job job = Job.getInstance(conf, "get articles");
-
-
- //   	job1.addCacheFile(new Path("people.txt").toUri());
-//    	job1.addCacheFile(Paths.get("/code/articles/data/people.txt").toUri());
-    	//REMOVE AFTER TEST
-    	//job1.addCacheFile(GetArticlesMapred.class.getResource("/code/articles/data/people.txt").toURI());
 
   		job.setJarByClass(GetArticlesMapred.class);
     	job.setMapperClass(GetArticlesMapper.class);
