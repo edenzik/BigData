@@ -104,7 +104,7 @@ public class TokenizeLemmatize {
 		// Smart remove punctuation, keeping *'t, removing *'s including s
 		s = s.replaceAll("'s", "");
 		// Remove everything that's not a unicode letter, single quote, or whitespace
-		s = s.replaceAll("[^\p{L}\'\\s]", " ");
+		s = s.replaceAll("[^\\p{L}\'\\s]", " ");
 		// Remove all single quotes except those followed by a t
 		s = s.replaceAll("\'[^t]", "");
 		
