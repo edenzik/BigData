@@ -15,6 +15,14 @@
       <version>3.1</version>
     </plugin>
   </plugins>
+<resources>
+      <resource>
+        <directory>src/main/java/code/articles/data</directory>
+        <includes>
+          <include>people.txt</include>
+        </includes>
+      </resource>
+</resources>
 </build>
 <dependencies>
   <dependency>
