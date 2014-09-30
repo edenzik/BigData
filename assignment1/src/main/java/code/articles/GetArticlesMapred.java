@@ -51,8 +51,9 @@ public class GetArticlesMapred {
 			// DistributedCache here
 			super.setup(context);
 		
+			URI[] files = Job.getInstance(context.getConfiguration()).getCacheFiles();
             FileSystem fs = FileSystem.get(context.getConfiguration());
-			BufferedReader reader = new BufferedReader(new InputStreamReader(fs.open(new Path(people_path))));
+			BufferedReader reader = new BufferedReader(new InputStreamReader(fs.open(new Path(files[0]))));
 			String name;
 			while((name = reader.readLine()) != null){
 				peopleArticlesTitles.add(name);
@@ -84,12 +85,17 @@ public class GetArticlesMapred {
     	job.setInputFormatClass(WikipediaPageInputFormat.class);
     	job.setOutputKeyClass(Text.class);
     	job.setOutputValueClass(StringIntegerList.class);
-    	
+
     	if(args.length > 2){
-    		people_path = args[2];
+
+    		job.addCacheFile((new Path(args[2])).toUri());
+    	
     	} else {
-    		people_path = "hdfs://deerstalker.cs.brandeis.edu:54645/user/hadoop01/resources/people.txt";
+
+ 		   	job.addCacheFile((new Path(people_path)).toUri());
+ 
     	}
+   
 
     	FileInputFormat.addInputPath(job, new Path(args[0]));
     	FileOutputFormat.setOutputPath(job, new Path(args[1]));
