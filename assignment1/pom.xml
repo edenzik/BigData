@@ -4,7 +4,7 @@
   <groupId>hadoop01</groupId>
   <artifactId>assignment1</artifactId>
   <packaging>jar</packaging>
-  <version>2.1-SNAPSHOT</version>
+  <version>2.2-MIKETEST</version>
   <name>assignment1</name>
   <url>http://maven.apache.org</url>
   <build>

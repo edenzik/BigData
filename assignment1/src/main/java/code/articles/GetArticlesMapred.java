@@ -30,7 +30,8 @@ import util.TokenizeLemmatize;
  */
 public class GetArticlesMapred {
 
-	private static String people_path = "hdfs://deerstalker.cs.brandeis.edu:54645/user/hadoop01/resources/people.txt";
+	// private static String people_path = "hdfs://deerstalker.cs.brandeis.edu:54645/user/hadoop01/resources/people.txt";
+	private static String people_path = "file://src/main/java/code/articles/data/people.txt";
 	//@formatter:off
 	/**
 	 * Input:
@@ -51,8 +52,9 @@ public class GetArticlesMapred {
 			// DistributedCache here
 			super.setup(context);
 		
-            FileSystem fs = FileSystem.get(context.getConfiguration());
-			BufferedReader reader = new BufferedReader(new InputStreamReader(fs.open(new Path(people_path))));
+            // FileSystem fs = FileSystem.get(context.getConfiguration());
+			// BufferedReader reader = new BufferedReader(new InputStreamReader(fs.open(new Path(people_path))));
+			BufferedReader reader = new BufferedReader(new FileReader(people_path));
 			String name;
 			while((name = reader.readLine()) != null){
 				peopleArticlesTitles.add(name);
