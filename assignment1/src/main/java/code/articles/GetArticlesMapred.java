@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Set;
 import java.net.URI;
 //import java.io.file.Paths;
-import java.nio.file.Paths;
+import java.nio.*;
 
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
