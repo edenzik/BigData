@@ -105,10 +105,8 @@ public class TokenizeLemmatize {
 	private static String removeNonAlphabetic(String s) {
 		
 		
-		// Smart remove punctuation, removing *'s including s
-		s = s.replaceAll("'s", "");
 		// Remove everything that's not a letter or whitespace
-		s = s.replaceAll("[^a-z\'\\s]", " ");
+		s = s.replaceAll("[^a-z\\s]", " ");
 
 		
 		// Old regexp which left behind quote-detritus
