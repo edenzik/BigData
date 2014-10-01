@@ -4,11 +4,7 @@
   <groupId>hadoop01</groupId>
   <artifactId>assignment1</artifactId>
   <packaging>jar</packaging>
-<<<<<<< HEAD
   <version>2.4-SNAPSHOT</version>
-=======
-  <version>2.3-SNAPSHOT</version>
->>>>>>> origin/master
   <name>assignment1</name>
   <url>http://maven.apache.org</url>
   <build>
