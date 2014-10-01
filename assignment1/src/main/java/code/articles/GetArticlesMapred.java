@@ -30,76 +30,76 @@ import util.TokenizeLemmatize;
  */
 public class GetArticlesMapred {
 
-	private static String people_path = "hdfs://deerstalker.cs.brandeis.edu:54645/user/hadoop01/resources/people.txt";
-	//@formatter:off
-	/**
-	 * Input:
-	 * 		Page offset 	WikipediaPage
-	 * Output
-	 * 		Page offset 	WikipediaPage
-	 * @author Tuan
-	 *
-	 */
-	//@formatter:on
-	public static class GetArticlesMapper extends Mapper<LongWritable, WikipediaPage, Text, StringIntegerList> {
-		public static Set<String> peopleArticlesTitles = new HashSet<String>();
+    private static String people_path = "hdfs://deerstalker.cs.brandeis.edu:54645/user/hadoop01/resources/people.txt";
+    //@formatter:off
+    /**
+     * Input:
+     *      Page offset     WikipediaPage
+     * Output
+     *      Page offset     WikipediaPage
+     * @author Tuan
+     *
+     */
+    //@formatter:on
+    public static class GetArticlesMapper extends Mapper<LongWritable, WikipediaPage, Text, StringIntegerList> {
+        public static Set<String> peopleArticlesTitles = new HashSet<String>();
 
-		@Override
-		protected void setup(Mapper<LongWritable, WikipediaPage, Text, StringIntegerList>.Context context)
-				throws IOException, InterruptedException {
-			// TODO: You should implement people articles load from
-			// DistributedCache here
-			super.setup(context);
-		
-			URI[] files = Job.getInstance(context.getConfiguration()).getCacheFiles();
+        @Override
+        protected void setup(Mapper<LongWritable, WikipediaPage, Text, StringIntegerList>.Context context)
+                throws IOException, InterruptedException {
+            // TODO: You should implement people articles load from
+            // DistributedCache here
+            super.setup(context);
+        
+            URI[] files = Job.getInstance(context.getConfiguration()).getCacheFiles();
             FileSystem fs = FileSystem.get(context.getConfiguration());
-			BufferedReader reader = new BufferedReader(new InputStreamReader(fs.open(new Path(files[0]))));
-			String name;
-			while((name = reader.readLine()) != null){
-				peopleArticlesTitles.add(name);
-			}
-		}
+            BufferedReader reader = new BufferedReader(new InputStreamReader(fs.open(new Path(files[0]))));
+            String name;
+            while((name = reader.readLine()) != null){
+                peopleArticlesTitles.add(name);
+            }
+        }
 
-		@Override
-		public void map(LongWritable offset, WikipediaPage inputPage, Context context)
-				throws IOException, InterruptedException {
-			// TODO: You should implement getting article mapper here	
-			if(peopleArticlesTitles.contains(inputPage.getTitle())){
-				Text title = new Text();
-				title.set(inputPage.getTitle());
-				StringIntegerList indices = 
-					new StringIntegerList(TokenizeLemmatize.parse(inputPage.getContent()));
-				context.write(title, indices);
-			}
-		}
-	}
-	
-	public static void main(String[] args) throws Exception{
+        @Override
+        public void map(LongWritable offset, WikipediaPage inputPage, Context context)
+                throws IOException, InterruptedException {
+            // TODO: You should implement getting article mapper here   
+            if(peopleArticlesTitles.contains(inputPage.getTitle())){
+                Text title = new Text();
+                title.set(inputPage.getTitle());
+                StringIntegerList indices = 
+                    new StringIntegerList(TokenizeLemmatize.parse(inputPage.getContent()));
+                context.write(title, indices);
+            }
+        }
+    }
+    
+    public static void main(String[] args) throws Exception{
 
-		Configuration conf = new Configuration();
-    	Job job = Job.getInstance(conf, "get articles");
+        Configuration conf = new Configuration();
+        Job job = Job.getInstance(conf, "get articles");
 
-  		job.setJarByClass(GetArticlesMapred.class);
-    	job.setMapperClass(GetArticlesMapper.class);
-    	job.setNumReduceTasks(0);
-    	job.setInputFormatClass(WikipediaPageInputFormat.class);
-    	job.setOutputKeyClass(Text.class);
-    	job.setOutputValueClass(StringIntegerList.class);
+        job.setJarByClass(GetArticlesMapred.class);
+        job.setMapperClass(GetArticlesMapper.class);
+        job.setNumReduceTasks(0);
+        job.setInputFormatClass(WikipediaPageInputFormat.class);
+        job.setOutputKeyClass(Text.class);
+        job.setOutputValueClass(StringIntegerList.class);
 
-    	if(args.length > 2){
+        if(args.length > 2){
 
-    		job.addCacheFile((new Path(args[2])).toUri());
-    	
-    	} else {
+            job.addCacheFile((new Path(args[2])).toUri());
+        
+        } else {
 
- 		   	job.addCacheFile((new Path(people_path)).toUri());
+            job.addCacheFile((new Path(people_path)).toUri());
  
-    	}
+        }
    
 
-    	FileInputFormat.addInputPath(job, new Path(args[0]));
-    	FileOutputFormat.setOutputPath(job, new Path(args[1]));
-    	System.exit(job.waitForCompletion(true) ? 0 : 1);
+        FileInputFormat.addInputPath(job, new Path(args[0]));
+        FileOutputFormat.setOutputPath(job, new Path(args[1]));
+        System.exit(job.waitForCompletion(true) ? 0 : 1);
 
-	}
+    }
 }
