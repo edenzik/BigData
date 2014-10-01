@@ -4,7 +4,7 @@
   <groupId>hadoop01</groupId>
   <artifactId>assignment1</artifactId>
   <packaging>jar</packaging>
-  <version>2.4-SNAPSHOT</version>
+  <version>2.5-SNAPSHOT</version>
   <name>assignment1</name>
   <url>http://maven.apache.org</url>
   <build>
@@ -12,7 +12,7 @@
   <plugins>
     <plugin>
       <artifactId>maven-compiler-plugin</artifactId>
-      <version>2.3</version>
+      <version>2.5</version>
     </plugin>
   </plugins>
 </build>
