@@ -1,11 +1,20 @@
 package util;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 
 /**
+ * This class contains methods to parse, stem, and tokenize a given body of text.
+ * To use this class, you may either pass the String text of the article as the sole
+ * command line argument of the program, or you can call the public method
+ * TokenizeLemmatize.parse(String article). For stemming, we used the Snowball Stemmer 
+ * (http://snowball.tartarus.org/).
+ * 
  * @author kahliloppenheimer
- *
+ * @since Oct 2, 2014
  */
 public class TokenizeLemmatize {
 	
@@ -13,26 +22,17 @@ public class TokenizeLemmatize {
 	private static Set<String> stopWords = new HashSet<String>();
 	// map of all lemma-frequency pairs
 	private static Map<String, Integer> wordCount = new HashMap<String, Integer>();
-	
+	// Snowball Stemmer used to "lemmatize" each token
+	private static final SnowballStemmer stemmer = new EnglishStemmer();
 	
 	/** Main class is used for unit testing only
-	 * @param args Parameter is not used
+	 * @param args may be used to pass the String text of an article
 	 */
-	public static void main(String[] args) {
-
-		// place holder for real article text
-		final String TEST_ARTICLE="\"Kahlil's and Mic's Snowball Parser's output contains loosy-goosy punctation marks\"";
-
-		System.out.println(parse(TEST_ARTICLE).keySet());
-		System.out.println(parse(TEST_ARTICLE).size());
-
-		//This block for unit testing:
-//		Iterator<Entry<String, Integer>> output =  wordCount.entrySet().iterator();
-//		while (output.hasNext()) {
-//			Entry<String, Integer> e = output.next();
-//			System.out.println(e.getKey() + " " + e.getValue());
-//		}
-		
+	public static Map<String, Integer> main(String[] args) {
+		if(args.length == 1) {
+			return parse(args[0]);
+		}
+		return null;
 	}
 
 	
@@ -47,13 +47,13 @@ public class TokenizeLemmatize {
 		// call this with actual title and article parameters
 		stopWords = readStopWords(stopListText);
 
-		//Make new wordCount for output
+		// Make new wordCount for output
 		wordCount = new HashMap<String, Integer>();
 
-		//Drop case
+		// Drop case
 		article = article.toLowerCase();
 
-		//Clean text
+		// Clean text
 		article = removeNonAlphabetic(article);
 
 		// split on white space
@@ -80,15 +80,11 @@ public class TokenizeLemmatize {
 	}
 	
 	// input: an array of non-whitespace Strings
-	// output: a List of the stemmed words
-	// 
-	// Removes stop words
+	// output: a List of the stemmed words with any stop words filtered out
 	//
-	// Notably, this returns a List, but DOES modify the array to
-	// be more memory efficient
+	// Notably, this returns a List, but DOES modify the passed array to
+	// be more space efficient
 	private static String stemLocal(String token) {
-		SnowballStemmer stemmer = new EnglishStemmer();
-					
 		// Filters out any "stop words"
 		if(!stopWords.contains(token)) {
 			stemmer.setCurrent(token);
@@ -102,16 +98,9 @@ public class TokenizeLemmatize {
 	
 	// input: a string representing a single token (i.e. no white space)
 	// output: a string with all non-alphabetic characters removed
-	private static String removeNonAlphabetic(String s) {
-		
-		
+	private static String removeNonAlphabetic(String s) {	
 		// Remove everything that's not a letter or whitespace
 		s = s.replaceAll("[^a-z\\s]", " ");
-
-		
-		// Old regexp which left behind quote-detritus
-		//s = s.replaceAll("[^a-z \"'t\"]", " ");
-		
 		return s;
 	}
 	
@@ -134,6 +123,7 @@ public class TokenizeLemmatize {
 		if(stem == null) return;
 		// weeds out the empty string as a stem
 		if(stem.length() == 0) return;
+		
 		if(!wordCount.containsKey(stem)) {
 			wordCount.put(stem, 1);
 		} else {
