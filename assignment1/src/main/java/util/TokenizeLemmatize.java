@@ -1,11 +1,20 @@
 package util;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 
 /**
+ * This class contains methods to parse, stem, and tokenize a given body of text.
+ * To use this class, you may either pass the String text of the article as the sole
+ * command line argument of the program, or you can call the public method
+ * TokenizeLemmatize.parse(String article). For stemming, we used the Snowball Stemmer 
+ * (http://snowball.tartarus.org/).
+ * 
  * @author kahliloppenheimer
- *
+ * @since Oct 2, 2014
  */
 public class TokenizeLemmatize {
 	
@@ -13,26 +22,17 @@ public class TokenizeLemmatize {
 	private static Set<String> stopWords = new HashSet<String>();
 	// map of all lemma-frequency pairs
 	private static Map<String, Integer> wordCount = new HashMap<String, Integer>();
-	
+	// Snowball Stemmer used to "lemmatize" each token
+	private static final SnowballStemmer stemmer = new EnglishStemmer();
 	
 	/** Main class is used for unit testing only
-	 * @param args Parameter is not used
+	 * @param args may be used to pass the String text of an article
 	 */
-	public static void main(String[] args) {
-
-		// place holder for real article text
-		final String TEST_ARTICLE="\"Kahlil's and Mic's Snowball Parser's output contains loosy-goosy punctation marks\"";
-
-		System.out.println(parse(TEST_ARTICLE).keySet());
-		System.out.println(parse(TEST_ARTICLE).size());
-
-		//This block for unit testing:
-//		Iterator<Entry<String, Integer>> output =  wordCount.entrySet().iterator();
-//		while (output.hasNext()) {
-//			Entry<String, Integer> e = output.next();
-//			System.out.println(e.getKey() + " " + e.getValue());
-//		}
-		
+	public static Map<String, Integer> main(String[] args) {
+		if(args.length == 1) {
+			return parse(args[0]);
+		}
+		return null;
 	}
 
 	
@@ -47,16 +47,19 @@ public class TokenizeLemmatize {
 		// call this with actual title and article parameters
 		stopWords = readStopWords(stopListText);
 
-		//Make new wordCount for output
+		// Make new wordCount for output
 		wordCount = new HashMap<String, Integer>();
 
-		//Drop case and clean text
+		// Drop case
+		article = article.toLowerCase();
+
+		// Clean text
 		article = removeNonAlphabetic(article);
 
 		// split on white space
 		String[] whiteSpaceSeparated = splitOnWhiteSpace(article);
 		
-		// stem words using Snowball stemmer and map results
+		// remove stopwords, stem remaining words using Snowball stemmer, and map results
 		for (String token : whiteSpaceSeparated) {
 			String lemma = stemLocal(token);
 			if (lemma != null) {
@@ -77,13 +80,11 @@ public class TokenizeLemmatize {
 	}
 	
 	// input: an array of non-whitespace Strings
-	// output: a List of the stemmed words
+	// output: a List of the stemmed words with any stop words filtered out
 	//
-	// Notably, this returns a List, but DOES modify the array to
-	// be more memory efficient
+	// Notably, this returns a List, but DOES modify the passed array to
+	// be more space efficient
 	private static String stemLocal(String token) {
-		SnowballStemmer stemmer = new EnglishStemmer();
-					
 		// Filters out any "stop words"
 		if(!stopWords.contains(token)) {
 			stemmer.setCurrent(token);
@@ -97,20 +98,9 @@ public class TokenizeLemmatize {
 	
 	// input: a string representing a single token (i.e. no white space)
 	// output: a string with all non-alphabetic characters removed
-	private static String removeNonAlphabetic(String s) {
-		//Drop case
-		s = s.toLowerCase();
-		
-		// Smart remove punctuation, keeping *'t, removing *'s including s
-		s = s.replaceAll("'s", "");
-		// Remove everything that's not a unicode letter, single quote, or whitespace
-		s = s.replaceAll("[^\\p{L}\'\\s]", " ");
-		// Remove all single quotes except those followed by a t
-		s = s.replaceAll("\'[^t]", "");
-		
-		// Old regexp which left behind quote-detritus
-		//s = s.replaceAll("[^a-z \"'t\"]", " ");
-		
+	private static String removeNonAlphabetic(String s) {	
+		// Remove everything that's not a letter or whitespace
+		s = s.replaceAll("[^a-z\\s]", " ");
 		return s;
 	}
 	
@@ -133,6 +123,7 @@ public class TokenizeLemmatize {
 		if(stem == null) return;
 		// weeds out the empty string as a stem
 		if(stem.length() == 0) return;
+		
 		if(!wordCount.containsKey(stem)) {
 			wordCount.put(stem, 1);
 		} else {
@@ -148,13 +139,13 @@ public class TokenizeLemmatize {
 			"accordingly", "indicate", "parted", "namely", "needing", "interested", "six", "hereafter", "she'd", 
 			"side", "could", "consider", "usually", "do", "tell", "interesting", "whither", "man", "member", 
 			"look", "f", "thorough", "ex", "g", "d", "may", "e", "b", "noone", "c", "needs", "a", "n", "o", 
-			"l", "m", "won't", "j", "ones", "backing", "k", "h", "i", "yes", "w", "v", "eg", "u", "new", "t", 
+			"l", "m", "won", "j", "ones", "backing", "k", "h", "i", "yes", "w", "v", "eg", "u", "new", "t", 
 			"s", "what", "r", "newer", "q", "p", "nothing", "having", "et", "z", "y", "yet", "x", "here's", 
 			"thru", "anywhere", "least", "you'd", "took", "by", "long", "enough", "same", "has", "backs", "who", 
-			"couldn't", "would", "wanting", "facts", "any", "overall", "everybody", "had", "be", "think", "get", 
+			"couldn", "would", "wanting", "facts", "any", "overall", "everybody", "had", "be", "think", "get", 
 			"seeing", "likely", "far", "a's", "much", "and", "particularly", "co", "gotten", "near", "differently", 
 			"i'd", "often", "better", "against", "containing", "doing", "areas", "seeming", "orders", "example", 
-			"i'm", "make", "large", "thing", "room", "does", "shan't", "saying", "ignored", "today", "tried", 
+			"i'm", "make", "large", "thing", "room", "does", "shan", "saying", "ignored", "today", "tried", 
 			"former", "through", "possible", "following", "area", "especially", "generally", "name", "showing", 
 			"men", "edu", "tries", "members", "all", "sides", "keeps", "five", "obviously", "she'll", "at", 
 			"as", "still", "neither", "hello", "therefore", "never", "great", "which", "see", "i'll", "am", 
@@ -164,15 +155,15 @@ public class TokenizeLemmatize {
 			"oh", "thoughts", "maybe", "or", "done", "pointed", "regarding", "third", "sensible", "them", "then", 
 			"will", "ought", "furthermore", "small", "novel", "upon", "different", "indeed", "getting", "thought", 
 			"most", "thanx", "followed", "aside", "across", "clear", "looking", "thank", "normally", "furthers", 
-			"unless", "where's", "rather", "me", "aren't", "kept", "mr", "smallest", "beings", "don't", "it's", 
+			"unless", "where's", "rather", "me", "aren", "kept", "mr", "smallest", "beings", "don", "it's", 
 			"my", "whereupon", "differ", "okay", "specified", "it'd", "per", "how's", "thinks", "nd", "sometime", 
 			"pointing", "within", "thereupon", "furthered", "described", "truly", "follows", "you're", "cause", 
 			"tends", "last", "second", "sometimes", "finds", "being", "newest", "contains", "since", "actually", 
 			"him", "where", "every", "eight", "almost", "unto", "looks", "more", "his", "inc", "grouped", "we'd", 
 			"when", "someone", "wonder", "value", "useful", "none", "certainly", "younger", "seriously", "everywhere", 
-			"asking", "onto", "appropriate", "isn't", "such", "c's", "hers", "liked", "whereafter", "here", 
+			"asking", "onto", "appropriate", "isn", "such", "c's", "hers", "liked", "whereafter", "here", 
 			"presents", "whole", "this", "causes", "appreciate", "becomes", "goods", "way", "from", "hi", "believe", 
-			"smaller", "while", "was", "ain't", "allows", "able", "if", "corresponding", "ie", "seemed", "below", 
+			"smaller", "while", "was", "ain", "allows", "able", "if", "corresponding", "ie", "seemed", "below", 
 			"various", "wherein", "lest", "between", "less", "those", "is", "it", "besides", "ourselves", "gives", 
 			"important", "your", "gets", "into", "problem", "howbeit", "in", "know", "two", "away", "felt", 
 			"necessary", "things", "themselves", "lets", "also", "changes", "greater", "appear", "etc", "knew", 
@@ -184,9 +175,9 @@ public class TokenizeLemmatize {
 			"use", "hardly", "vs", "consequently", "mrs", "when's", "numbers", "older", "worked", "whenever", 
 			"best", "mostly", "definitely", "unfortunately", "whatever", "we'll", "later", "back", "come", "us", 
 			"seen", "young", "un", "cannot", "seem", "works", "up", "downing", "gave", "either", "fact", "presenting", 
-			"seconds", "insofar", "sorry", "doesn't", "they'd", "down", "part", "happens", "keep", "to", "faces", 
+			"seconds", "insofar", "sorry", "doesn", "they'd", "down", "part", "happens", "keep", "to", "faces", 
 			"com", "both", "inner", "uucp", "become", "you'll", "good", "ended", "somewhere", "must", "parting", 
-			"th", "didn't", "after", "nevertheless", "whereby", "who's", "considering", "sees", "ordering", 
+			"th", "didn", "after", "nevertheless", "whereby", "who's", "considering", "sees", "ordering", 
 			"taken", "welcome", "presented", "what's", "however", "so", "whose", "behind", "gone", "places", 
 			"willing", "that", "whereas", "associated", "than", "several", "thence", "unlikely", "whom", "case", 
 			"ltd", "got", "oldest", "early", "hereby", "sub", "can", "about", "well", "re", "sup", "longest", 
@@ -194,20 +185,20 @@ public class TokenizeLemmatize {
 			"provides", "you", "soon", "needed", "general", "immediate", "anything", "seven", "ordered", "whoever", 
 			"high", "certain", "latest", "somewhat", "our", "brief", "out", "very", "forth", "via", "hereupon", 
 			"for", "everything", "towards", "zero", "whether", "beyond", "elsewhere", "went", "course", "open", 
-			"whence", "are", "grouping", "can't", "shouldn't", "yourself", "working", "groups", "rooms", "therein", 
-			"thereafter", "plus", "problems", "others", "we're", "mainly", "viz", "again", "did", "wasn't", 
+			"whence", "are", "grouping", "can", "shouldn", "yourself", "working", "groups", "rooms", "therein", 
+			"thereafter", "plus", "problems", "others", "we're", "mainly", "viz", "again", "did", "wasn", 
 			"like", "without", "non", "shall", "not", "many", "present", "he'll", "nor", "haven't", "anyhow", 
 			"now", "cant", "backed", "say", "myself", "saw", "years", "ask", "some", "why's", "outside", "might", 
 			"put", "self", "trying", "wanted", "kind", "according", "they've", "seems", "twice", "latter", "presumably", 
 			"probably", "inasmuch", "end", "want", "regardless", "just", "hence", "fifth", "cases", "let", "evenly", 
-			"already", "should", "wouldn't", "point", "really", "beforehand", "mustn't", "clearly", "despite", 
-			"hither", "old", "but", "afterwards", "meanwhile", "herein", "wish", "hadn't", "amongst", "little", 
-			"show", "used", "been", "though", "together", "hasn't", "anyway", "sent", "were", "turned", "please", 
+			"already", "should", "wouldn", "point", "really", "beforehand", "mustn", "clearly", "despite", 
+			"hither", "old", "but", "afterwards", "meanwhile", "herein", "wish", "hadn", "amongst", "little", 
+			"show", "used", "been", "though", "together", "hasn", "anyway", "sent", "were", "turned", "please", 
 			"toward", "puts", "there's", "three", "longer", "concerning", "sure", "work", "throughout", "except", 
 			"goes", "regards", "we've", "comes", "himself", "wants", "knows", "contain", "latterly", "even", 
 			"known", "perhaps", "ever", "wells", "other", "allow", "interests", "have", "highest", "one", "state", 
 			"selves", "currently", "turns", "merely", "let's", "because", "another", "order", "full", "during", 
-			"mean", "lately", "making", "they're", "find", "weren't", "with", "greatest", "nearly", "opens", 
+			"mean", "lately", "making", "they're", "find", "weren", "with", "greatest", "nearly", "opens", 
 			"came", "the", "ending", "around", "beside", "quite", "largely", "instead", "downs", "uses", "group", 
 			"their", "first"};
 	

@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.net.URI;
-//import java.io.file.Paths;
 import java.nio.*;
 
 import org.apache.hadoop.io.LongWritable;
@@ -31,26 +30,24 @@ import util.TokenizeLemmatize;
 public class GetArticlesMapred {
 
     private static String people_path = "hdfs://deerstalker.cs.brandeis.edu:54645/user/hadoop01/resources/people.txt";
-    //@formatter:off
+
     /**
-     * Input:
-     *      Page offset     WikipediaPage
-     * Output
-     *      Page offset     WikipediaPage
-     * @author Tuan
-     *
-     */
-    //@formatter:on
+    * This map takes in WikipediaPage and performs all steps required to create the lemma index specified 
+    * by the assignment parts up through C.1
+    *
+    * input: Offset, WikipediaPage of the raw dump
+    * output: Text, StringIntegerList of the Title-Lemma,Freq index
+    */
     public static class GetArticlesMapper extends Mapper<LongWritable, WikipediaPage, Text, StringIntegerList> {
         public static Set<String> peopleArticlesTitles = new HashSet<String>();
 
         @Override
         protected void setup(Mapper<LongWritable, WikipediaPage, Text, StringIntegerList>.Context context)
                 throws IOException, InterruptedException {
-            // TODO: You should implement people articles load from
-            // DistributedCache here
+
             super.setup(context);
-        
+            
+            //Builds a HashSet of people.txt article titles for filtering
             URI[] files = Job.getInstance(context.getConfiguration()).getCacheFiles();
             FileSystem fs = FileSystem.get(context.getConfiguration());
             BufferedReader reader = new BufferedReader(new InputStreamReader(fs.open(new Path(files[0]))));
@@ -63,10 +60,14 @@ public class GetArticlesMapred {
         @Override
         public void map(LongWritable offset, WikipediaPage inputPage, Context context)
                 throws IOException, InterruptedException {
-            // TODO: You should implement getting article mapper here   
+
+            //If this article is in the list, do: 
             if(peopleArticlesTitles.contains(inputPage.getTitle())){
+                //Set article title
                 Text title = new Text();
                 title.set(inputPage.getTitle());
+
+                //Call TokenizeLemmatize to parse body text into token,frequency pairs
                 StringIntegerList indices = 
                     new StringIntegerList(TokenizeLemmatize.parse(inputPage.getContent()));
                 context.write(title, indices);
@@ -86,10 +87,12 @@ public class GetArticlesMapred {
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(StringIntegerList.class);
 
+        //Allows passing people.txt reference from command line
         if(args.length > 2){
 
             job.addCacheFile((new Path(args[2])).toUri());
         
+        //If no command line reference specified, use standard one
         } else {
 
             job.addCacheFile((new Path(people_path)).toUri());
