@@ -22,8 +22,7 @@ public class TokenizeLemmatize {
 	private static Set<String> stopWords = new HashSet<String>();
 	// map of all lemma-frequency pairs
 	private static Map<String, Integer> wordCount = new HashMap<String, Integer>();
-	// Snowball Stemmer used to "lemmatize" each token
-	private static final SnowballStemmer stemmer = new EnglishStemmer();
+
 	
 	/** Main class is used for unit testing only
 	 * @param args may be used to pass the String text of an article
@@ -85,6 +84,7 @@ public class TokenizeLemmatize {
 	// Notably, this returns a List, but DOES modify the passed array to
 	// be more space efficient
 	private static String stemLocal(String token) {
+		SnowballStemmer stemmer = new EnglishStemmer();
 		// Filters out any "stop words"
 		if(!stopWords.contains(token)) {
 			stemmer.setCurrent(token);
