@@ -32,21 +32,8 @@ public class Classifier {
         @Override
         public void map(Text title, StringIntegerList lemmalists, Context context) InterruptedException {
         
-            String index_str = indices.toString();
-            String title = articleId.toString();
-            Text word = new Text();
-            StringInteger out;
-
-            StringIntegerList temp = new StringIntegerList();
-            temp.readFromString(index_str);
-
-            List<StringInteger> list = temp.getIndices();
-
-            for(StringInteger strInt : list){
-                word.set(strInt.getString());
-                out = new StringInteger(title, strInt.getValue());
-                context.write(word, out);
-            }
+            	context.write(title, lemmalists);
+            	
         }
     }
 
@@ -60,14 +47,19 @@ public class Classifier {
         	String[] topNames = new String[OUTPUT_PROFESSION_NUMBER];
         	double[] topProbabilities = new double[OUTPUT_PROFESSION_NUMBER];
         	
+        	//Set topProbabilities to negative infinity
+        	//This way any new value will be greater
+        	for (int i = 0; i < topProbabilities.length; i++) {
+        		topProbabilities[i] = Double.NEGATIVE_INFINITY;
+        	}
+        	
         	//Loop through each possible profession, and calculate the probability for this person
         	for (Profession profession : Profession.values()) {
         		
         		double totalP = 0;
         		
         		//Build/get a list of lemma-freq for this profession
-        		HashMap<String, Double> trainingMap = null;
-        		//TODO Import or build this map from Kahlil's training data
+        		HashMap<String, Double> trainingMap = getTrainingMap(profession.getName());
         		
         		
         		//For each lemma in this list, add the probability 
@@ -105,6 +97,8 @@ public class Classifier {
             context.write(title, new Text(professions));
 
         }
+
+
     }
     
     /**
@@ -197,7 +191,12 @@ public class Classifier {
     	
     	
     	
-    }
+    }	//End of insertP
+    
+	private static HashMap<String, Double> getTrainingMap(String profession) {
+		//TODO Import or build this map from Kahlil's training data
+		return null;
+	}
 
 
 }	//End of Classifier
