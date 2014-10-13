@@ -5,9 +5,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.net.URI;
-//import java.io.file.Paths;
-import java.nio.*;
-
+import java.io.file.Path;
+import java.nio.file.Paths;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -52,7 +51,7 @@ public class GetArticlesMapred {
 			// DistributedCache here
 			super.setup(context);
 		
-            // FileSystem fs = FileSystem.get(context.getConfiguration());
+            FileSystem fs = FileSystem.get(context.getConfiguration());
 			// BufferedReader reader = new BufferedReader(new InputStreamReader(fs.open(new Path(people_path))));
 			BufferedReader reader = new BufferedReader(new FileReader(people_path));
 			String name;
