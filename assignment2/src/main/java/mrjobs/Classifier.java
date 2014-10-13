@@ -1,22 +1,22 @@
 
 
 import java.io.IOException;
-import java.nio.file.*;
-import java.util.*;
+import java.nio.file.Paths;
+import java.util.HashMap;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.input.KeyValueTextInputFormat;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
-import util.StringIntegerList.StringInteger;
+import util.Profession;
 import util.StringIntegerList;
+import util.StringIntegerList.StringInteger;
 
 
 /**
