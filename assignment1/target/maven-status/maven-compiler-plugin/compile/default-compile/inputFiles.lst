@@ -1,6 +1,11 @@
-/Users/Nick/Documents/Brandeis/cosi129a/assignment_1/Assignment1/assignment1/src/test/java/hadoop01/AppTest.java
-/Users/Nick/Documents/Brandeis/cosi129a/assignment_1/Assignment1/assignment1/src/main/java/code/articles/GetArticlesMapred.java
-/Users/Nick/Documents/Brandeis/cosi129a/assignment_1/Assignment1/assignment1/src/main/java/util/StringIntegerList.java
-/Users/Nick/Documents/Brandeis/cosi129a/assignment_1/Assignment1/assignment1/src/main/java/util/IndexableFileInputFormat.java
-/Users/Nick/Documents/Brandeis/cosi129a/assignment_1/Assignment1/assignment1/src/main/java/util/XMLInputFormat.java
-/Users/Nick/Documents/Brandeis/cosi129a/assignment_1/Assignment1/assignment1/src/main/java/util/WikipediaPageInputFormat.java
+C:\Users\Michael\workspace\BigData\assignment1\src\main\java\util\SnowballStemmer.java
+C:\Users\Michael\workspace\BigData\assignment1\src\main\java\code\inverted\InvertedIndexMapred.java
+C:\Users\Michael\workspace\BigData\assignment1\src\main\java\code\articles\GetArticlesMapred.java
+C:\Users\Michael\workspace\BigData\assignment1\src\main\java\util\WikipediaPageInputFormat.java
+C:\Users\Michael\workspace\BigData\assignment1\src\main\java\util\XMLInputFormat.java
+C:\Users\Michael\workspace\BigData\assignment1\src\main\java\util\IndexableFileInputFormat.java
+C:\Users\Michael\workspace\BigData\assignment1\src\main\java\util\Among.java
+C:\Users\Michael\workspace\BigData\assignment1\src\main\java\util\TokenizeLemmatize.java
+C:\Users\Michael\workspace\BigData\assignment1\src\main\java\util\EnglishStemmer.java
+C:\Users\Michael\workspace\BigData\assignment1\src\main\java\util\SnowballProgram.java
+C:\Users\Michael\workspace\BigData\assignment1\src\main\java\util\StringIntegerList.java

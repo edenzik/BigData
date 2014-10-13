@@ -1,3 +1,5 @@
+<<<<<<< HEAD
+=======
 util\TokenizeLemmatize.class
 util\StringIntegerList$StringInteger.class
 code\articles\GetArticlesMapred$GetArticlesMapper.class
@@ -15,3 +17,4 @@ util\WikipediaPageInputFormat.class
 util\SnowballProgram.class
 util\XMLInputFormat$XMLRecordReader.class
 code\inverted\InvertedIndexMapred$InvertedIndexReducer.class
+>>>>>>> master

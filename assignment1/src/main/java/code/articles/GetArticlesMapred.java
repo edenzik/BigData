@@ -5,8 +5,13 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.net.URI;
+<<<<<<< HEAD
+import java.io.file.Path;
+import java.nio.file.Paths;
+=======
 import java.nio.*;
 
+>>>>>>> master
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -29,6 +34,76 @@ import util.TokenizeLemmatize;
  */
 public class GetArticlesMapred {
 
+<<<<<<< HEAD
+	// private static String people_path = "hdfs://deerstalker.cs.brandeis.edu:54645/user/hadoop01/resources/people.txt";
+	private static String people_path = "file://src/main/java/code/articles/data/people.txt";
+	//@formatter:off
+	/**
+	 * Input:
+	 * 		Page offset 	WikipediaPage
+	 * Output
+	 * 		Page offset 	WikipediaPage
+	 * @author Tuan
+	 *
+	 */
+	//@formatter:on
+	public static class GetArticlesMapper extends Mapper<LongWritable, WikipediaPage, Text, StringIntegerList> {
+		public static Set<String> peopleArticlesTitles = new HashSet<String>();
+
+		@Override
+		protected void setup(Mapper<LongWritable, WikipediaPage, Text, StringIntegerList>.Context context)
+				throws IOException, InterruptedException {
+			// TODO: You should implement people articles load from
+			// DistributedCache here
+			super.setup(context);
+		
+            FileSystem fs = FileSystem.get(context.getConfiguration());
+			// BufferedReader reader = new BufferedReader(new InputStreamReader(fs.open(new Path(people_path))));
+			BufferedReader reader = new BufferedReader(new FileReader(people_path));
+			String name;
+			while((name = reader.readLine()) != null){
+				peopleArticlesTitles.add(name);
+			}
+		}
+
+		@Override
+		public void map(LongWritable offset, WikipediaPage inputPage, Context context)
+				throws IOException, InterruptedException {
+			// TODO: You should implement getting article mapper here	
+			if(peopleArticlesTitles.contains(inputPage.getTitle())){
+				Text title = new Text();
+				title.set(inputPage.getTitle());
+				StringIntegerList indices = 
+					new StringIntegerList(TokenizeLemmatize.parse(inputPage.getContent()));
+				context.write(title, indices);
+			}
+		}
+	}
+	
+	public static void main(String[] args) throws Exception{
+
+		Configuration conf = new Configuration();
+    	Job job = Job.getInstance(conf, "get articles");
+
+  		job.setJarByClass(GetArticlesMapred.class);
+    	job.setMapperClass(GetArticlesMapper.class);
+    	job.setNumReduceTasks(0);
+    	job.setInputFormatClass(WikipediaPageInputFormat.class);
+    	job.setOutputKeyClass(Text.class);
+    	job.setOutputValueClass(StringIntegerList.class);
+    	
+    	if(args.length > 2){
+    		people_path = args[2];
+    	} else {
+    		people_path = "hdfs://deerstalker.cs.brandeis.edu:54645/user/hadoop01/resources/people.txt";
+    	}
+
+    	FileInputFormat.addInputPath(job, new Path(args[0]));
+    	FileOutputFormat.setOutputPath(job, new Path(args[1]));
+    	System.exit(job.waitForCompletion(true) ? 0 : 1);
+
+	}
+=======
     private static String people_path = "hdfs://deerstalker.cs.brandeis.edu:54645/user/hadoop01/resources/people.txt";
 
     /**
@@ -105,4 +180,5 @@ public class GetArticlesMapred {
         System.exit(job.waitForCompletion(true) ? 0 : 1);
 
     }
+>>>>>>> master
 }

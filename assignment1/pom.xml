@@ -4,7 +4,11 @@
   <groupId>hadoop01</groupId>
   <artifactId>assignment1</artifactId>
   <packaging>jar</packaging>
+<<<<<<< HEAD
+  <version>2.2-MIKETEST</version>
+=======
   <version>2.5-SNAPSHOT</version>
+>>>>>>> master
   <name>assignment1</name>
   <url>http://maven.apache.org</url>
   <build>
@@ -15,6 +19,14 @@
       <version>3.1</version>
     </plugin>
   </plugins>
+<resources>
+      <resource>
+        <directory>src/main/java/code/articles/data</directory>
+        <includes>
+          <include>people.txt</include>
+        </includes>
+      </resource>
+</resources>
 </build>
 <dependencies>
   <dependency>
