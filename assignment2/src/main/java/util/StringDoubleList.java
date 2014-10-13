@@ -32,7 +32,7 @@ public class StringDoubleList implements Writable {
 			return s;
 		}
 
-		public int getValue() {
+		public double getValue() {
 			return d;
 		}
 
