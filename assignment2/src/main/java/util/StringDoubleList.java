@@ -36,7 +36,6 @@ public class StringDoubleList implements Writable {
 			return d;
 		}
 
-		@Override
 		public void readFields(DataInput arg0) throws IOException {
 			String indexStr = arg0.readUTF();
 
@@ -47,7 +46,6 @@ public class StringDoubleList implements Writable {
 			}
 		}
 
-		@Override
 		public void write(DataOutput arg0) throws IOException {
 			StringBuffer sb = new StringBuffer();
 			sb.append(s);
@@ -92,7 +90,6 @@ public class StringDoubleList implements Writable {
 		return indiceMap;
 	}
 
-	@Override
 	public void readFields(DataInput arg0) throws IOException {
 		String indicesStr = WritableUtils.readCompressedString(arg0);
 		readFromString(indicesStr);
@@ -112,7 +109,6 @@ public class StringDoubleList implements Writable {
 		return Collections.unmodifiableList(this.indices);
 	}
 
-	@Override
 	public void write(DataOutput arg0) throws IOException {
 		WritableUtils.writeCompressedString(arg0, this.toString());
 	}
