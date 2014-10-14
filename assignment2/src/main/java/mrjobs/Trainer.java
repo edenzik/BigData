@@ -105,13 +105,13 @@ public class Trainer {
 
 	public static void main(String[] args) throws Exception{
 		Configuration conf = new Configuration();
-		Job job = Job.getInstance(conf, "invert");
+		Job job = Job.getInstance(conf, "trainer");
 		job.setJarByClass(Trainer.class);
 		job.setMapperClass(TrainerMapper.class);
 		job.setReducerClass(TrainerReducer.class);
 		job.setInputFormatClass(KeyValueTextInputFormat.class);
 		job.setOutputKeyClass(Text.class);
-		job.setOutputValueClass(StringInteger.class);
+		job.setOutputValueClass(StringDoubleList.class);
 		FileInputFormat.addInputPath(job, new Path(args[0]));
 		FileOutputFormat.setOutputPath(job, new Path(args[1]));
 		System.exit(job.waitForCompletion(true) ? 0 : 1);
