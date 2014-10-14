@@ -2,10 +2,12 @@ package mrjobs;
 
 
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -18,6 +20,7 @@ import org.apache.hadoop.mapreduce.lib.input.KeyValueTextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import util.Profession;
+import util.StringDoubleList;
 import util.StringIntegerList;
 import util.StringIntegerList.StringInteger;
 
@@ -56,13 +59,16 @@ public class Classifier {
         		topProbabilities[i] = Double.NEGATIVE_INFINITY;
         	}
         	
+        	Path trainingData = new Path(context.getCacheFiles()[0]);
+        	
+        	
         	//Loop through each possible profession, and calculate the probability for this person
         	for (Profession profession : Profession.values()) {
         		
         		double totalP = 0;
         		
         		//Build/get a list of lemma-freq for this profession
-        		HashMap<String, Double> trainingMap = getTrainingMap(profession.getName());
+        		Map<String, Double> trainingMap = getTrainingMap(profession.getName(), trainingData);
         		
         		//StringIntegerList is not iterable, so turn it into an iterable object
         		List<StringInteger> lemmalist = lemmafreq.getIndices();
@@ -199,8 +205,28 @@ public class Classifier {
     	
     }	//End of insertP
     
-	private static HashMap<String, Double> getTrainingMap(String profession) {
-		//TODO Import or build this map from Kahlil's training data
+	private static Map<String, Double> getTrainingMap(String profession, Path dataPath) throws IOException {
+		
+		BufferedReader reader = new BufferedReader(new FileReader(dataPath.toString()));
+		
+		while (reader.ready()) {
+			
+			String inputLine = reader.readLine();
+			
+			if (inputLine.startsWith(profession)) {
+				
+				//Found the profession we are looking for
+				StringDoubleList list = new StringDoubleList();
+				list.readFromString(inputLine.split("\t")[1].trim());
+				
+				reader.close();
+				
+				return list.getMap();
+			}
+			
+		}
+		
+		reader.close();
 		return null;
 	}
 
