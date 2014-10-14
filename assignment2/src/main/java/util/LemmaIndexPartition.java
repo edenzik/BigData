@@ -74,7 +74,7 @@ public class LemmaIndexPartition {
 		return output;
 	}
 
-	public static void parseLemmaPersonFreq(BufferedReader input, HashSet desiredPeople, ArrayList<PrintWriter> writers, int dist) throws IOException{
+	public static void parseLemmaPersonFreq(BufferedReader input, HashSet<String> desiredPeople, ArrayList<PrintWriter> writers, int dist) throws IOException{
 		//Map<String,ArrayList<SimpleEntry<String,Integer>>> lemmaPeople = new HashMap<String,ArrayList<SimpleEntry<String,Integer>>>();
 		String line = "";
 		while ((line = input.readLine()) != null) {
@@ -118,11 +118,11 @@ public class LemmaIndexPartition {
 		return line.split(":")[0].trim();
 	}
 
-	public static SimpleEntry<String,ArrayList<SimpleEntry<String,Integer>>> eliminatePersonsEntry(SimpleEntry<String,ArrayList<SimpleEntry<String,Integer>>> lemmaEntry, HashSet desiredPeople){
+	public static SimpleEntry<String,ArrayList<SimpleEntry<String,Integer>>> eliminatePersonsEntry(SimpleEntry<String,ArrayList<SimpleEntry<String,Integer>>> lemmaEntry, HashSet<String> desiredPeople){
 		return new SimpleEntry<String,ArrayList<SimpleEntry<String,Integer>>>(lemmaEntry.getKey(), eliminatePersonsList(lemmaEntry.getValue(),desiredPeople));
 	}
 
-	public static ArrayList<SimpleEntry<String,Integer>> eliminatePersonsList(ArrayList<SimpleEntry<String,Integer>> peopleList, HashSet desiredPeople){
+	public static ArrayList<SimpleEntry<String,Integer>> eliminatePersonsList(ArrayList<SimpleEntry<String,Integer>> peopleList, HashSet<String> desiredPeople){
 		ArrayList<SimpleEntry<String,Integer>> revisedList = new ArrayList<SimpleEntry<String,Integer>>();
 		for (SimpleEntry<String,Integer> person : peopleList){
 			if (personExists(person.getKey(),desiredPeople)) {
@@ -132,7 +132,7 @@ public class LemmaIndexPartition {
 		return revisedList;
 	}
 
-	public static boolean personExists(String person, HashSet desiredPeople){
+	public static boolean personExists(String person, HashSet<String> desiredPeople){
 		return desiredPeople.contains(person);
 	}
 

@@ -28,7 +28,6 @@ import util.ProbHelper;
 import util.StringDoubleList;
 import util.StringDoubleList.StringDouble;
 import util.StringIntegerList;
-import util.StringIntegerList.StringInteger;
 import util.TitleProfessionParser;
 
 
@@ -37,6 +36,7 @@ import util.TitleProfessionParser;
  * the code taking the lemma index filename as input, and output being the
  * inverted index.
  */
+@SuppressWarnings("deprecation")
 public class Trainer {
 
 	private static String training_path = "hdfs://deerstalker.cs.brandeis.edu:54645/user/hadoop01/resources/profession_train.txt";
@@ -45,7 +45,6 @@ public class Trainer {
 
 		// Maps each title to a profession based on the input file
 		public static Map<String, Set<String>> titleProfessionMap = new HashMap<String, Set<String>>();
-		@SuppressWarnings("deprecation")
 		@Override
 		protected void setup(Mapper<Text, Text, Text, StringIntegerList>.Context context)
 				throws IOException, InterruptedException {
