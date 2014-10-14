@@ -39,7 +39,7 @@ import util.TitleProfessionParser;
  */
 public class Trainer {
 	
-    private static String people_path = "hdfs://deerstalker.cs.brandeis.edu:54645/user/hadoop01/resources/profession_train.txt";
+    private static String training_path = "hdfs://deerstalker.cs.brandeis.edu:54645/user/hadoop01/resources/profession_train.txt";
 
 	public static class TrainerMapper extends Mapper<Text, Text, Text, StringIntegerList> {
 
@@ -53,7 +53,8 @@ public class Trainer {
 			super.setup(context);
 			JobConf job = new JobConf();
 			try {
-				DistributedCache.addCacheFile(new URI("/resources/profession_train.txt#profession_train.txt"), job);
+				//DistributedCache.addCacheFile(new URI("/resources/profession_train.txt#profession_train.txt"), job);
+				DistributedCache.addCacheFile(new URI(training_path), job);
 			} catch(URISyntaxException e) {
 				e.printStackTrace();
 			}
