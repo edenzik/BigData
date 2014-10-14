@@ -1,3 +1,5 @@
+package util;
+
 /**
  * This enum lists all professions from our training data with their overall
  * probability of appearance in the training data.

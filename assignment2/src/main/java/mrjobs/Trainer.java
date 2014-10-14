@@ -54,15 +54,16 @@ public class Trainer {
 			JobConf job = new JobConf();
 			try {
 				//DistributedCache.addCacheFile(new URI("/resources/profession_train.txt#profession_train.txt"), job);
-				DistributedCache.addCacheFile(new URI(training_path), job);
+				//DistributedCache.addCacheFile(new URI(training_path), job);
+				DistributedCache.addCacheFile(new URI("hdfs://user/hadoop01/resources/profession_train.txt"), job);
 			} catch(URISyntaxException e) {
 				e.printStackTrace();
 			}
 			
 			//Builds a map of people->profession
-			URI[] files = Job.getInstance(context.getConfiguration()).getCacheFiles();
+			Path[] files = Job.getInstance(context.getConfiguration()).getLocalCacheFiles();
 			FileSystem fs = FileSystem.get(context.getConfiguration());
-			BufferedReader reader = new BufferedReader(new InputStreamReader(fs.open(new Path(files[0]))));
+			BufferedReader reader = new BufferedReader(new InputStreamReader(fs.open(files[0])));
 			titleProfessionMap = TitleProfessionParser.buildTitleProfessionMap(reader);
 		}
 
