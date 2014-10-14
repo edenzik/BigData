@@ -38,8 +38,8 @@ import util.TitleProfessionParser;
  * inverted index.
  */
 public class Trainer {
-	
-    private static String training_path = "hdfs://deerstalker.cs.brandeis.edu:54645/user/hadoop01/resources/profession_train.txt";
+
+	private static String training_path = "hdfs://deerstalker.cs.brandeis.edu:54645/user/hadoop01/resources/profession_train.txt";
 
 	public static class TrainerMapper extends Mapper<Text, Text, Text, StringIntegerList> {
 
@@ -59,13 +59,13 @@ public class Trainer {
 			} catch(URISyntaxException e) {
 				e.printStackTrace();
 			}
-			
+
 			//Builds a map of people->profession
-            URI[] files = Job.getInstance(context.getConfiguration()).getCacheFiles();
-            FileSystem fs = FileSystem.get(context.getConfiguration());
-            System.out.println(new Path(files[0]));
-            BufferedReader reader = new BufferedReader(new InputStreamReader(fs.open(new Path(files[0]))));
-            titleProfessionMap = TitleProfessionParser.buildTitleProfessionMap(reader);
+			URI[] files = Job.getInstance(context.getConfiguration()).getCacheFiles();
+			FileSystem fs = FileSystem.get(context.getConfiguration());
+			System.out.println(new Path(files[0]));
+			BufferedReader reader = new BufferedReader(new InputStreamReader(fs.open(new Path(files[0]))));
+			titleProfessionMap = TitleProfessionParser.buildTitleProfessionMap(reader);
 		}
 
 		@Override
@@ -95,12 +95,20 @@ public class Trainer {
 			// sum up all frequencies into denominators
 			double denominator = ProbHelper.getFrequencySum(lemmaFreqMap);
 			//TODO: check for overflow
-			
+
 			// Map each lemma to (total # of occurences / total # of occurences of all lemmas)
 			// for a given profession
 			List<StringDouble> list = new ArrayList<StringDouble>();
+			double runningSum = 0.0;
 			for(String s : lemmaFreqMap.keySet()) {
+				runningSum += lemmaFreqMap.get(s) / denominator;
 				list.add(new StringDouble(s, lemmaFreqMap.get(s) / denominator));
+			}
+			
+			// Ensures that all probabilities for a set of lemmas actually
+			// sum up to 100%
+			if(runningSum < .99 || runningSum > 1.01) {
+				throw new Error(runningSum + ": Did not sum to 100%!");
 			}
 
 			StringDoubleList out = new StringDoubleList(list);
@@ -111,16 +119,18 @@ public class Trainer {
 	public static void main(String[] args) throws Exception{
 		Configuration conf = new Configuration();
 		Job job = Job.getInstance(conf, "trainer");
-		
+
 		// Adds profession training data as a cached file
 		job.addCacheFile((new Path(training_path)).toUri());
-		
+
 		job.setJarByClass(Trainer.class);
 		job.setMapperClass(TrainerMapper.class);
 		job.setReducerClass(TrainerReducer.class);
 		job.setInputFormatClass(KeyValueTextInputFormat.class);
-		job.setOutputKeyClass(Text.class);
-		job.setOutputValueClass(StringDoubleList.class);
+		// Map output types
+		job.setMapOutputKeyClass(Text.class);
+		job.setMapOutputValueClass(StringIntegerList.class);
+		
 		FileInputFormat.addInputPath(job, new Path(args[0]));
 		FileOutputFormat.setOutputPath(job, new Path(args[1]));
 		System.exit(job.waitForCompletion(true) ? 0 : 1);
