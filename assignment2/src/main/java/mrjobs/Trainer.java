@@ -51,31 +51,34 @@ public class Trainer {
 				throws IOException, InterruptedException {
 
 			super.setup(context);
-			JobConf job = new JobConf();
+			JobConf conf = new JobConf();
 			try {
 				//DistributedCache.addCacheFile(new URI("/resources/profession_train.txt#profession_train.txt"), job);
 				//DistributedCache.addCacheFile(new URI(training_path), job);
-				DistributedCache.addCacheFile(new URI("hdfs://user/hadoop01/resources/profession_train.txt"), job);
+				DistributedCache.addCacheFile(new URI("hdfs://user/hadoop01/resources/profession_train.txt"), conf);
 			} catch(URISyntaxException e) {
 				e.printStackTrace();
 			}
 			
 			//Builds a map of people->profession
-			Path[] files = Job.getInstance(context.getConfiguration()).getLocalCacheFiles();
-			FileSystem fs = FileSystem.get(context.getConfiguration());
-			BufferedReader reader = new BufferedReader(new InputStreamReader(fs.open(files[0])));
-			titleProfessionMap = TitleProfessionParser.buildTitleProfessionMap(reader);
+            URI[] files = Job.getInstance(context.getConfiguration()).getCacheFiles();
+            FileSystem fs = FileSystem.get(context.getConfiguration());
+            System.out.println(new Path(files[0]));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(fs.open(new Path(files[0]))));
+            titleProfessionMap = TitleProfessionParser.buildTitleProfessionMap(reader);
 		}
 
 		@Override
 		public void map(Text title, Text lemmaCountsText, Context context) throws IOException,
 		InterruptedException {
 
-			StringIntegerList temp = new StringIntegerList();
-			temp.readFromString(lemmaCountsText.toString());
+			StringIntegerList lemmaCounts = new StringIntegerList();
+			lemmaCounts.readFromString(lemmaCountsText.toString());
 			Set<String> professions = titleProfessionMap.get(title.toString());
-			for(String s: professions) {
-				context.write(new Text(s), temp);
+			if(professions != null) {
+				for(String s: professions) {
+					context.write(new Text(s), lemmaCounts);
+				}
 			}
 		}
 	}
@@ -108,6 +111,10 @@ public class Trainer {
 	public static void main(String[] args) throws Exception{
 		Configuration conf = new Configuration();
 		Job job = Job.getInstance(conf, "trainer");
+		
+		// Adds profession training data as a cached file
+		job.addCacheFile((new Path(training_path)).toUri());
+		
 		job.setJarByClass(Trainer.class);
 		job.setMapperClass(TrainerMapper.class);
 		job.setReducerClass(TrainerReducer.class);

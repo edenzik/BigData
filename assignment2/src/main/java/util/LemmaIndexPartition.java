@@ -1,25 +1,28 @@
 package util;
 
-import java.net.URLDecoder;
-import java.io.UnsupportedEncodingException;
 import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.IOException;
 import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.HashSet;
+import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
- * This class converts character in ASCII to one in unicode.
- * Example: Vladim%C3%ADr Leitner -> Vladimdr Leitner (with a little dash over the A)
- * @author edenzik
- * @since Oct 9, 2014
- */
+* Reads in a lemma frequency pair files (zwillingspaar	<Richard Utz,1>,<Wilhelm Busch,1>)
+* Reads in people occuptation file (Paul Francis Anderson : catholic bishop)
+* Subtracts from lemma frequency pair file all those which are not in people occuptation file.
+* Accepts 2 or more arguments: 
+* java LemmaIndexPartition lemmaFreqPair_file.txt personProfession_file.txt [frequency distribution (ex. 50)] [output_file1.txt] [output_file2.txt]
+* 
+* 
+* @author edenzik
+* @since Oct 13, 2014
+*/
 public class LemmaIndexPartition {
 	
 	/** Main class is used for unit testing only
@@ -27,21 +30,64 @@ public class LemmaIndexPartition {
 	 * @return unicode character
 	 */
 	public static void main(String[] args) throws UnsupportedEncodingException, IOException{
-		if (args.length == 2) {
-			BufferedReader input = new BufferedReader(new FileReader(args[0]));
-			String s;
-		} else System.out.println("Please specify the location of the inverted index and the profession file.");
-
+		BufferedReader personProfession = null;
+		BufferedReader lemmaFreq = null;
+		ArrayList<PrintWriter> writers = null;
+		if (args.length >= 2) {
+			lemmaFreq = new BufferedReader(new FileReader(args[0]));
+			personProfession = new BufferedReader(new FileReader(args[1]));
+			
+			writers = new ArrayList<PrintWriter>();
+			int dist = 100;
+			
+			if (args.length > 2){
+				dist = Integer.parseInt(args[2]);
+				for (int arg = 3; arg<args.length; arg++){
+					writers.add(new PrintWriter(args[arg], "UTF-8"));
+				}
+			} else {
+				writers.add(new PrintWriter(System.out));
+			}
+		
+			HashSet<String> desiredPeople = parsePersonProfession(personProfession);
+			parseLemmaPersonFreq(lemmaFreq, desiredPeople, writers, dist);
+			
+		} else System.out.println("Please specify the location of the inverted index and the profession file.");	
+		personProfession.close();
+		lemmaFreq.close();
+		for (PrintWriter f : writers){
+			f.close();
+		}
+		
+	}
+	
+	public static String toLemmaFreqPairs(ArrayList<SimpleEntry<String,Integer>> personFreqList){
+		StringBuilder sb = new StringBuilder();
+		for (SimpleEntry<String,Integer> entry : personFreqList){
+			sb.append("<" + entry.getKey() + "," + entry.getValue() + ">");
+		}
+		return sb.toString().replace("><",">,<");
+	}
+	
+	public static String toLemmaFreq(SimpleEntry<String,ArrayList<SimpleEntry<String,Integer>>> lemmaPersonFreq){
+		String output = lemmaPersonFreq.getKey() + "\t" + toLemmaFreqPairs(lemmaPersonFreq.getValue());
+		return output;
 	}
 
-	public static Map<String,ArrayList<SimpleEntry<String,Integer>>> parseLemmaPersonFreq(BufferedReader input, HashSet desiredPeople) throws IOException{
-		Map<String,ArrayList<SimpleEntry<String,Integer>>> lemmaPeople = new HashMap<String,ArrayList<SimpleEntry<String,Integer>>>();
+	public static void parseLemmaPersonFreq(BufferedReader input, HashSet desiredPeople, ArrayList<PrintWriter> writers, int dist) throws IOException{
+		//Map<String,ArrayList<SimpleEntry<String,Integer>>> lemmaPeople = new HashMap<String,ArrayList<SimpleEntry<String,Integer>>>();
 		String line = "";
 		while ((line = input.readLine()) != null) {
 			SimpleEntry<String,ArrayList<SimpleEntry<String,Integer>>> entry = eliminatePersonsEntry(parseLemmaPersonFreqLine(line), desiredPeople);
-			lemmaPeople.put(entry.getKey(), entry.getValue());
+			//lemmaPeople.put(entry.getKey(), entry.getValue());
+			randomWrite(toLemmaFreq(entry), writers, dist);
 		}
-		return lemmaPeople;
+	}
+	
+	public static void randomWrite(String line, ArrayList<PrintWriter> writers, int dist){
+		Random generator = new Random(); 
+		int random = generator.nextInt(writers.size());
+		writers.get(random).println(line);
 	}
 
 	public static SimpleEntry<String,ArrayList<SimpleEntry<String,Integer>>> parseLemmaPersonFreqLine(String line){
@@ -73,16 +119,17 @@ public class LemmaIndexPartition {
 	}
 
 	public static SimpleEntry<String,ArrayList<SimpleEntry<String,Integer>>> eliminatePersonsEntry(SimpleEntry<String,ArrayList<SimpleEntry<String,Integer>>> lemmaEntry, HashSet desiredPeople){
-		eliminatePersonsList(lemmaEntry.getValue(),desiredPeople);
-		return lemmaEntry;
+		return new SimpleEntry<String,ArrayList<SimpleEntry<String,Integer>>>(lemmaEntry.getKey(), eliminatePersonsList(lemmaEntry.getValue(),desiredPeople));
 	}
 
-	public static void eliminatePersonsList(ArrayList<SimpleEntry<String,Integer>> peopleList, HashSet desiredPeople){
+	public static ArrayList<SimpleEntry<String,Integer>> eliminatePersonsList(ArrayList<SimpleEntry<String,Integer>> peopleList, HashSet desiredPeople){
+		ArrayList<SimpleEntry<String,Integer>> revisedList = new ArrayList<SimpleEntry<String,Integer>>();
 		for (SimpleEntry<String,Integer> person : peopleList){
-			if (!personExists(person.getKey(),desiredPeople)) {
-				peopleList.remove(person);
+			if (personExists(person.getKey(),desiredPeople)) {
+				revisedList.add(person);
 			}
 		}
+		return revisedList;
 	}
 
 	public static boolean personExists(String person, HashSet desiredPeople){
@@ -94,3 +141,4 @@ public class LemmaIndexPartition {
 
 	
 }
+
