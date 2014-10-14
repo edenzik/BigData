@@ -1,8 +1,11 @@
+package mrjobs;
+
 
 
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.List;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -30,7 +33,7 @@ public class Classifier {
     public static class ClassifyMapper extends Mapper<Text, StringIntegerList, Text, StringIntegerList> {
 
         @Override
-        public void map(Text title, StringIntegerList lemmalists, Context context) InterruptedException {
+        public void map(Text title, StringIntegerList lemmalists, Context context) throws IOException, InterruptedException {
         
             	context.write(title, lemmalists);
             	
@@ -39,7 +42,7 @@ public class Classifier {
 
     public static class ClassifyReducer extends Reducer<Text, StringIntegerList, Text, Text> {
 
-        @Override
+//        @Override
         public void reduce(Text title, StringIntegerList lemmafreq, Context context)
                 throws IOException, InterruptedException {
     
@@ -61,9 +64,12 @@ public class Classifier {
         		//Build/get a list of lemma-freq for this profession
         		HashMap<String, Double> trainingMap = getTrainingMap(profession.getName());
         		
+        		//StringIntegerList is not iterable, so turn it into an iterable object
+        		List<StringInteger> lemmalist = lemmafreq.getIndices();
+        		
         		
         		//For each lemma in this list, add the probability 
-        		for (StringInteger stInt : lemmafreq) {
+        		for (StringInteger stInt : lemmalist) {
         			
         			//This method ignores words that don't appear in the training data
         			//If we apply smoothing, this will need to be changed
