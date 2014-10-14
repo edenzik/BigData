@@ -21,6 +21,9 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.KeyValueTextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
+import util.ProbHelper;
+import util.StringDoubleList;
+import util.StringDoubleList.StringDouble;
 import util.StringIntegerList;
 import util.StringIntegerList.StringInteger;
 import util.TitleProfessionParser;
@@ -31,17 +34,17 @@ import util.TitleProfessionParser;
  * the code taking the lemma index filename as input, and output being the
  * inverted index.
  */
-public class ProfessionLemmaMapred {
-	public static class ProfessionLemmaMapper extends Mapper<Text, StringIntegerList, Text, StringIntegerList> {
+public class Trainer {
+	public static class TrainerMapper extends Mapper<Text, Text, Text, StringIntegerList> {
 
 		// Maps each title to a profession based on the input file
 		public static Map<String, Set<String>> titleProfessionMap = new HashMap<String, Set<String>>();
 		@Override
-		protected void setup(Mapper<Text, StringIntegerList, Text, StringIntegerList>.Context context)
+		protected void setup(Mapper<Text, Text, Text, StringIntegerList>.Context context)
 				throws IOException, InterruptedException {
-			
+
 			super.setup(context);
-			//Builds a HashSet of people.txt article titles for filtering
+			//Builds a map of people->profession
 			URI[] files = Job.getInstance(context.getConfiguration()).getCacheFiles();
 			FileSystem fs = FileSystem.get(context.getConfiguration());
 			BufferedReader reader = new BufferedReader(new InputStreamReader(fs.open(new Path(files[0]))));
@@ -49,52 +52,49 @@ public class ProfessionLemmaMapred {
 		}
 
 		@Override
-		public void map(Text title, StringIntegerList lemmaCounts, Context context) throws IOException,
+		public void map(Text title, Text lemmaCountsText, Context context) throws IOException,
 		InterruptedException {
 
-			String index_str = indices.toString();
-			String title = articleId.toString();
-			Text word = new Text();
-			StringInteger out;
-
 			StringIntegerList temp = new StringIntegerList();
-			temp.readFromString(index_str);
-
-			List<StringInteger> list = temp.getIndices();
-
-			for(StringInteger strInt : list){
-				word.set(strInt.getString());
-				out = new StringInteger(title, strInt.getValue());
-				context.write(word, out);
+			temp.readFromString(lemmaCountsText.toString());
+			Set<String> professions = titleProfessionMap.get(title.toString());
+			for(String s: professions) {
+				context.write(new Text(s), temp);
 			}
 		}
 	}
 
-	public static class InvertedIndexReducer extends
-	Reducer<Text, StringInteger, Text, StringIntegerList> {
+	public static class TrainerReducer extends
+	Reducer<Text, StringIntegerList, Text, StringDoubleList> {
 
 		@Override
-		public void reduce(Text lemma, Iterable<StringInteger> articlesAndFreqs, Context context)
+		public void reduce(Text lemma, Iterable<StringIntegerList> lemmaFreqIter, Context context)
 				throws IOException, InterruptedException {
-
-			ArrayList<StringInteger> list = new ArrayList<StringInteger>();
-			for(StringInteger strInt : articlesAndFreqs){
-				StringInteger temp = new StringInteger(strInt.getString(), strInt.getValue());
-				list.add(temp);
+			// merge all StringIntegerLists for a given profession s.t. each lemma
+			// has only one entry in the StringIntegerList
+			Map<String, Double> lemmaFreqMap = ProbHelper.getAggregateMap(lemmaFreqIter);
+			// sum up all frequencies into denominators
+			double denominator = ProbHelper.getFrequencySum(lemmaFreqMap);
+			//TODO: check for overflow
+			
+			// Map each lemma to (total # of occurences / total # of occurences of all lemmas)
+			// for a given profession
+			List<StringDouble> list = new ArrayList<StringDouble>();
+			for(String s : lemmaFreqMap.keySet()) {
+				list.add(new StringDouble(s, lemmaFreqMap.get(s) / denominator));
 			}
 
-			StringIntegerList out = new StringIntegerList(list);
+			StringDoubleList out = new StringDoubleList(list);
 			context.write(lemma, out);
-
 		}
 	}
 
 	public static void main(String[] args) throws Exception{
 		Configuration conf = new Configuration();
 		Job job = Job.getInstance(conf, "invert");
-		job.setJarByClass(ProfessionLemmaMapred.class);
-		job.setMapperClass(ProfessionLemmaMapper.class);
-		job.setReducerClass(InvertedIndexReducer.class);
+		job.setJarByClass(Trainer.class);
+		job.setMapperClass(TrainerMapper.class);
+		job.setReducerClass(TrainerReducer.class);
 		job.setInputFormatClass(KeyValueTextInputFormat.class);
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(StringInteger.class);

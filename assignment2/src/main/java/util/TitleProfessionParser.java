@@ -18,7 +18,7 @@ public class TitleProfessionParser {
 		try {
 			BufferedReader br = new BufferedReader(new FileReader("profession_head.txt"));
 			Map<String, Set<String>> map = buildTitleProfessionMap(br);
-			System.out.println(map);
+			System.out.println(map.keySet().iterator().next() + " " + map.get(map.keySet().iterator().next()));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -41,7 +41,7 @@ public class TitleProfessionParser {
 	// output: "[article title]"
 	public static String getTitle(String tpPair) {
 		try {
-			return AsciiToUnicode.parse(tpPair.split(":")[0]);
+			return AsciiToUnicode.parse(tpPair.split(":")[0]).trim();
 		} catch(UnsupportedEncodingException e) {
 			e.printStackTrace();
 			return null;
