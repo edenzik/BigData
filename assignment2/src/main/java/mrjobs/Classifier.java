@@ -3,13 +3,15 @@ package mrjobs;
 
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URI;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
@@ -30,7 +32,7 @@ import util.StringIntegerList.StringInteger;
  */
 public class Classifier {
 	
-	private static String DEFAULT_TRAINING_PATH = "resources/training";
+	private static String DEFAULT_TRAINING_PATH = "hdfs://deerstalker.cs.brandeis.edu:54645/user/hadoop01/output/old_training/part-r-00000";
 	private static int OUTPUT_PROFESSION_NUMBER = 3;
 	
     public static class ClassifyMapper extends Mapper<Text, StringIntegerList, Text, StringIntegerList> {
@@ -59,7 +61,10 @@ public class Classifier {
         		topProbabilities[i] = Double.NEGATIVE_INFINITY;
         	}
         	
-        	Path trainingData = new Path(context.getCacheFiles()[0]);
+        	//Get cached training data path
+        	URI[] files = Job.getInstance(context.getConfiguration()).getCacheFiles();
+    		FileSystem fs = FileSystem.get(context.getConfiguration());
+    		System.out.println(new Path(files[0]));
         	
         	
         	//Loop through each possible profession, and calculate the probability for this person
@@ -68,7 +73,9 @@ public class Classifier {
         		double totalP = 0;
         		
         		//Build/get a list of lemma-freq for this profession
-        		Map<String, Double> trainingMap = getTrainingMap(profession.getName(), trainingData);
+        		BufferedReader reader = new BufferedReader(new InputStreamReader(fs.open(new Path(files[0]))));
+        		Map<String, Double> trainingMap = getTrainingMap(profession.getName(), reader);
+        		reader.close();
         		
         		//StringIntegerList is not iterable, so turn it into an iterable object
         		List<StringInteger> lemmalist = lemmafreq.getIndices();
@@ -205,9 +212,8 @@ public class Classifier {
     	
     }	//End of insertP
     
-	private static Map<String, Double> getTrainingMap(String profession, Path dataPath) throws IOException {
+	private static Map<String, Double> getTrainingMap(String profession, BufferedReader reader) throws IOException {
 		
-		BufferedReader reader = new BufferedReader(new FileReader(dataPath.toString()));
 		
 		while (reader.ready()) {
 			
@@ -219,14 +225,11 @@ public class Classifier {
 				StringDoubleList list = new StringDoubleList();
 				list.readFromString(inputLine.split("\t")[1].trim());
 				
-				reader.close();
-				
 				return list.getMap();
 			}
 			
 		}
 		
-		reader.close();
 		return null;
 	}
 
