@@ -14,7 +14,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -22,11 +21,11 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.KeyValueTextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
-import util.ProbHelper;
 import util.StringDoubleList;
 import util.StringDoubleList.StringDouble;
 import util.StringIntegerList;
 import util.TitleProfessionParser;
+import util.TrainerHelper;
 
 
 /**
@@ -34,7 +33,6 @@ import util.TitleProfessionParser;
  * the code taking the lemma index filename as input, and output being the
  * inverted index.
  */
-@SuppressWarnings("deprecation")
 public class Trainer {
 
 	private static final String HDFS_HOME = "hdfs://deerstalker.cs.brandeis.edu:54645/user/hadoop01/";
@@ -49,8 +47,8 @@ public class Trainer {
 				throws IOException, InterruptedException {
 
 			super.setup(context);
-			JobConf conf = new JobConf();
 			/*
+			JobConf conf = new JobConf();
 			try {
 				//DistributedCache.addCacheFile(new URI("/resources/profession_train.txt#profession_train.txt"), job);
 				//DistributedCache.addCacheFile(new URI(training_path), job);
@@ -89,9 +87,9 @@ public class Trainer {
 				throws IOException, InterruptedException {
 			// merge all StringIntegerLists for a given profession s.t. each lemma
 			// has only one entry in the StringIntegerList
-			Map<String, Double> lemmaFreqMap = ProbHelper.getAggregateMap(lemmaFreqIter);
+			Map<String, Double> lemmaFreqMap = TrainerHelper.getAggregateMap(lemmaFreqIter);
 			// sum up all frequencies into denominators
-			double denominator = ProbHelper.getFrequencySum(lemmaFreqMap);
+			double denominator = TrainerHelper.getFrequencySum(lemmaFreqMap);
 			//TODO: check for overflow
 
 			// Map each lemma to (total # of occurences / total # of occurences of all lemmas)

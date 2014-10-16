@@ -8,7 +8,7 @@ import java.util.Set;
 
 import util.StringIntegerList.StringInteger;
 
-public class ProbHelper {
+public class TrainerHelper {
 	
 	// Main method is used for unit testing only
 	public static void main(String[] args) {
