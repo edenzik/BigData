@@ -95,16 +95,8 @@ public class Trainer {
 			// Map each lemma to (total # of occurences / total # of occurences of all lemmas)
 			// for a given profession
 			List<StringDouble> list = new ArrayList<StringDouble>();
-			double runningSum = 0.0;
 			for(String s : lemmaFreqMap.keySet()) {
-				runningSum += lemmaFreqMap.get(s) / denominator;
-				list.add(new StringDouble(s, lemmaFreqMap.get(s) / denominator));
-			}
-			
-			// Ensures that all probabilities for a set of lemmas actually
-			// sum up to 100%
-			if(runningSum < .99 || runningSum > 1.01) {
-				throw new Error(runningSum + ": Did not sum to 100%!");
+				list.add(new StringDouble(s, Math.log(lemmaFreqMap.get(s) / denominator)));
 			}
 
 			StringDoubleList out = new StringDoubleList(list);
