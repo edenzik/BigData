@@ -2,4 +2,4 @@
 
 mvn compile
 mvn package
-scp target/assignment2-1.0-SNAPSHOT.jar 129a:~/
+scp target/assignment2-*-SNAPSHOT.jar hadoop01@deerstalker.cs.brandeis.edu:~/
