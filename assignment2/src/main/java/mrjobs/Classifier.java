@@ -14,7 +14,6 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.KeyValueTextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
@@ -49,10 +48,10 @@ public class Classifier {
         Job job = Job.getInstance(conf, "classify");
         job.setJarByClass(Classifier.class);
         job.setMapperClass(ClassifyMapper.class);
-        job.setReducerClass(ClassifyReducer.class);
+        job.setNumReduceTasks(0);
         job.setInputFormatClass(KeyValueTextInputFormat.class);
-        job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(StringIntegerList.class);
+        job.setMapOutputKeyClass(Text.class);
+        job.setMapOutputValueClass(Text.class);
         FileInputFormat.addInputPath(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
         
@@ -72,22 +71,13 @@ public class Classifier {
 
     }	//End of main()
 	
-    public static class ClassifyMapper extends Mapper<Text, StringIntegerList, Text, StringIntegerList> {
 
-        @Override
-        public void map(Text title, StringIntegerList lemmalists, Context context) throws IOException, InterruptedException {
-        
-            	context.write(title, lemmalists);
-            	
-        }
-    }
-
-    public static class ClassifyReducer extends Reducer<Text, StringIntegerList, Text, Text> {
+    public static class ClassifyMapper extends Mapper<Text, Text, Text, Text> {
     	
     	private HashMap<String, Map<String, Double>> fullProfessionMap = new HashMap<String, Map<String, Double>>();
     	
     	@Override
-		protected void setup(Reducer<Text, StringIntegerList, Text, Text>.Context context)
+		protected void setup(Mapper<Text, Text, Text, Text>.Context context)
 				throws IOException, InterruptedException {
 
 			super.setup(context);
@@ -101,8 +91,12 @@ public class Classifier {
 		}
 
 //        @Override
-        public void reduce(Text title, StringIntegerList lemmafreq, Context context)
+        public void map(Text title, Text listText, Context context)
                 throws IOException, InterruptedException {
+        	
+        	StringIntegerList lemmaFreq = new StringIntegerList();
+    		
+    		lemmaFreq.readFromString(listText.toString());
     
         	//These hold the top (so far) 3 professions and probabilities for this person
         	String[] topNames = new String[OUTPUT_PROFESSION_NUMBER];
@@ -123,7 +117,7 @@ public class Classifier {
         		Map<String, Double> trainingMap = fullProfessionMap.get(profession.getName());
         		
         		//StringIntegerList is not iterable, so turn it into an iterable object
-        		List<StringInteger> lemmalist = lemmafreq.getIndices();
+        		List<StringInteger> lemmalist = lemmaFreq.getIndices();
         		
         		
         		//For each lemma in this list, add the probability 
@@ -156,14 +150,15 @@ public class Classifier {
         	
         	String professions = "";
         	for (String prof : topNames) {
-        		professions = professions.concat(prof);
+        		professions = professions.concat(prof + ", ");
         	}
+        	professions = professions.substring(0, professions.length() - 2);
             context.write(title, new Text(professions));
 
-        }
+        }	//End of map()
 
 
-    }
+    }	//End of mapper class
    
 
     
