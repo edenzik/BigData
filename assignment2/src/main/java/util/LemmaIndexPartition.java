@@ -13,7 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
-* Reads in a lemma frequency pair files (zwillingspaar	<Richard Utz,1>,<Wilhelm Busch,1>)
+* Reads in a lemma frequency pair files (Philipp Moog	<german,2>,<die,1>,<philipp,1>)
 * Reads in people occuptation file (Paul Francis Anderson : catholic bishop)
 * Subtracts from lemma frequency pair file all those which are not in people occuptation file.
 * Accepts 2 or more arguments: 
@@ -78,9 +78,9 @@ public class LemmaIndexPartition {
 		//Map<String,ArrayList<SimpleEntry<String,Integer>>> lemmaPeople = new HashMap<String,ArrayList<SimpleEntry<String,Integer>>>();
 		String line = "";
 		while ((line = input.readLine()) != null) {
-			SimpleEntry<String,ArrayList<SimpleEntry<String,Integer>>> entry = eliminatePersonsEntry(parseLemmaPersonFreqLine(line), desiredPeople);
-			//lemmaPeople.put(entry.getKey(), entry.getValue());
-			randomWrite(toLemmaFreq(entry), writers, dist);
+			SimpleEntry<String,ArrayList<SimpleEntry<String,Integer>>> entry = parseLemmaPersonFreqLine(line);
+			
+			if (personExists(entry.getKey(), desiredPeople)) randomWrite(toLemmaFreq(entry), writers, dist);
 		}
 	}
 	
@@ -94,11 +94,13 @@ public class LemmaIndexPartition {
 		String[] lemmaValues = line.split("\t");
 		ArrayList<SimpleEntry<String,Integer>> peopleFreq = new ArrayList<SimpleEntry<String,Integer>>();
 		Pattern p = Pattern.compile("<([\\w+\\s]+,\\d+)>");
-		Matcher m = p.matcher(lemmaValues[1]);
-		while (m.find()){
-			String[] nameFreqPair = m.group(1).split(",");
-			SimpleEntry<String,Integer> nameFreqPairEntry = new SimpleEntry<String,Integer>(nameFreqPair[0],Integer.parseInt(nameFreqPair[1]));
-			peopleFreq.add(nameFreqPairEntry);
+		if (lemmaValues.length>=2){
+			Matcher m = p.matcher(lemmaValues[1]);
+			while (m.find()){
+				String[] nameFreqPair = m.group(1).split(",");
+				SimpleEntry<String,Integer> nameFreqPairEntry = new SimpleEntry<String,Integer>(nameFreqPair[0],Integer.parseInt(nameFreqPair[1]));
+				peopleFreq.add(nameFreqPairEntry);
+			}
 		}
 		SimpleEntry<String,ArrayList<SimpleEntry<String,Integer>>> entry = new SimpleEntry<String,ArrayList<SimpleEntry<String,Integer>>>(lemmaValues[0],peopleFreq);
 		return entry;
@@ -141,4 +143,3 @@ public class LemmaIndexPartition {
 
 	
 }
-
