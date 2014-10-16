@@ -1,12 +1,10 @@
 package mrjobs;
 
-
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
-import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,6 +33,45 @@ public class Classifier {
 	private static String DEFAULT_TRAINING_PATH = "hdfs://deerstalker.cs.brandeis.edu:54645/user/hadoop01/output/old_training/part-r-00000";
 	private static int OUTPUT_PROFESSION_NUMBER = 3;
 	
+	
+	 /**
+     * Classifier uses training data to classify people
+     * input: Lemma Index of format <Title, <Lemma, Freq> > from assignment 1
+     * output: Profession Index of format <Title, <Profession 1, Profession 2, Profession 3> >
+     * Note: Output will be in Text, Text format.
+     * Note: Optional third argument is training data. If left blank, internal field will be used.
+     * 
+     * @param args args[0] is input directory, args[1] is output directory, (optional) args[2] is training data
+     * @throws Exception for any exception
+     */
+    public static void main(String[] args) throws Exception{
+        Configuration conf = new Configuration();
+        Job job = Job.getInstance(conf, "classify");
+        job.setJarByClass(Classifier.class);
+        job.setMapperClass(ClassifyMapper.class);
+        job.setReducerClass(ClassifyReducer.class);
+        job.setInputFormatClass(KeyValueTextInputFormat.class);
+        job.setOutputKeyClass(Text.class);
+        job.setOutputValueClass(StringIntegerList.class);
+        FileInputFormat.addInputPath(job, new Path(args[0]));
+        FileOutputFormat.setOutputPath(job, new Path(args[1]));
+        
+        //Allows passing training data reference from command line
+        if(args.length > 2){
+
+            job.addCacheFile(new Path(args[2]).toUri());
+        
+        //If no command line reference specified, use standard one
+        } else {
+
+            job.addCacheFile(new Path(DEFAULT_TRAINING_PATH).toUri());
+ 
+        }
+        
+        System.exit(job.waitForCompletion(true) ? 0 : 1);
+
+    }	//End of main()
+	
     public static class ClassifyMapper extends Mapper<Text, StringIntegerList, Text, StringIntegerList> {
 
         @Override
@@ -46,6 +83,22 @@ public class Classifier {
     }
 
     public static class ClassifyReducer extends Reducer<Text, StringIntegerList, Text, Text> {
+    	
+    	private HashMap<String, Map<String, Double>> fullProfessionMap = new HashMap<String, Map<String, Double>>();
+    	
+    	@Override
+		protected void setup(Reducer<Text, StringIntegerList, Text, Text>.Context context)
+				throws IOException, InterruptedException {
+
+			super.setup(context);
+
+			//Builds a map of people->profession
+			URI[] files = Job.getInstance(context.getConfiguration()).getCacheFiles();
+			FileSystem fs = FileSystem.get(context.getConfiguration());
+			System.out.println(new Path(files[0]));
+			BufferedReader reader = new BufferedReader(new InputStreamReader(fs.open(new Path(files[0]))));
+			fullProfessionMap = buildJobMap(reader);
+		}
 
 //        @Override
         public void reduce(Text title, StringIntegerList lemmafreq, Context context)
@@ -61,21 +114,13 @@ public class Classifier {
         		topProbabilities[i] = Double.NEGATIVE_INFINITY;
         	}
         	
-        	//Get cached training data path
-        	URI[] files = Job.getInstance(context.getConfiguration()).getCacheFiles();
-    		FileSystem fs = FileSystem.get(context.getConfiguration());
-    		System.out.println(new Path(files[0]));
         	
         	
         	//Loop through each possible profession, and calculate the probability for this person
         	for (Profession profession : Profession.values()) {
         		
         		double totalP = 0;
-        		
-        		//Build/get a list of lemma-freq for this profession
-        		BufferedReader reader = new BufferedReader(new InputStreamReader(fs.open(new Path(files[0]))));
-        		Map<String, Double> trainingMap = getTrainingMap(profession.getName(), reader);
-        		reader.close();
+        		Map<String, Double> trainingMap = fullProfessionMap.get(profession.getName());
         		
         		//StringIntegerList is not iterable, so turn it into an iterable object
         		List<StringInteger> lemmalist = lemmafreq.getIndices();
@@ -94,8 +139,8 @@ public class Classifier {
         		
         		
         			
-        		//Multiply by the prior
-        		totalP = totalP * profession.getPrior();
+        		//Add the log prior
+        		totalP = totalP + Math.log(profession.getPrior());
         		
         		
         		//Check if this new profession is probable and save if so
@@ -119,44 +164,7 @@ public class Classifier {
 
 
     }
-    
-    /**
-     * Classifier uses training data to classify people
-     * input: Lemma Index of format <Title, <Lemma, Freq> > from assignment 1
-     * output: Profession Index of format <Title, <Profession 1, Profession 2, Profession 3> >
-     * Note: Output will be in Text, Text format.
-     * Note: Optional third argument is training data. If left blank, internal field will be used.
-     * 
-     * @param args args[0] is input directory, args[1] is output directory, (optional) args[2] is training data
-     * @throws Exception for any exception
-     */
-    public static void main(String[] args) throws Exception{
-        Configuration conf = new Configuration();
-        Job job = Job.getInstance(conf, "classify");
-        job.setJarByClass(Classifier.class);
-        job.setMapperClass(ClassifyMapper.class);
-        job.setReducerClass(ClassifyReducer.class);
-        job.setInputFormatClass(KeyValueTextInputFormat.class);
-        job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(Text.class);
-        FileInputFormat.addInputPath(job, new Path(args[0]));
-        FileOutputFormat.setOutputPath(job, new Path(args[1]));
-        
-        //Allows passing training data reference from command line
-        if(args.length > 2){
-
-            job.addCacheFile(Paths.get(args[2]).toUri());
-        
-        //If no command line reference specified, use standard one
-        } else {
-
-            job.addCacheFile(Paths.get(DEFAULT_TRAINING_PATH).toUri());
- 
-        }
-        
-        System.exit(job.waitForCompletion(true) ? 0 : 1);
-
-    }	//End of main()
+   
 
     
     /**
@@ -212,25 +220,25 @@ public class Classifier {
     	
     }	//End of insertP
     
-	private static Map<String, Double> getTrainingMap(String profession, BufferedReader reader) throws IOException {
+	private static HashMap<String, Map<String, Double>> buildJobMap(BufferedReader reader) throws IOException {
 		
+		HashMap<String, Map<String, Double>> outputMap = new HashMap<String, Map<String, Double>>();
 		
+		//This loop builds each sub map for each profession
 		while (reader.ready()) {
 			
 			String inputLine = reader.readLine();
 			
-			if (inputLine.startsWith(profession)) {
+			String[] splitLine = inputLine.split("\t");
 				
-				//Found the profession we are looking for
-				StringDoubleList list = new StringDoubleList();
-				list.readFromString(inputLine.split("\t")[1].trim());
-				
-				return list.getMap();
-			}
+			StringDoubleList list = new StringDoubleList();
 			
+			list.readFromString(inputLine.split("\t")[1].trim());
+				
+			outputMap.put(splitLine[0].trim(), list.getMap());
 		}
 		
-		return null;
+		return outputMap;
 	}
 
 
