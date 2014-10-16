@@ -30,7 +30,7 @@ import util.StringIntegerList.StringInteger;
 public class Classifier {
 	
 	private static String DEFAULT_TRAINING_PATH = "hdfs://deerstalker.cs.brandeis.edu:54645/user/hadoop01/output/old_training/part-r-00000";
-	private static int OUTPUT_PROFESSION_NUMBER = 3;
+	private static int OUTPUT_PROFESSION_NUMBER = 10;
 	
 	
 	 /**
@@ -88,6 +88,7 @@ public class Classifier {
 			System.out.println(new Path(files[0]));
 			BufferedReader reader = new BufferedReader(new InputStreamReader(fs.open(new Path(files[0]))));
 			fullProfessionMap = buildJobMap(reader);
+			reader.close();
 		}
 
 //        @Override
@@ -117,19 +118,21 @@ public class Classifier {
         		Map<String, Double> trainingMap = fullProfessionMap.get(profession.getName());
         		
         		//StringIntegerList is not iterable, so turn it into an iterable object
-        		List<StringInteger> lemmalist = lemmaFreq.getIndices();
+        		List<StringInteger> lemmaList = lemmaFreq.getIndices();
         		
         		
         		//For each lemma in this list, add the probability 
-        		for (StringInteger stInt : lemmalist) {
+        		for (StringInteger stInt : lemmaList) {
         			
-        			//This method ignores words that don't appear in the training data
-        			//If we apply smoothing, this will need to be changed
+        			
+        			//This method uses additive smoothing to account for values not found
+        			//In training data, zero probability is at key: "0"
         			if (trainingMap.containsKey(stInt.getString())) {
-						totalP += stInt.getValue() * trainingMap.get(stInt.getString());
+						totalP = totalP + ( stInt.getValue() * trainingMap.get(stInt.getString()) );
 					}
         			else {
-        				totalP += -13 * stInt.getValue();
+        				//No match, use the zero probability
+        				totalP = totalP + ( stInt.getValue() * trainingMap.get("ZERO") );
         			}
         		}
         		
@@ -151,8 +154,10 @@ public class Classifier {
         	
         	
         	String professions = "";
-        	for (String prof : topNames) {
-        		professions = professions.concat(prof + ", ");
+        	for (int i = 0; i < OUTPUT_PROFESSION_NUMBER; i++) {
+        		String prof = topNames[i];
+        		double total = topProbabilities[i];
+        		professions = professions.concat(prof + "(" + total + "), ");
         	}
         	professions = professions.substring(0, professions.length() - 2);
             context.write(title, new Text(professions));
