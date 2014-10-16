@@ -51,8 +51,8 @@ public class Classifier {
         job.setMapperClass(ClassifyMapper.class);
         job.setReducerClass(ClassifyReducer.class);
         job.setInputFormatClass(KeyValueTextInputFormat.class);
-        job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(StringIntegerList.class);
+        job.setMapOutputKeyClass(Text.class);
+        job.setMapOutputValueClass(StringIntegerList.class);
         FileInputFormat.addInputPath(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
         
