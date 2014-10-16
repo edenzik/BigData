@@ -2,4 +2,5 @@
 
 mvn compile
 mvn package
-scp target/assignment2-*-SNAPSHOT.jar hadoop01@deerstalker.cs.brandeis.edu:~/
+jar_path=$(ls -1 target | grep -Eo "assignment[0-9]-[0-9]\.[0-9]-SNAPSHOT.jar" | sort -nr | head -1)
+scp target/$jar_path hadoop01@deerstalker.cs.brandeis.edu:~/
