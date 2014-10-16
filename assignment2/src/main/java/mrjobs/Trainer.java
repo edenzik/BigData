@@ -36,8 +36,10 @@ import util.TrainerHelper;
 public class Trainer {
 
 	private static final String HDFS_HOME = "hdfs://deerstalker.cs.brandeis.edu:54645/user/hadoop01/";
+	// this is notably not final because it is possibly changed by a command line argument
 	private static String training_path = HDFS_HOME + "resources/profession_train.txt";
-	
+	// String that is paired with the actual zero probability
+	private static final String ZERO_PROBABILITY_STRING = "ZERO";
 	// Numerator of probability of 0 probability for additive smoothing
 	private static final int ALPHA = 1;
 
@@ -89,10 +91,14 @@ public class Trainer {
 			// must add (ALPHA * # of lemmas) to our denominator so that our
 			// numerators still all sum up to our denominator
 			double denominator = total_lemma_frequency + lemmaFreqMap.size() * ALPHA;
-
+			
 			// Map each lemma to (total # of occurences / total # of occurences of all lemmas)
 			// for a given profession
 			List<StringDouble> list = new ArrayList<StringDouble>();
+			
+			double zero_probability = ALPHA / denominator;
+			list.add(new StringDouble(ZERO_PROBABILITY_STRING, zero_probability));
+
 			for(String s : lemmaFreqMap.keySet()) {
 				double numerator = lemmaFreqMap.get(s) + ALPHA;
 				double probability = Math.log(numerator) - Math.log(denominator);
