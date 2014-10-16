@@ -126,9 +126,11 @@ public class Classifier {
         			//This method ignores words that don't appear in the training data
         			//If we apply smoothing, this will need to be changed
         			if (trainingMap.containsKey(stInt.getString())) {
-						totalP += stInt.getValue()
-								* trainingMap.get(stInt.getString());
+						totalP += stInt.getValue() * trainingMap.get(stInt.getString());
 					}
+        			else {
+        				totalP += -13 * stInt.getValue();
+        			}
         		}
         		
         		
