@@ -150,14 +150,15 @@ public class Classifier {
         	
         	String professions = "";
         	for (String prof : topNames) {
-        		professions = professions.concat(prof);
+        		professions = professions.concat(prof + ", ");
         	}
+        	professions = professions.substring(0, professions.length() - 2);
             context.write(title, new Text(professions));
 
-        }
+        }	//End of map()
 
 
-    }
+    }	//End of mapper class
    
 
     
