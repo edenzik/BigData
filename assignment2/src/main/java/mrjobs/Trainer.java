@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,7 +11,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.filecache.DistributedCache;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
@@ -39,7 +37,8 @@ import util.TitleProfessionParser;
 @SuppressWarnings("deprecation")
 public class Trainer {
 
-	private static String training_path = "hdfs://deerstalker.cs.brandeis.edu:54645/user/hadoop01/resources/profession_train.txt";
+	private static final String HDFS_HOME = "hdfs://deerstalker.cs.brandeis.edu:54645/user/hadoop01/";
+	private static String training_path = HDFS_HOME + "resources/profession_train.txt";
 
 	public static class TrainerMapper extends Mapper<Text, Text, Text, StringIntegerList> {
 
@@ -51,18 +50,18 @@ public class Trainer {
 
 			super.setup(context);
 			JobConf conf = new JobConf();
+			/*
 			try {
 				//DistributedCache.addCacheFile(new URI("/resources/profession_train.txt#profession_train.txt"), job);
 				//DistributedCache.addCacheFile(new URI(training_path), job);
 				DistributedCache.addCacheFile(new URI("hdfs://user/hadoop01/resources/profession_train.txt"), conf);
 			} catch(URISyntaxException e) {
 				e.printStackTrace();
-			}
+			}*/
 
 			//Builds a map of people->profession
 			URI[] files = Job.getInstance(context.getConfiguration()).getCacheFiles();
 			FileSystem fs = FileSystem.get(context.getConfiguration());
-			System.out.println(new Path(files[0]));
 			BufferedReader reader = new BufferedReader(new InputStreamReader(fs.open(new Path(files[0]))));
 			titleProfessionMap = TitleProfessionParser.buildTitleProfessionMap(reader);
 		}
@@ -119,8 +118,15 @@ public class Trainer {
 		Configuration conf = new Configuration();
 		Job job = Job.getInstance(conf, "trainer");
 
-		// Adds profession training data as a cached file
-		job.addCacheFile((new Path(training_path)).toUri());
+		// default assumes hard-coded training_data path
+		if(args.length == 2) {
+			// Adds profession training data as a cached file
+			job.addCacheFile((new Path(training_path)).toUri());
+		}
+		// Optional third argument for training_data path
+		else if(args.length == 3) {
+			job.addCacheFile(new Path(HDFS_HOME + args[2]).toUri());
+		}
 
 		job.setJarByClass(Trainer.class);
 		job.setMapperClass(TrainerMapper.class);
