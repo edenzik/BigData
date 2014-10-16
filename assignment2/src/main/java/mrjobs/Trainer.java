@@ -37,6 +37,9 @@ public class Trainer {
 
 	private static final String HDFS_HOME = "hdfs://deerstalker.cs.brandeis.edu:54645/user/hadoop01/";
 	private static String training_path = HDFS_HOME + "resources/profession_train.txt";
+	
+	// Numerator of probability of 0 probability for additive smoothing
+	private static final int ALPHA = 1;
 
 	public static class TrainerMapper extends Mapper<Text, Text, Text, StringIntegerList> {
 
@@ -47,15 +50,6 @@ public class Trainer {
 				throws IOException, InterruptedException {
 
 			super.setup(context);
-			/*
-			JobConf conf = new JobConf();
-			try {
-				//DistributedCache.addCacheFile(new URI("/resources/profession_train.txt#profession_train.txt"), job);
-				//DistributedCache.addCacheFile(new URI(training_path), job);
-				DistributedCache.addCacheFile(new URI("hdfs://user/hadoop01/resources/profession_train.txt"), conf);
-			} catch(URISyntaxException e) {
-				e.printStackTrace();
-			}*/
 
 			//Builds a map of people->profession
 			URI[] files = Job.getInstance(context.getConfiguration()).getCacheFiles();
@@ -83,24 +77,30 @@ public class Trainer {
 	Reducer<Text, StringIntegerList, Text, StringDoubleList> {
 
 		@Override
-		public void reduce(Text lemma, Iterable<StringIntegerList> lemmaFreqIter, Context context)
+		public void reduce(Text profession, Iterable<StringIntegerList> lemmaFreqIter, Context context)
 				throws IOException, InterruptedException {
 			// merge all StringIntegerLists for a given profession s.t. each lemma
-			// has only one entry in the StringIntegerList
+			// has only one entry in the generated aggregate map
 			Map<String, Double> lemmaFreqMap = TrainerHelper.getAggregateMap(lemmaFreqIter);
-			// sum up all frequencies into denominators
-			double denominator = TrainerHelper.getFrequencySum(lemmaFreqMap);
-			//TODO: check for overflow
+			// sum up all frequencies of all lemmas for a given profession
+			double total_lemma_frequency = TrainerHelper.getFrequencySum(lemmaFreqMap);
+			// This is used to account for the zero probability being added in.
+			// Because ALPHA is added to the numerator of each probability, we
+			// must add (ALPHA * # of lemmas) to our denominator so that our
+			// numerators still all sum up to our denominator
+			double denominator = total_lemma_frequency + lemmaFreqMap.size() * ALPHA;
 
 			// Map each lemma to (total # of occurences / total # of occurences of all lemmas)
 			// for a given profession
 			List<StringDouble> list = new ArrayList<StringDouble>();
 			for(String s : lemmaFreqMap.keySet()) {
-				list.add(new StringDouble(s, Math.log(lemmaFreqMap.get(s) / denominator)));
+				double numerator = lemmaFreqMap.get(s) + ALPHA;
+				double probability = Math.log(numerator) - Math.log(denominator);
+				list.add(new StringDouble(s, probability));
 			}
 
 			StringDoubleList out = new StringDoubleList(list);
-			context.write(lemma, out);
+			context.write(profession, out);
 		}
 	}
 
@@ -122,7 +122,8 @@ public class Trainer {
 		job.setMapperClass(TrainerMapper.class);
 		job.setReducerClass(TrainerReducer.class);
 		job.setInputFormatClass(KeyValueTextInputFormat.class);
-		// Map output types
+		// Map output types (though I'm not sure what the difference between these
+		// and setOutputKey/SetOutputValue are...)
 		job.setMapOutputKeyClass(Text.class);
 		job.setMapOutputValueClass(StringIntegerList.class);
 		
