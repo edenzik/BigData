@@ -51,8 +51,8 @@ public class Classifier {
         job.setMapperClass(ClassifyMapper.class);
         job.setReducerClass(ClassifyReducer.class);
         job.setInputFormatClass(KeyValueTextInputFormat.class);
-        job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(StringIntegerList.class);
+        job.setMapOutputKeyClass(Text.class);
+        job.setMapOutputValueClass(StringIntegerList.class);
         FileInputFormat.addInputPath(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
         
@@ -72,11 +72,15 @@ public class Classifier {
 
     }	//End of main()
 	
-    public static class ClassifyMapper extends Mapper<Text, StringIntegerList, Text, StringIntegerList> {
+    public static class ClassifyMapper extends Mapper<Text, Text, Text, StringIntegerList> {
 
         @Override
-        public void map(Text title, StringIntegerList lemmalists, Context context) throws IOException, InterruptedException {
+        public void map(Text title, Text listText, Context context) throws IOException, InterruptedException {
         
+        		StringIntegerList lemmalists = new StringIntegerList();
+        		
+        		lemmalists.readFromString(listText.toString());
+        	
             	context.write(title, lemmalists);
             	
         }
