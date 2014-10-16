@@ -4,7 +4,7 @@
 
   <groupId>hadoop01</groupId>
   <artifactId>assignment2</artifactId>
-  <version>1.9-SNAPSHOT</version>
+  <version>2.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>assignment2</name>
