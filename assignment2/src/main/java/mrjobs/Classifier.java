@@ -275,12 +275,13 @@ public class Classifier {
 
 			outputMap.put(splitLine[0], list.getMap());
 			
-			assert list.getMap().toString().contains("ZERO") || !list.getMap().toString().contains("zero"):
-				("No ZERO found in map text for " + splitLine[0] + ":\n" + list.getMap().toString());
-			assert list.getMap().containsKey("ZERO") || !list.getMap().containsKey("zero") :
-				("No ZERO found in map keys for " + splitLine[0] + ":\n" + list.getMap().toString());
+			if ( !list.getMap().toString().contains("ZERO") || !list.getMap().toString().contains("zero") )
+				throw new RuntimeException("No ZERO found in map text for " + splitLine[0] + ":\n" + list.getMap().toString());
+			if ( !list.getMap().containsKey("ZERO") || !list.getMap().containsKey("zero") )
+				throw new RuntimeException("No ZERO found in map keys for " + splitLine[0] + ":\n" + list.getMap().toString());
 
-			assert lineCount == outputMap.size(): "COLLISION DETECTED IN OUTPUT MAP DURING BUILDING OF MAP AT LABEL " + splitLine[0];
+			if ( !(lineCount == outputMap.size()) )
+				throw new RuntimeException("COLLISION DETECTED IN OUTPUT MAP DURING BUILDING OF MAP AT LABEL " + splitLine[0]);
 		}
 
 		if (false)
