@@ -135,7 +135,7 @@ public class Classifier {
 							totalP = totalP + ( stInt.getValue() * Math.log(trainingMap.get(stInt.getString())) );
 
 						} else if (trainingMap.get("ZERO") == null){
-							throw new RuntimeException("NO zero found. Printing map: \n" + trainingMap.toString());
+							throw new RuntimeException("NO zero found. Printing map for " + profession.getName() + " : \n" + trainingMap.toString());
 							
 							
 							
