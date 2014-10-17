@@ -20,7 +20,6 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import util.Profession;
 import util.StringDoubleList;
-import util.StringDoubleList.StringDouble;
 import util.StringIntegerList;
 import util.StringIntegerList.StringInteger;
 
@@ -91,7 +90,7 @@ public class Classifier {
 			FileSystem fs = FileSystem.get(context.getConfiguration());
 			System.out.println(new Path(files[0]));
 			BufferedReader reader = new BufferedReader(new InputStreamReader(fs.open(new Path(files[0]))));
-			fullProfessionMap = buildJobMap(reader);
+			fullProfessionMap = buildJobMapWithoutRFS(reader);
 			reader.close();
 		}
 
@@ -137,12 +136,12 @@ public class Classifier {
 						if (trainingMap.containsKey(stInt.getString())) {
 							totalP = totalP + ( stInt.getValue() * Math.log(trainingMap.get(stInt.getString())) );
 
-						} else if (false && trainingMap.get(ZERO_KEY) == null){
-							throw new RuntimeException("NO zero found. Printing map for " + profession.getName() + " : \n" + trainingMap.toString());
-							
-							
-							
-							
+//						} else if (false && trainingMap.get(ZERO_KEY) == null){
+//							throw new RuntimeException("NO zero found. Printing map for " + profession.getName() + " : \n" + trainingMap.toString());
+//							
+//							
+//							
+//							
 						} else {
 							double zeroP;
 							if (trainingMap.get(ZERO_KEY) != null) {
@@ -285,14 +284,66 @@ public class Classifier {
 				throw new RuntimeException("COLLISION DETECTED IN OUTPUT MAP DURING BUILDING OF MAP AT LABEL " + splitLine[0]);
 		}
 
-		if (false)
-			throw new RuntimeException("I have maps for: " + outputMap.keySet().toString());
-		if (false) {
-			throw new RuntimeException("Read " + lineCount + " lines from input file and built " + outputMap.size() + " maps.");
-		}
+//		if (false)
+//			throw new RuntimeException("I have maps for: " + outputMap.keySet().toString());
+//		if (false) {
+//			throw new RuntimeException("Read " + lineCount + " lines from input file and built " + outputMap.size() + " maps.");
+//		}
 
 		return outputMap;
 	}
+	
+	private static HashMap<String, Map<String, Double>> buildJobMapWithoutRFS(BufferedReader reader) throws IOException {
+		int lineCount = 0;
+
+
+		HashMap<String, Map<String, Double>> outputMap = new HashMap<String, Map<String, Double>>(1000);
+
+		//This loop builds each sub map for each profession
+		while (reader.ready()) {
+
+
+			String inputLine = reader.readLine();
+			lineCount++;
+
+			String[] splitLine = inputLine.split("\t");
+
+			StringDoubleList list = new StringDoubleList();
+
+			String[] tokens = splitLine[1].substring(1, splitLine[1].length() - 1).split(">,<");
+			Map<String, Double> professionMap = new HashMap<String, Double>();
+			
+			for (String tok : tokens) {
+				String[] sd = tok.split(",");
+				professionMap.put(sd[0], Double.parseDouble(sd[1]));
+			}
+			
+			if (professionMap.size() != tokens.length) {
+				throw new RuntimeException("Map contains " + professionMap.size() + " values, but exptected " + tokens.length + " based on tokens");
+			}
+			
+			if ( professionMap.toString().contains(ZERO_KEY) )
+				throw new RuntimeException("No ZERO found in map text for " + splitLine[0] + ":\n" + list.getMap().toString());
+			if ( professionMap.containsKey(ZERO_KEY) )
+				throw new RuntimeException("No ZERO found in map keys for " + splitLine[0] + ":\n" + list.getMap().toString());
+
+			if ( !(lineCount == outputMap.size()) )
+				throw new RuntimeException("COLLISION DETECTED IN OUTPUT MAP DURING BUILDING OF MAP AT LABEL " + splitLine[0]);
+			
+			
+			outputMap.put(splitLine[0], professionMap);
+			
+		}
+
+//		if (false)
+//			throw new RuntimeException("I have maps for: " + outputMap.keySet().toString());
+//		if (false) {
+//			throw new RuntimeException("Read " + lineCount + " lines from input file and built " + outputMap.size() + " maps.");
+//		}
+
+		return outputMap;
+	}
+
 
 
 }	//End of Classifier
