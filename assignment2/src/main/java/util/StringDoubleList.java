@@ -18,7 +18,7 @@ public class StringDoubleList implements Writable {
 	public static class StringDouble implements Writable {
 		private String s;
 		private double d;
-		public static Pattern p = Pattern.compile("(.+),(-?\\d+\\.\\d+)");
+		public static Pattern p = Pattern.compile("(.+),([-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?)");
 
 		public StringDouble() {
 		}
