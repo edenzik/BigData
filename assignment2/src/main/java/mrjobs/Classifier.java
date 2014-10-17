@@ -132,11 +132,11 @@ public class Classifier {
 						//This method uses additive smoothing to account for values not found
 						//In training data, zero probability is at key: "0"
 						if (trainingMap.containsKey(stInt.getString())) {
-							totalP = totalP + ( stInt.getValue() * trainingMap.get(stInt.getString()) );
+							totalP = totalP + ( stInt.getValue() * Math.log(trainingMap.get(stInt.getString())) );
 
 						} else {
 							//No match, use the zero probability
-							totalP = totalP + ( stInt.getValue() * .00000001 );
+							totalP = totalP + ( stInt.getValue() * Math.log(trainingMap.get("ZERO")) );
 						}
 
 
