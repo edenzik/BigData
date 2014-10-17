@@ -269,8 +269,18 @@ public class Classifier {
 			StringDoubleList list = new StringDoubleList();
 
 			list.readFromString(splitLine[1]);
+			
+			if (!list.toString().contains("ZERO") && !list.toString().contains("zero")) {
+				throw new RuntimeException("No ZERO found in list for " + splitLine[0] + ":\n" + list.toString());
+			}
 
 			outputMap.put(splitLine[0], list.getMap());
+			
+			if (!list.getMap().toString().contains("ZERO") || !list.getMap().toString().contains("zero")) {
+				throw new RuntimeException("No ZERO found in map text for " + splitLine[0] + ":\n" + list.getMap().toString());
+			} else if (!list.getMap().containsKey("ZERO") || !list.getMap().containsKey("zero")) {
+				throw new RuntimeException("No ZERO found in map keys for " + splitLine[0] + ":\n" + list.getMap().toString());
+			}
 
 
 		}
