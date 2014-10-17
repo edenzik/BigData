@@ -237,21 +237,15 @@ public class Classifier {
 			
 			String inputLine = reader.readLine();
 			
-			if (!printed) {
-				System.err.println("**************************************************************************************");
-				System.err.println("Printing first line read in from Kahlil's input");
-				System.err.println(inputLine);
-				System.err.println("**************************************************************************************");
-				printed = true;
-			}
+			if (!printed)
+			throw new RuntimeException(inputLine);
 			
 			String[] splitLine = inputLine.split("\t");
 			
 			if (!printed2) {
 				System.err.println("**************************************************************************************");
 				System.err.println("Printing line after parsing");
-				System.err.println(splitLine[0]);
-				System.err.println(splitLine[1]);
+//				throw new Exception();
 				System.err.println("**************************************************************************************");
 				printed2 = true;
 			}
