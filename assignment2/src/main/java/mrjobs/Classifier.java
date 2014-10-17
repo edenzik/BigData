@@ -89,8 +89,9 @@ public class Classifier {
 			URI[] files = Job.getInstance(context.getConfiguration()).getCacheFiles();
 			FileSystem fs = FileSystem.get(context.getConfiguration());
 			System.out.println(new Path(files[0]));
-			BufferedReader reader = new BufferedReader(new InputStreamReader(fs.open(new Path(files[0]))));
-			fullProfessionMap = buildJobMapWithoutRFS(reader);
+			BufferedReader reader = new BufferedReader( new InputStreamReader( fs.open(new Path(files[0])) ) );
+//			fullProfessionMap = buildJobMapWithoutRFS(reader);
+			fullProfessionMap = buildJobMap(reader);
 			reader.close();
 		}
 
@@ -271,7 +272,13 @@ public class Classifier {
 			list.readFromString(splitLine[1]);
 			
 			if (! (list.toString().contains(ZERO_KEY)) )
-					throw new RuntimeException("No ZERO found in list for " + splitLine[0] + ":\n" + list.toString());
+					throw new RuntimeException("No ZERO found in list for " + splitLine[0] + ":\n"
+							+ "length of input string is " + splitLine[1].length() + "\n" +
+							"This is line number " + lineCount + "\n"
+							+ "List has " + list.getIndices().size() + " elements\n"
+							+ "Printing content of this line: \n" +
+							inputLine + "\n" +
+							list.toString());
 
 			outputMap.put(splitLine[0], list.getMap());
 			
