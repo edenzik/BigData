@@ -250,12 +250,8 @@ public class Classifier {
 			if (!printed3) {
 				System.err.println("**************************************************************************************");
 				System.err.println("Printing StringDoubleList after building");
-				for (StringDouble sd : list.getIndices()) {
+				throw new RuntimeException(list.getIndices().toString());
 
-					throw new RuntimeException(sd.getString() + ":::::" + sd.getValue());
-				}
-				System.err.println("**************************************************************************************");
-				printed3 = true;
 			}
 			
 			list.readFromString(splitLine[1].trim());
