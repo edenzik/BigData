@@ -138,10 +138,16 @@ public class Classifier {
 
 
 					} catch (NullPointerException e) {
+						String mape;
+						if (trainingMap == null) {
+							mape = "MAP WAS NULL";
+						} else {
+							mape = trainingMap.toString();
+						}
 						throw new RuntimeException("Working on profession: " + profession.getName() + "\n"
 								+ "Failed to match lemma: " + stInt.getString() + "\n"
 								+ "Map contents: \n"
-								+ trainingMap.toString());
+								+ mape);
 					}
 					
 				}	//End of for each lemma
@@ -234,16 +240,17 @@ public class Classifier {
 	}	//End of insertP
 
 	private static HashMap<String, Map<String, Double>> buildJobMap(BufferedReader reader) throws IOException {
+		int lineCount = 0;
+		
 
-
-		HashMap<String, Map<String, Double>> outputMap = new HashMap<String, Map<String, Double>>();
+		HashMap<String, Map<String, Double>> outputMap = new HashMap<String, Map<String, Double>>(1000);
 
 		//This loop builds each sub map for each profession
 		while (reader.ready()) {
 
 
 			String inputLine = reader.readLine();
-
+			lineCount++;
 
 			String[] splitLine = inputLine.split("\t");
 
@@ -252,6 +259,17 @@ public class Classifier {
 			list.readFromString(splitLine[1].trim());
 
 			outputMap.put(splitLine[0].trim(), list.getMap());
+			
+			if (outputMap.size() != lineCount) {
+				throw new RuntimeException("Failed to add new map. Was trying to insert for " + splitLine[0].trim() +
+						"\nMap already contains this key: " + (outputMap.containsKey(splitLine[0])));
+			}
+		}
+		
+		if (false)
+			throw new RuntimeException("I have maps for: " + outputMap.keySet().toString());
+		if (false) {
+			throw new RuntimeException("Read " + lineCount + " lines from input file and built " + outputMap.size() + " maps.");
 		}
 
 		return outputMap;
