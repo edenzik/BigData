@@ -30,6 +30,9 @@ import util.StringIntegerList.StringInteger;
  */
 public class Classifier {
 
+	//String name of the ZERO probability key for lookup
+	private static final String ZERO_KEY = Trainer.ZERO_PROBABILITY_STRING;
+	
 	private static String DEFAULT_TRAINING_PATH = "hdfs://deerstalker.cs.brandeis.edu:54645/user/hadoop01/output/old_training/part-r-00000";
 	private static int OUTPUT_PROFESSION_NUMBER = 10;
 
@@ -134,7 +137,7 @@ public class Classifier {
 						if (trainingMap.containsKey(stInt.getString())) {
 							totalP = totalP + ( stInt.getValue() * Math.log(trainingMap.get(stInt.getString())) );
 
-						} else if (false && trainingMap.get("ZERO") == null){
+						} else if (false && trainingMap.get(ZERO_KEY) == null){
 							throw new RuntimeException("NO zero found. Printing map for " + profession.getName() + " : \n" + trainingMap.toString());
 							
 							
@@ -142,10 +145,8 @@ public class Classifier {
 							
 						} else {
 							double zeroP;
-							if (trainingMap.get("ZERO") != null) {
-								zeroP = trainingMap.get("ZERO");
-							} else if (trainingMap.get("zero") != null) {
-								zeroP = trainingMap.get("zero");
+							if (trainingMap.get(ZERO_KEY) != null) {
+								zeroP = trainingMap.get(ZERO_KEY);
 							} else {
 								throw new RuntimeException("NO zero found. Printing map for " + profession.getName() + " : \n" + trainingMap.toString());
 							}
@@ -270,14 +271,14 @@ public class Classifier {
 
 			list.readFromString(splitLine[1]);
 			
-			assert list.toString().contains("ZERO") && !list.toString().contains("zero"):
-				("No ZERO found in list for " + splitLine[0] + ":\n" + list.toString());
+			if (! (list.toString().contains(ZERO_KEY)) )
+					throw new RuntimeException("No ZERO found in list for " + splitLine[0] + ":\n" + list.toString());
 
 			outputMap.put(splitLine[0], list.getMap());
 			
-			if ( !list.getMap().toString().contains("ZERO") || !list.getMap().toString().contains("zero") )
+			if ( !list.getMap().toString().contains(ZERO_KEY) )
 				throw new RuntimeException("No ZERO found in map text for " + splitLine[0] + ":\n" + list.getMap().toString());
-			if ( !list.getMap().containsKey("ZERO") || !list.getMap().containsKey("zero") )
+			if ( !list.getMap().containsKey(ZERO_KEY) )
 				throw new RuntimeException("No ZERO found in map keys for " + splitLine[0] + ":\n" + list.getMap().toString());
 
 			if ( !(lineCount == outputMap.size()) )
