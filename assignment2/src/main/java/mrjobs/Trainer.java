@@ -95,13 +95,13 @@ public class Trainer {
 			// for a given profession
 			List<StringDouble> list = new ArrayList<StringDouble>();
 			
-			double zero_probability = Math.log(ALPHA) - Math.log(denominator);
+			double zero_probability = ALPHA / denominator;
 			
 			list.add(new StringDouble(ZERO_PROBABILITY_STRING, zero_probability));
 
 			for(String s : lemmaFreqMap.keySet()) {
 				double numerator = lemmaFreqMap.get(s) + ALPHA;
-				double probability = Math.log(numerator) - Math.log(denominator);
+				double probability = numerator / denominator;
 				list.add(new StringDouble(s, probability));
 			}
 
