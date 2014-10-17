@@ -247,14 +247,11 @@ public class Classifier {
 				
 			StringDoubleList list = new StringDoubleList();
 			
-			if (!printed3) {
-				System.err.println("**************************************************************************************");
-				System.err.println("Printing StringDoubleList after building");
-				throw new RuntimeException(list.getIndices().toString());
-
-			}
-			
 			list.readFromString(splitLine[1].trim());
+			
+			if (!printed3) {
+				throw new RuntimeException(list.getIndices().toString());
+			}
 				
 			outputMap.put(splitLine[0].trim(), list.getMap());
 		}
