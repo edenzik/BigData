@@ -242,13 +242,8 @@ public class Classifier {
 			
 			String[] splitLine = inputLine.split("\t");
 			
-			if (!printed2) {
-				System.err.println("**************************************************************************************");
-				System.err.println("Printing line after parsing");
-//				throw new Exception();
-				System.err.println("**************************************************************************************");
-				printed2 = true;
-			}
+			if (!printed2)
+				throw new RuntimeException(splitLine[0] + ":::::" + splitLine[1]);
 				
 			StringDoubleList list = new StringDoubleList();
 			
