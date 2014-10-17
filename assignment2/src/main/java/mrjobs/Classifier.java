@@ -250,7 +250,7 @@ public class Classifier {
 			list.readFromString(splitLine[1].trim());
 			
 			if (!printed3) {
-				throw new RuntimeException("ZERO Probability is : " + (list.getMap().get("ZERO")));
+				throw new RuntimeException("special Probability is : " + (list.getMap().get("special")));
 			}
 				
 			outputMap.put(splitLine[0].trim(), list.getMap());
