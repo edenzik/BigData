@@ -134,15 +134,23 @@ public class Classifier {
 						if (trainingMap.containsKey(stInt.getString())) {
 							totalP = totalP + ( stInt.getValue() * Math.log(trainingMap.get(stInt.getString())) );
 
-						} else if (trainingMap.get("ZERO") == null){
+						} else if (false && trainingMap.get("ZERO") == null){
 							throw new RuntimeException("NO zero found. Printing map for " + profession.getName() + " : \n" + trainingMap.toString());
 							
 							
 							
 							
 						} else {
+							double zeroP;
+							if (trainingMap.get("ZERO") != null) {
+								zeroP = trainingMap.get("ZERO");
+							} else if (trainingMap.get("zero") != null) {
+								zeroP = trainingMap.get("zero");
+							} else {
+								throw new RuntimeException("NO zero found. Printing map for " + profession.getName() + " : \n" + trainingMap.toString());
+							}
 							//No match, use the zero probability
-							totalP = totalP + ( stInt.getValue() * Math.log(trainingMap.get("ZERO")) );
+							totalP = totalP + ( stInt.getValue() * Math.log(zeroP) );
 						}
 
 
@@ -260,9 +268,19 @@ public class Classifier {
 
 			StringDoubleList list = new StringDoubleList();
 
-			list.readFromString(splitLine[1].trim());
+			list.readFromString(splitLine[1]);
+			
+			if (!list.toString().contains("ZERO") && !list.toString().contains("zero")) {
+				throw new RuntimeException("No ZERO found in list for " + splitLine[0] + ":\n" + list.toString());
+			}
 
-			outputMap.put(splitLine[0].trim(), list.getMap());
+			outputMap.put(splitLine[0], list.getMap());
+			
+			if (!list.getMap().toString().contains("ZERO") || !list.getMap().toString().contains("zero")) {
+				throw new RuntimeException("No ZERO found in map text for " + splitLine[0] + ":\n" + list.getMap().toString());
+			} else if (!list.getMap().containsKey("ZERO") || !list.getMap().containsKey("zero")) {
+				throw new RuntimeException("No ZERO found in map keys for " + splitLine[0] + ":\n" + list.getMap().toString());
+			}
 
 
 		}
