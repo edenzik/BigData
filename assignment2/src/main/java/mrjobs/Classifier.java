@@ -134,6 +134,12 @@ public class Classifier {
 						if (trainingMap.containsKey(stInt.getString())) {
 							totalP = totalP + ( stInt.getValue() * Math.log(trainingMap.get(stInt.getString())) );
 
+						} else if (trainingMap.get("ZERO") == null){
+							throw new RuntimeException("NO zero found. Printing map: \n" + trainingMap.toString());
+							
+							
+							
+							
 						} else {
 							//No match, use the zero probability
 							totalP = totalP + ( stInt.getValue() * Math.log(trainingMap.get("ZERO")) );
