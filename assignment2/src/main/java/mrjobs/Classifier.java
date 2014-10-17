@@ -250,7 +250,7 @@ public class Classifier {
 			list.readFromString(splitLine[1].trim());
 			
 			if (!printed3) {
-				throw new RuntimeException(list.getIndices().toString());
+				throw new RuntimeException(list.getMap().toString());
 			}
 				
 			outputMap.put(splitLine[0].trim(), list.getMap());
