@@ -118,13 +118,16 @@ public class Classifier {
 				double totalP = 0;
 				Map<String, Double> trainingMap = fullProfessionMap.get(profession.getName());
 
-				//StringIntegerList is not iterable, so turn it into an iterable object
-				List<StringInteger> lemmaList = lemmaFreq.getIndices();
+
+				//Did we have data for this profession in training data?
+				if (trainingMap != null) {
+
+					//StringIntegerList is not iterable, so turn it into an iterable object
+					List<StringInteger> lemmaList = lemmaFreq.getIndices();
 
 
-				//For each lemma in this list, add the probability 
-				for (StringInteger stInt : lemmaList) {
-					try {
+					//For each lemma in this list, add the probability 
+					for (StringInteger stInt : lemmaList) {
 
 						//This method uses additive smoothing to account for values not found
 						//In training data, zero probability is at key: "0"
@@ -137,20 +140,15 @@ public class Classifier {
 						}
 
 
-					} catch (NullPointerException e) {
-						String mape;
-						if (trainingMap == null) {
-							mape = "MAP WAS NULL";
-						} else {
-							mape = trainingMap.toString();
-						}
-						throw new RuntimeException("Working on profession: " + profession.getName() + "\n"
-								+ "Failed to match lemma: " + stInt.getString() + "\n"
-								+ "Map contents: \n"
-								+ mape);
-					}
-					
-				}	//End of for each lemma
+					}	//End of for each lemma
+
+
+				} else {
+					//No data for this profession
+					//Don't match this one
+					totalP = Double.NEGATIVE_INFINITY;
+				}
+
 
 
 
@@ -241,7 +239,7 @@ public class Classifier {
 
 	private static HashMap<String, Map<String, Double>> buildJobMap(BufferedReader reader) throws IOException {
 		int lineCount = 0;
-		
+
 
 		HashMap<String, Map<String, Double>> outputMap = new HashMap<String, Map<String, Double>>(1000);
 
@@ -259,13 +257,10 @@ public class Classifier {
 			list.readFromString(splitLine[1].trim());
 
 			outputMap.put(splitLine[0].trim(), list.getMap());
-			
-			if (outputMap.size() != lineCount) {
-				throw new RuntimeException("Failed to add new map. Was trying to insert for " + splitLine[0].trim() +
-						"\nMap already contains this key: " + (outputMap.containsKey(splitLine[0])));
-			}
+
+
 		}
-		
+
 		if (false)
 			throw new RuntimeException("I have maps for: " + outputMap.keySet().toString());
 		if (false) {
