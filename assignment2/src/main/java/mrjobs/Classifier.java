@@ -250,7 +250,7 @@ public class Classifier {
 			list.readFromString(splitLine[1].trim());
 			
 			if (!printed3) {
-				throw new RuntimeException(list.getMap().toString());
+				throw new RuntimeException("Size difference is: " + (list.getMap().size() - list.getIndices().size()));
 			}
 				
 			outputMap.put(splitLine[0].trim(), list.getMap());
