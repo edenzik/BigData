@@ -97,13 +97,15 @@ public class Trainer {
 			
 			double zero_probability = ALPHA / denominator;
 			
-			list.add(new StringDouble(ZERO_PROBABILITY_STRING, zero_probability));
+			//list.add(new StringDouble(ZERO_PROBABILITY_STRING, zero_probability));
 
 			for(String s : lemmaFreqMap.keySet()) {
 				double numerator = lemmaFreqMap.get(s) + ALPHA;
 				double probability = numerator / denominator;
 				list.add(new StringDouble(s, probability));
 			}
+			// Trying adding zero-probability at end of list for debugging
+			list.add(new StringDouble(ZERO_PROBABILITY_STRING, zero_probability));
 
 			StringDoubleList out = new StringDoubleList(list);
 			context.write(profession, out);
