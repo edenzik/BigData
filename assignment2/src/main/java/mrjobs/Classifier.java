@@ -226,7 +226,7 @@ public class Classifier {
 	private static HashMap<String, Map<String, Double>> buildJobMap(BufferedReader reader) throws IOException {
 		
 		boolean printed = true;
-		boolean printed2 = false;
+		boolean printed2 = true;
 		boolean printed3 = false;
 		
 		HashMap<String, Map<String, Double>> outputMap = new HashMap<String, Map<String, Double>>();
@@ -251,7 +251,8 @@ public class Classifier {
 				System.err.println("**************************************************************************************");
 				System.err.println("Printing StringDoubleList after building");
 				for (StringDouble sd : list.getIndices()) {
-					System.err.printf("%s, %f", sd.getString(), sd.getValue());
+
+					throw new RuntimeException(sd.getString() + ":::::" + sd.getValue());
 				}
 				System.err.println("**************************************************************************************");
 				printed3 = true;
