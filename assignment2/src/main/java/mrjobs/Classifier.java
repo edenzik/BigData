@@ -20,6 +20,7 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import util.Profession;
 import util.StringDoubleList;
+import util.StringDoubleList.StringDouble;
 import util.StringIntegerList;
 import util.StringIntegerList.StringInteger;
 
@@ -224,18 +225,50 @@ public class Classifier {
     
 	private static HashMap<String, Map<String, Double>> buildJobMap(BufferedReader reader) throws IOException {
 		
+		boolean printed = false;
+		boolean printed2 = false;
+		boolean printed3 = false;
+		
 		HashMap<String, Map<String, Double>> outputMap = new HashMap<String, Map<String, Double>>();
 		
 		//This loop builds each sub map for each profession
 		while (reader.ready()) {
 			
+			
 			String inputLine = reader.readLine();
 			
+			if (!printed) {
+				System.err.println("**************************************************************************************");
+				System.err.println("Printing first line read in from Kahlil's input");
+				System.err.println(inputLine);
+				System.err.println("**************************************************************************************");
+				printed = true;
+			}
+			
 			String[] splitLine = inputLine.split("\t");
+			
+			if (!printed2) {
+				System.err.println("**************************************************************************************");
+				System.err.println("Printing line after parsing");
+				System.err.println(splitLine[0]);
+				System.err.println(splitLine[1]);
+				System.err.println("**************************************************************************************");
+				printed2 = true;
+			}
 				
 			StringDoubleList list = new StringDoubleList();
 			
-			list.readFromString(inputLine.split("\t")[1].trim());
+			if (!printed3) {
+				System.err.println("**************************************************************************************");
+				System.err.println("Printing StringDoubleList after building");
+				for (StringDouble sd : list.getIndices()) {
+					System.err.printf("%s, %f", sd.getString(), sd.getValue());
+				}
+				System.err.println("**************************************************************************************");
+				printed3 = true;
+			}
+			
+			list.readFromString(splitLine[1].trim());
 				
 			outputMap.put(splitLine[0].trim(), list.getMap());
 		}
