@@ -225,7 +225,7 @@ public class Classifier {
     
 	private static HashMap<String, Map<String, Double>> buildJobMap(BufferedReader reader) throws IOException {
 		
-		boolean printed = false;
+		boolean printed = true;
 		boolean printed2 = false;
 		boolean printed3 = false;
 		
