@@ -63,13 +63,12 @@ public class Trainer {
 		@Override
 		public void map(Text title, Text lemmaCountsText, Context context) throws IOException,
 		InterruptedException {
-
 			StringIntegerList lemmaCounts = new StringIntegerList();
 			lemmaCounts.readFromString(lemmaCountsText.toString());
 			Set<String> professions = titleProfessionMap.get(title.toString());
 			if(professions != null) {
 				for(String s: professions) {
-					context.write(new Text(s), lemmaCounts);
+					context.write(new Text(s.toLowerCase().trim()), lemmaCounts);
 				}
 			}
 		}

@@ -41,17 +41,6 @@ public class TrainerHelper {
 		
 	}
 
-	// Iterates through the given Iterable StringIntegerList and sums up all of
-	// the frequencies to be equal to the denominator
-	public static double getFrequencySum(Map<String, Double> stringIntMap) {
-		double denominator = 0.0;
-		Set<String> keys = stringIntMap.keySet();
-		for(String s: keys) {
-			denominator += stringIntMap.get(s);
-		}
-		return denominator;
-	}
-
 	// Takes a Collection of StringIntegerLists and aggregates into one map
 	// so that each lemma has one entry associated with the sum of each of its
 	// frequencies with each different article of the same profession
@@ -69,6 +58,17 @@ public class TrainerHelper {
 			}
 		}
 		return map;
+	}
+	
+	// Iterates through the given lemma frequency map and sums up the frequencies
+	// of all of the lemmas
+	public static double getFrequencySum(Map<String, Double> lemmaFreqMap) {
+		double denominator = 0.0;
+		Set<String> keys = lemmaFreqMap.keySet();
+		for(String s: keys) {
+			denominator += lemmaFreqMap.get(s);
+		}
+		return denominator;
 	}
 	
 }
