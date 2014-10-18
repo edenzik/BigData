@@ -24,6 +24,7 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import util.StringDoubleList;
 import util.StringDoubleList.StringDouble;
 import util.StringIntegerList;
+import util.StringIntegerList.StringInteger;
 import util.TitleProfessionParser;
 import util.TrainerHelper;
 
@@ -102,10 +103,10 @@ public class Trainer {
 				List<StringInteger> list = l.getIndices();
 					for(StringInteger i: list) {
 						String key = i.getString();
-						if(map.get(key) == null) {
-							map.put(key, 1.0);
+						if(freqMap.get(key) == null) {
+							freqMap.put(key, 1.0);
 						} else {
-							map.put(key, map.get(key) + 1.0);
+							freqMap.put(key, freqMap.get(key) + 1.0);
 						}
 					}
 			}
@@ -121,8 +122,8 @@ public class Trainer {
 			
 			//list.add(new StringDouble(ZERO_PROBABILITY_STRING, zero_probability));
 
-			for(String s : lemmaFreqMap.keySet()) {
-				double numerator = lemmaFreqMap.get(s) + ALPHA;
+			for(String s : freqMap.keySet()) {
+				double numerator = freqMap.get(s) + ALPHA;
 				double probability = numerator / denominator;
 				list.add(new StringDouble(s, probability));
 			}

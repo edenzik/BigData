@@ -21,7 +21,7 @@ public class TrainingDataTester {
 	}
 	
 	public static Map<String, Map<String, Double>> buildMap(BufferedReader br) throws IOException {
-		Map<String, Map<String, Double>> professionLemmaMap = new HashMap<>();
+		Map<String, Map<String, Double>> professionLemmaMap = new HashMap<String, Map<String, Double>>();
 		String nextLine = null;
 		while((nextLine = br.readLine()) != null) {
 			String profession = nextLine.split("\t")[0].trim();
@@ -34,7 +34,7 @@ public class TrainingDataTester {
 	
 	public static Map<String, Double> parseLine(String lemmaFreqText) {
 		lemmaFreqText = lemmaFreqText.trim();
-		Map<String, Double> lemmaFreq = new HashMap<>();
+		Map<String, Double> lemmaFreq = new HashMap<String, Double>();
 		Scanner sc = new Scanner(lemmaFreqText);
 		
 		return lemmaFreq;

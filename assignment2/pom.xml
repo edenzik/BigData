@@ -4,7 +4,7 @@
 
   <groupId>hadoop01</groupId>
   <artifactId>assignment2</artifactId>
-  <version>NON-LOGGING-TESTING</version>
+  <version>Bernouli-model</version>
   <packaging>jar</packaging>
 
   <name>assignment2</name>

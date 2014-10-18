@@ -7,6 +7,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -120,30 +121,33 @@ public class Classifier {
 			for (Profession profession : Profession.values()) {
 
 				double totalP = 0;
-				Map<String, Double> trainingMap = fullProfessionMap.get(profession.getName());
-
+				Map<String,Double> trainingMap = fullProfessionMap.get(profession.getName());
+				Set<String>	trainingKeys = trainingMap.keySet();
 
 				//Did we have data for this profession in training data?
 				if (trainingMap != null) {
 
 					//StringIntegerList is not iterable, so turn it into an iterable object
-					List<StringInteger> lemmaList = lemmaFreq.getIndices();
+					Map<String,Integer> lemmaList = lemmaFreq.getMap();
 
 
 					//For each lemma in this list, add the probability 
-					for (StringInteger stInt : lemmaList) {
+					for (String st : trainingKeys) {
 
 						//This method uses additive smoothing to account for values not found
 						//In training data, zero probability is at key: "0"
-						//If not trained, ignore
-						if (trainingMap.containsKey(stInt.getString())) {
-							totalP = totalP + ( Math.log(trainingMap.get(stInt.getString())) );
+						//If the set contains the feature, add its probability
+						if (lemmaList.containsKey(st)) {
+							totalP = totalP + ( Math.log(trainingMap.get(st)));
 
 //						} else if (false && trainingMap.get(ZERO_KEY) == null){
 //							throw new RuntimeException("NO zero found. Printing map for " + profession.getName() + " : \n" + trainingMap.toString());
 //							
-//							
-						} 
+//							//If the set lacks the feature, add 1 - the probability of that feature
+						} else{
+
+							totalP = totalP + ( Math.log(1.0 - trainingMap.get(st)));
+						}
 
 					}	//End of for each lemma
 
