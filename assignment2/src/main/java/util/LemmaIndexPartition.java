@@ -84,10 +84,13 @@ public class LemmaIndexPartition {
 		}
 	}
 	
-	public static void randomWrite(String line, ArrayList<PrintWriter> writers, int dist){
-		Random generator = new Random(); 
-		int random = generator.nextInt(writers.size());
-		writers.get(random).println(line);
+	public static void randomWrite(String line, ArrayList<PrintWriter> writers, double dist){ 
+		double random = Math.random();
+		if (random < dist){
+			writers.get(0).println(line);
+		} else {
+			writers.get(1).println(line);
+		}
 	}
 
 	public static SimpleEntry<String,ArrayList<SimpleEntry<String,Integer>>> parseLemmaPersonFreqLine(String line){
