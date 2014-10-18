@@ -135,26 +135,15 @@ public class Classifier {
 
 						//This method uses additive smoothing to account for values not found
 						//In training data, zero probability is at key: "0"
+						//If not trained, ignore
 						if (trainingMap.containsKey(stInt.getString())) {
-							totalP = totalP + ( stInt.getValue() * Math.log(trainingMap.get(stInt.getString())) );
+							totalP = totalP + ( Math.log(trainingMap.get(stInt.getString())) );
 
 //						} else if (false && trainingMap.get(ZERO_KEY) == null){
 //							throw new RuntimeException("NO zero found. Printing map for " + profession.getName() + " : \n" + trainingMap.toString());
 //							
 //							
-//							
-//							
-						} else {
-							double zeroP;
-							if (trainingMap.get(ZERO_KEY) != null) {
-								zeroP = trainingMap.get(ZERO_KEY);
-							} else {
-								throw new RuntimeException("NO zero found. Printing map for " + profession.getName() + " : \n" + trainingMap.toString());
-							}
-							//No match, use the zero probability
-							totalP = totalP + ( stInt.getValue() * Math.log(zeroP) );
-						}
-
+						} 
 
 					}	//End of for each lemma
 
