@@ -274,12 +274,12 @@ public class Classifier {
 							+ list.toString());
 
 			outputMap.put(splitLine[0], list.getMap());
-			
+			/*
 			if ( !list.getMap().toString().contains(ZERO_KEY) )
 				throw new RuntimeException("No ZERO found in map text for " + splitLine[0] + ":\n" + list.getMap().toString());
 			if ( !list.getMap().containsKey(ZERO_KEY) )
 				throw new RuntimeException("No ZERO found in map keys for " + splitLine[0] + ":\n" + list.getMap().toString());
-
+			*/
 			if ( !(lineCount == outputMap.size()) )
 				throw new RuntimeException("COLLISION DETECTED IN OUTPUT MAP DURING BUILDING OF MAP AT LABEL " + splitLine[0]);
 		}
@@ -321,7 +321,7 @@ public class Classifier {
 			if (professionMap.size() != tokens.length) {
 				throw new RuntimeException("Map contains " + professionMap.size() + " values, but exptected " + tokens.length + " based on tokens");
 			}
-			
+			/*
 			if ( !professionMap.toString().contains(ZERO_KEY) )
 				throw new RuntimeException("No ZERO found in map text for " + splitLine[0] + ":\n"
 						+ "Map has " + professionMap.size() + " entries.\n"
@@ -330,7 +330,7 @@ public class Classifier {
 				throw new RuntimeException("No ZERO found in map keys for " + splitLine[0] + ":\n"
 						+ "Map has " + professionMap.size() + " entries.\n"
 						+ professionMap.toString());
-			
+			*/
 			
 			outputMap.put(splitLine[0], professionMap);
 			
