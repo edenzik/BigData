@@ -269,16 +269,15 @@ public class Classifier {
 
 			StringDoubleList list = new StringDoubleList();
 
-			list.readFromString(splitLine[1]);
+			int linesRead = list.readFromString(splitLine[1]);
 			
 			if (! (list.toString().contains(ZERO_KEY)) )
 					throw new RuntimeException("No ZERO found in list for " + splitLine[0] + ":\n"
-							+ "length of input string is " + splitLine[1].length() + "\n" +
-							"This is line number " + lineCount + "\n"
+							+ "length of input string is " + splitLine[1].length() + "\n"
+							+ "This is line number " + lineCount + "\n"
+							+ "readFromString returned a count of " + linesRead + "\n"
 							+ "List has " + list.getIndices().size() + " elements\n"
-							+ "Printing content of this line: \n" +
-							inputLine + "\n" +
-							list.toString());
+							+ list.toString());
 
 			outputMap.put(splitLine[0], list.getMap());
 			
@@ -329,14 +328,14 @@ public class Classifier {
 				throw new RuntimeException("Map contains " + professionMap.size() + " values, but exptected " + tokens.length + " based on tokens");
 			}
 			
-			if ( professionMap.toString().contains(ZERO_KEY) )
+			if ( !professionMap.toString().contains(ZERO_KEY) )
 				throw new RuntimeException("No ZERO found in map text for " + splitLine[0] + ":\n"
 						+ "Map has " + professionMap.size() + " entries.\n"
-						+ list.getMap().toString());
-			if ( professionMap.containsKey(ZERO_KEY) )
+						+ professionMap.toString());
+			if ( !professionMap.containsKey(ZERO_KEY) )
 				throw new RuntimeException("No ZERO found in map keys for " + splitLine[0] + ":\n"
 						+ "Map has " + professionMap.size() + " entries.\n"
-						+ list.getMap().toString());
+						+ professionMap.toString());
 
 			if ( !(lineCount == outputMap.size()) )
 				throw new RuntimeException("COLLISION DETECTED IN OUTPUT MAP DURING BUILDING OF MAP AT LABEL " + splitLine[0]);
