@@ -82,20 +82,42 @@ public class Trainer {
 				throws IOException, InterruptedException {
 			// merge all StringIntegerLists for a given profession s.t. each lemma
 			// has only one entry in the generated aggregate map
-			Map<String, Double> lemmaFreqMap = TrainerHelper.getAggregateMap(lemmaFreqIter);
+			
+			//Map<String, Double> lemmaFreqMap = TrainerHelper.getAggregateMap(lemmaFreqIter);
+			
 			// sum up all frequencies of all lemmas for a given profession
-			double total_lemma_frequency = TrainerHelper.getFrequencySum(lemmaFreqMap);
+			
+			//double total_lemma_frequency = TrainerHelper.getFrequencySum(lemmaFreqMap);
+			
 			// This is used to account for the zero probability being added in.
 			// Because ALPHA is added to the numerator of each probability, we
 			// must add (ALPHA * # of lemmas) to our denominator so that our
 			// numerators still all sum up to our denominator
-			double denominator = total_lemma_frequency + lemmaFreqMap.size() * ALPHA;
+			
+			//Bernouli Model
+			Map<String, Double> freqMap = new HashMap<String, Double>();
+			int articleCount = 0;
+			for(StringIntegerList l: lemmaFreqIter) {
+				articleCount++;
+				List<StringInteger> list = l.getIndices();
+					for(StringInteger i: list) {
+						String key = i.getString();
+						if(map.get(key) == null) {
+							map.put(key, 1.0);
+						} else {
+							map.put(key, map.get(key) + 1.0);
+						}
+					}
+			}
+
+			//Check on bernouli smoothing
+			double denominator = articleCount + ALPHA;
 			
 			// Map each lemma to (total # of occurences / total # of occurences of all lemmas)
 			// for a given profession
 			List<StringDouble> list = new ArrayList<StringDouble>();
 			
-			double zero_probability = ALPHA / denominator;
+			//double zero_probability = ALPHA / denominator;
 			
 			//list.add(new StringDouble(ZERO_PROBABILITY_STRING, zero_probability));
 
@@ -105,7 +127,7 @@ public class Trainer {
 				list.add(new StringDouble(s, probability));
 			}
 			// Trying adding zero-probability at end of list for debugging
-			list.add(new StringDouble(ZERO_PROBABILITY_STRING, zero_probability));
+			//list.add(new StringDouble(ZERO_PROBABILITY_STRING, zero_probability));
 
 			StringDoubleList out = new StringDoubleList(list);
 			context.write(profession, out);
