@@ -29,12 +29,13 @@ import util.StringIntegerList.StringInteger;
  * This class is used to classify articles passed in based on training previously done
  */
 public class Classifier {
+	private static final boolean debug = true;
 
 	//String name of the ZERO probability key for lookup
 	private static final String ZERO_KEY = Trainer.ZERO_PROBABILITY_STRING;
 	
-	private static String DEFAULT_TRAINING_PATH = "hdfs://deerstalker.cs.brandeis.edu:54645/user/hadoop01/output/old_training/part-r-00000";
-	private static int OUTPUT_PROFESSION_NUMBER = 3;
+	private static final String DEFAULT_TRAINING_PATH = "hdfs://deerstalker.cs.brandeis.edu:54645/user/hadoop01/output/old_training/part-r-00000";
+	private static final int OUTPUT_PROFESSION_NUMBER = 5;
 
 
 	/**
@@ -126,28 +127,33 @@ public class Classifier {
 
 				//Did we have data for this profession in training data?
 				if (trainingMap != null) {
-					Set<String>	trainingKeys = trainingMap.keySet();
 
 					//StringIntegerList is not iterable, so turn it into an iterable object
-					Map<String,Integer> lemmaList = lemmaFreq.getMap();
+					List<StringInteger> lemmaList = lemmaFreq.getIndices();
 
 
 					//For each lemma in this list, add the probability 
-					for (String st : trainingKeys) {
+					for (StringInteger lemma : lemmaList) {
 
 						//This method uses additive smoothing to account for values not found
-						//In training data, zero probability is at key: "0"
-						//If the set contains the feature, add its probability
-						if (lemmaList.containsKey(st)) {
-							totalP = totalP + ( Math.log(trainingMap.get(st)));
+						//In training data, zero probability is at key: ZERO_KEY
+						//If the feature is found in the training data, add its probability
+						if (trainingMap.containsKey(lemma.getString())) {
+							totalP = totalP + ( lemma.getValue() * Math.log(trainingMap.get(lemma.getString())) );
 
-//						} else if (false && trainingMap.get(ZERO_KEY) == null){
-//							throw new RuntimeException("NO zero found. Printing map for " + profession.getName() + " : \n" + trainingMap.toString());
-//							
-//							//If the set lacks the feature, add 1 - the probability of that feature
-						} else{
-
-							totalP = totalP + ( Math.log(1.0 - trainingMap.get(st)));
+						} else if (trainingMap.containsKey(ZERO_KEY)){
+							
+							
+							//If the set lacks the feature, add 1 - the probability of that feature
+							
+						} else{//Ignore the zero probability
+							if (debug && false) {		//Temporarily disabled checking this expected error 
+								throw new RuntimeException(
+										"NO zero found. Printing map for "
+												+ profession.getName()
+												+ " : \n"
+												+ trainingMap.toString());
+							}
 						}
 
 					}	//End of for each lemma
@@ -157,6 +163,10 @@ public class Classifier {
 					//No data for this profession
 					//Don't match this one
 					totalP = Double.NEGATIVE_INFINITY;
+					
+					if (debug) {
+						throw new RuntimeException("FAILED TO FIND A PROFESSION MAP FOR PROFESSION: " + profession.getName());
+					}
 				}
 
 
