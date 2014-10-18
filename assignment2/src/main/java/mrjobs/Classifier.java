@@ -90,8 +90,8 @@ public class Classifier {
 			FileSystem fs = FileSystem.get(context.getConfiguration());
 			System.out.println(new Path(files[0]));
 			BufferedReader reader = new BufferedReader( new InputStreamReader( fs.open(new Path(files[0])) ) );
-//			fullProfessionMap = buildJobMapWithoutRFS(reader);
-			fullProfessionMap = buildJobMap(reader);
+			fullProfessionMap = buildJobMapWithoutRFS(reader);
+//			fullProfessionMap = buildJobMap(reader);
 			reader.close();
 		}
 
@@ -330,9 +330,13 @@ public class Classifier {
 			}
 			
 			if ( professionMap.toString().contains(ZERO_KEY) )
-				throw new RuntimeException("No ZERO found in map text for " + splitLine[0] + ":\n" + list.getMap().toString());
+				throw new RuntimeException("No ZERO found in map text for " + splitLine[0] + ":\n"
+						+ "Map has " + professionMap.size() + " entries.\n"
+						+ list.getMap().toString());
 			if ( professionMap.containsKey(ZERO_KEY) )
-				throw new RuntimeException("No ZERO found in map keys for " + splitLine[0] + ":\n" + list.getMap().toString());
+				throw new RuntimeException("No ZERO found in map keys for " + splitLine[0] + ":\n"
+						+ "Map has " + professionMap.size() + " entries.\n"
+						+ list.getMap().toString());
 
 			if ( !(lineCount == outputMap.size()) )
 				throw new RuntimeException("COLLISION DETECTED IN OUTPUT MAP DURING BUILDING OF MAP AT LABEL " + splitLine[0]);
