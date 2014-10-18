@@ -122,10 +122,11 @@ public class Classifier {
 
 				double totalP = 0;
 				Map<String,Double> trainingMap = fullProfessionMap.get(profession.getName());
-				Set<String>	trainingKeys = trainingMap.keySet();
+				
 
 				//Did we have data for this profession in training data?
 				if (trainingMap != null) {
+					Set<String>	trainingKeys = trainingMap.keySet();
 
 					//StringIntegerList is not iterable, so turn it into an iterable object
 					Map<String,Integer> lemmaList = lemmaFreq.getMap();
