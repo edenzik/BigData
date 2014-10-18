@@ -16,25 +16,28 @@ public class TrainingDataTester {
 	public static void main(String[] args) throws IOException {
 		BufferedReader br = new BufferedReader(new FileReader(TRAINING_DATA_PATH));
 		String nextLine = null;
-		Map<String, String> professionMap = new HashMap<String, String>();
-		List<String> professions = new ArrayList<String>();
+		Map<String, Map<String, Double>> professionLemmaMap = buildMap(br);
+		
+	}
+	
+	public static Map<String, Map<String, Double>> buildMap(BufferedReader br) throws IOException {
+		Map<String, Map<String, Double>> professionLemmaMap = new HashMap<>();
+		String nextLine = null;
 		while((nextLine = br.readLine()) != null) {
-			Scanner sc = new Scanner(nextLine);
-			sc.useDelimiter("\t");
-			String profession = sc.next();
-			if(professionMap.get(profession) == null) {
-				professionMap.put(profession, profession.trim());
-			} else {
-				throw new Error("Same profession show up twice! " + profession);
-			}
-			professions.add(profession.trim());
-			sc.close();
+			String profession = nextLine.split("\t")[0].trim();
+			String lemmaFreqText = nextLine.split("\t")[1].trim();
+			Map<String, Double> lemmaFreq = parseLine(lemmaFreqText);
+			professionLemmaMap.put(profession, lemmaFreq);
 		}
-		System.out.println(professions);
-		br.close();
-		if(professionMap.size() != professions.size()) {
-			throw new Error();
-		}
+		return professionLemmaMap;
+	}
+	
+	public static Map<String, Double> parseLine(String lemmaFreqText) {
+		lemmaFreqText = lemmaFreqText.trim();
+		Map<String, Double> lemmaFreq = new HashMap<>();
+		Scanner sc = new Scanner(lemmaFreqText);
+		
+		return lemmaFreq;
 	}
 
 }

@@ -39,7 +39,7 @@ public class Trainer {
 	// this is notably not final because it is possibly changed by a command line argument
 	private static String training_path = HDFS_HOME + "resources/profession_train.txt";
 	// String that is paired with the actual zero probability
-	public static final String ZERO_PROBABILITY_STRING = "oppenheimer";
+	public static final String ZERO_PROBABILITY_STRING = "ZERO";
 	// Numerator of probability of 0 probability for additive smoothing
 	private static final int ALPHA = 1;
 
