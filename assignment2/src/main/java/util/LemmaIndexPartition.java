@@ -1,4 +1,4 @@
-package util;
+//package util;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -11,6 +11,8 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.lang.Math;
+
 
 /**
 * Reads in a lemma frequency pair files (Philipp Moog	<german,2>,<die,1>,<philipp,1>)
@@ -18,7 +20,7 @@ import java.util.regex.Pattern;
 * Subtracts from lemma frequency pair file all those which are not in people occuptation file.
 * Accepts 2 or more arguments: 
 * java LemmaIndexPartition lemmaFreqPair_file.txt personProfession_file.txt [frequency distribution (ex. 50)] [output_file1.txt] [output_file2.txt]
-* 
+* java LemmaIndexPartition ../take_home/lemma_index_aggregate ../conversion/profession_train_converted_to_utf_8.txt 50 file1.txt file2.txt
 * 
 * @author edenzik
 * @since Oct 13, 2014
@@ -86,7 +88,9 @@ public class LemmaIndexPartition {
 	
 	public static void randomWrite(String line, ArrayList<PrintWriter> writers, int dist){
 		Random generator = new Random(); 
-		int random = generator.nextInt(writers.size());
+		int random = generator.nextInt(100);
+		random = random + dist;
+		random = random/100;
 		writers.get(random).println(line);
 	}
 
