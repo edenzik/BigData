@@ -95,14 +95,17 @@ public class StringDoubleList implements Writable {
 		readFromString(indicesStr);
 	}
 
-	public void readFromString(String indicesStr) throws IOException {
+	public int readFromString(String indicesStr) throws IOException {
 		List<StringDouble> tempoIndices = new Vector<StringDouble>();
 		Matcher m = p.matcher(indicesStr);
+		int matches = 0;
 		while (m.find()) {
+			matches++;
 			StringDouble index = new StringDouble(m.group(1), Double.parseDouble(m.group(2)));
 			tempoIndices.add(index);
 		}
 		this.indices = tempoIndices;
+		return matches;
 	}
 
 	public List<StringDouble> getIndices() {
