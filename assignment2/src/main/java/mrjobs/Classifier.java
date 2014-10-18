@@ -336,13 +336,12 @@ public class Classifier {
 				throw new RuntimeException("No ZERO found in map keys for " + splitLine[0] + ":\n"
 						+ "Map has " + professionMap.size() + " entries.\n"
 						+ professionMap.toString());
-
-			if ( !(lineCount == outputMap.size()) )
-				throw new RuntimeException("COLLISION DETECTED IN OUTPUT MAP DURING BUILDING OF MAP AT LABEL " + splitLine[0]);
 			
 			
 			outputMap.put(splitLine[0], professionMap);
 			
+			if ( lineCount != outputMap.size() )
+				throw new RuntimeException("COLLISION DETECTED IN OUTPUT MAP DURING BUILDING OF MAP AT LABEL " + splitLine[0]);
 		}
 
 //		if (false)
