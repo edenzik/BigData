@@ -35,6 +35,7 @@ import util.TrainerHelper;
  * inverted index.
  */
 public class Trainer {
+	private static final boolean debug = true;
 
 	private static final String HDFS_HOME = "hdfs://deerstalker.cs.brandeis.edu:54645/user/hadoop01/";
 	// this is notably not final because it is possibly changed by a command line argument
@@ -42,7 +43,7 @@ public class Trainer {
 	// String that is paired with the actual zero probability
 	public static final String ZERO_PROBABILITY_STRING = "ZERO";
 	// Numerator of probability of 0 probability for additive smoothing
-	private static final int ALPHA = 1;
+	private static final int ALPHA = 0;
 
 	public static class TrainerMapper extends Mapper<Text, Text, Text, StringIntegerList> {
 
@@ -71,6 +72,11 @@ public class Trainer {
 				for(String s: professions) {
 					context.write(new Text(s.toLowerCase().trim()), lemmaCounts);
 				}
+			} else {
+				//Unless testing, throw an exception if we don't have profession data for this person
+				if (!debug) {
+					throw new RuntimeException("NO PROFESSIONS FOUND FOR PERSON: " + title);
+				}
 			}
 		}
 	}
@@ -83,54 +89,63 @@ public class Trainer {
 				throws IOException, InterruptedException {
 			// merge all StringIntegerLists for a given profession s.t. each lemma
 			// has only one entry in the generated aggregate map
-			
+
 			//Map<String, Double> lemmaFreqMap = TrainerHelper.getAggregateMap(lemmaFreqIter);
-			
+
 			// sum up all frequencies of all lemmas for a given profession
-			
+
 			//double total_lemma_frequency = TrainerHelper.getFrequencySum(lemmaFreqMap);
-			
+
 			// This is used to account for the zero probability being added in.
 			// Because ALPHA is added to the numerator of each probability, we
 			// must add (ALPHA * # of lemmas) to our denominator so that our
 			// numerators still all sum up to our denominator
-			
+
 			//Bernouli Model
-			Map<String, Double> freqMap = new HashMap<String, Double>();
+			Map<String, Integer> freqMap = new HashMap<String, Integer>();
 			int articleCount = 0;
+			
+			//Iterate through each article
 			for(StringIntegerList l: lemmaFreqIter) {
 				articleCount++;
 				List<StringInteger> list = l.getIndices();
-					for(StringInteger i: list) {
-						String key = i.getString();
-						if(freqMap.get(key) == null) {
-							freqMap.put(key, 1.0);
-						} else {
-							freqMap.put(key, freqMap.get(key) + 1.0);
-						}
+				
+				//For each lemma in this article, count that as an article on this profession containing that lemma
+				for(StringInteger i: list) {
+					String key = i.getString();
+					if(!freqMap.containsKey(key)) {
+						freqMap.put(key, 1);
+					} else {
+						freqMap.put(key, freqMap.get(key) + 1);
 					}
-			}
+				}
+			}	//End of articles for this profession
 
-			//Check on bernouli smoothing
-			double denominator = articleCount + ALPHA;
-			
-			// Map each lemma to (total # of occurences / total # of occurences of all lemmas)
-			// for a given profession
+			//Optional bernouli smoothing
+			int denominator = articleCount + ALPHA * freqMap.size();
+
+			// For each lemma find (# of articles with this lemma / total # of articles)
 			List<StringDouble> list = new ArrayList<StringDouble>();
-			
-			//double zero_probability = ALPHA / denominator;
-			
-			//list.add(new StringDouble(ZERO_PROBABILITY_STRING, zero_probability));
 
+			//zero_probability used with smoothing
+			double zero_probability = ALPHA / denominator;
+
+			if (ALPHA != 0) {
+				list.add(new StringDouble(ZERO_PROBABILITY_STRING, zero_probability));
+			}
+			
 			for(String s : freqMap.keySet()) {
-				double numerator = freqMap.get(s) + ALPHA;
-				double probability = numerator / denominator;
+				int numerator = freqMap.get(s) + ALPHA;
+				double probability = (double)numerator / denominator;
 				list.add(new StringDouble(s, probability));
 			}
-			// Trying adding zero-probability at end of list for debugging
-			//list.add(new StringDouble(ZERO_PROBABILITY_STRING, zero_probability));
 
 			StringDoubleList out = new StringDoubleList(list);
+			
+			if (debug && out.getIndices().size() == 0) {
+				throw new RuntimeException("ERROR: Trying to write a zero size list of probabilities for profession "
+						+ profession.toString());
+			}
 			context.write(profession, out);
 		}
 	}
@@ -157,7 +172,7 @@ public class Trainer {
 		// and setOutputKey/SetOutputValue are...)
 		job.setMapOutputKeyClass(Text.class);
 		job.setMapOutputValueClass(StringIntegerList.class);
-		
+
 		FileInputFormat.addInputPath(job, new Path(args[0]));
 		FileOutputFormat.setOutputPath(job, new Path(args[1]));
 		System.exit(job.waitForCompletion(true) ? 0 : 1);
