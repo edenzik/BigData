@@ -33,7 +33,7 @@ public class Classifier {
 	private static final String ZERO_KEY = Trainer.ZERO_PROBABILITY_STRING;
 	
 	private static String DEFAULT_TRAINING_PATH = "hdfs://deerstalker.cs.brandeis.edu:54645/user/hadoop01/output/old_training/part-r-00000";
-	private static int OUTPUT_PROFESSION_NUMBER = 10;
+	private static int OUTPUT_PROFESSION_NUMBER = 3;
 
 
 	/**
@@ -61,7 +61,8 @@ public class Classifier {
 		//Allows passing training data reference from command line
 		if(args.length > 2){
 
-			job.addCacheFile(new Path(args[2]).toUri());
+			String pathString = "hdfs://deerstalker.cs.brandeis.edu:54645/user/hadoop01/" + args[2] + "/part-r-00000";
+			job.addCacheFile(new Path(pathString).toUri());
 
 			//If no command line reference specified, use standard one
 		} else {
