@@ -121,7 +121,7 @@ public class Classifier {
 			for (Profession profession : Profession.values()) {
 
 				double totalP = 0;
-				Map<String,Double> trainingMap = fullProfessionMap.get(profession.getName());
+				Map<String,Double> trainingMap = new HashMap<String, Double>(fullProfessionMap.get(profession.getName()));
 				
 
 				//Did we have data for this profession in training data?
