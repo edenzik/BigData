@@ -38,6 +38,7 @@ public class Classifier {
 	private static String DEFAULT_TRAINING_PATH = "hdfs://deerstalker.cs.brandeis.edu:54645/user/hadoop01/output/old_training/part-r-00000";
 	private static int OUTPUT_PROFESSION_NUMBER = 3;
 	private static String data_path;
+	private static final double PENALTY = -13.0;
 
 
 
@@ -64,7 +65,7 @@ public class Classifier {
 		FileOutputFormat.setOutputPath(job, new Path(args[1]));
 
 		//Allows passing training data reference from command line
-		
+		/*
 		if(args.length > 2){
 
 			String pathString = "hdfs://deerstalker.cs.brandeis.edu:54645/user/hadoop01/" + args[2] + "/part-r-00000";
@@ -76,9 +77,9 @@ public class Classifier {
 			job.addCacheFile(new Path(DEFAULT_TRAINING_PATH).toUri());
 
 		}
+*/
 
-
-		//data_path = args[2];
+		data_path = args[2];
 		System.exit(job.waitForCompletion(true) ? 0 : 1);
 
 	}	//End of main()
@@ -95,13 +96,13 @@ public class Classifier {
 			super.setup(context);
 
 			//Builds a map of people->profession
-			URI[] files = Job.getInstance(context.getConfiguration()).getCacheFiles();
-			FileSystem fs = FileSystem.get(context.getConfiguration());
+			//URI[] files = Job.getInstance(context.getConfiguration()).getCacheFiles();
+			//FileSystem fs = FileSystem.get(context.getConfiguration());
 			//System.out.println(new Path(files[0]));
 
-			BufferedReader reader = new BufferedReader( new InputStreamReader( fs.open(new Path(files[0])) ) );
+			//BufferedReader reader = new BufferedReader( new InputStreamReader( fs.open(new Path(files[0])) ) );
 			
-			//BufferedReader reader = new BufferedReader( new FileReader(data_path));
+			BufferedReader reader = new BufferedReader( new FileReader(data_path));
 			fullProfessionMap = buildJobMapWithoutRFS(reader);
 
 //			fullProfessionMap = buildJobMap(reader);
@@ -150,7 +151,7 @@ public class Classifier {
 						if (trainingMap.containsKey(strInt.getString())) {
 							totalP = totalP + ( strInt.getValue() * Math.log(trainingMap.get(strInt.getString())));
 						}else{
-							totalP += -15;
+							totalP = totalP + (strInt.getValue() * PENALTY);
 						}					
 
 					}	//End of for each lemma
