@@ -131,9 +131,16 @@ public class Classifier {
 					//StringIntegerList is not iterable, so turn it into an iterable object
 					List<StringInteger> lemmaList = lemmaFreq.getIndices();
 
+					int mapSize = trainingMap.size();
 
 					//For each lemma in this list, add the probability 
 					for (StringInteger lemma : lemmaList) {
+						
+						//Check for possible problems with map reference (threads?)
+						if (trainingMap.size() != mapSize) {
+							throw new RuntimeException("ERROR: Problem detected with map. Map size was " + mapSize + " when built.\n"
+									+ "map size is now " + trainingMap.size());
+						}
 
 						//This method uses additive smoothing to account for values not found
 						//In training data, zero probability is at key: ZERO_KEY
