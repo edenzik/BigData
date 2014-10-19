@@ -27,6 +27,7 @@ import util.StringIntegerList;
 import util.StringIntegerList.StringInteger;
 import util.TitleProfessionParser;
 import util.TrainerHelper;
+import java.io.FileReader;
 
 
 /**
@@ -43,6 +44,7 @@ public class Trainer {
 	public static final String ZERO_PROBABILITY_STRING = "ZERO";
 	// Numerator of probability of 0 probability for additive smoothing
 	private static final int ALPHA = 1;
+	private static String data_path = "resources/profession_train.txt";
 
 	public static class TrainerMapper extends Mapper<Text, Text, Text, StringIntegerList> {
 
@@ -58,6 +60,8 @@ public class Trainer {
 			URI[] files = Job.getInstance(context.getConfiguration()).getCacheFiles();
 			FileSystem fs = FileSystem.get(context.getConfiguration());
 			BufferedReader reader = new BufferedReader(new InputStreamReader(fs.open(new Path(files[0]))));
+
+			
 			titleProfessionMap = TitleProfessionParser.buildTitleProfessionMap(reader);
 		}
 
@@ -84,12 +88,7 @@ public class Trainer {
 			// merge all StringIntegerLists for a given profession s.t. each lemma
 			// has only one entry in the generated aggregate map
 			
-			//Map<String, Double> lemmaFreqMap = TrainerHelper.getAggregateMap(lemmaFreqIter);
-			
-			// sum up all frequencies of all lemmas for a given profession
-			
-			//double total_lemma_frequency = TrainerHelper.getFrequencySum(lemmaFreqMap);
-			
+		
 			// This is used to account for the zero probability being added in.
 			// Because ALPHA is added to the numerator of each probability, we
 			// must add (ALPHA * # of lemmas) to our denominator so that our
@@ -127,9 +126,7 @@ public class Trainer {
 				double probability = numerator / denominator;
 				list.add(new StringDouble(s, probability));
 			}
-			// Trying adding zero-probability at end of list for debugging
-			//list.add(new StringDouble(ZERO_PROBABILITY_STRING, zero_probability));
-
+	
 			StringDoubleList out = new StringDoubleList(list);
 			context.write(profession, out);
 		}

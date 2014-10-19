@@ -38,7 +38,6 @@ public class Classifier {
 	private static String DEFAULT_TRAINING_PATH = "hdfs://deerstalker.cs.brandeis.edu:54645/user/hadoop01/output/old_training/part-r-00000";
 	private static int OUTPUT_PROFESSION_NUMBER = 3;
 
-	private static String data_path;
 
 
 	/**
@@ -62,10 +61,9 @@ public class Classifier {
 		job.setMapOutputValueClass(Text.class);
 		FileInputFormat.addInputPath(job, new Path(args[0]));
 		FileOutputFormat.setOutputPath(job, new Path(args[1]));
-		data_path = args[2];
 
 		//Allows passing training data reference from command line
-		/*
+		
 		if(args.length > 2){
 
 			String pathString = "hdfs://deerstalker.cs.brandeis.edu:54645/user/hadoop01/" + args[2] + "/part-r-00000";
@@ -77,7 +75,7 @@ public class Classifier {
 			job.addCacheFile(new Path(DEFAULT_TRAINING_PATH).toUri());
 
 		}
-*/
+
 		System.exit(job.waitForCompletion(true) ? 0 : 1);
 
 	}	//End of main()
@@ -94,12 +92,11 @@ public class Classifier {
 			super.setup(context);
 
 			//Builds a map of people->profession
-			//URI[] files = Job.getInstance(context.getConfiguration()).getCacheFiles();
-			//FileSystem fs = FileSystem.get(context.getConfiguration());
+			URI[] files = Job.getInstance(context.getConfiguration()).getCacheFiles();
+			FileSystem fs = FileSystem.get(context.getConfiguration());
 			//System.out.println(new Path(files[0]));
 
-			//BufferedReader reader = new BufferedReader( new InputStreamReader( fs.open(new Path(files[0])) ) );
-			BufferedReader reader = new BufferedReader(new FileReader(data_path));
+			BufferedReader reader = new BufferedReader( new InputStreamReader( fs.open(new Path(files[0])) ) );
 			fullProfessionMap = buildJobMapWithoutRFS(reader);
 
 //			fullProfessionMap = buildJobMap(reader);
@@ -117,7 +114,7 @@ public class Classifier {
 			StringIntegerList lemmaFreq = new StringIntegerList();
 
 			lemmaFreq.readFromString(listText.toString());
-
+			List<StringInteger> lemmaList = lemmaFreq.getIndices();
 			//These hold the top (so far) 3 professions and probabilities for this person
 			String[] topNames = new String[OUTPUT_PROFESSION_NUMBER];
 			double[] topProbabilities = new double[OUTPUT_PROFESSION_NUMBER];
@@ -132,43 +129,27 @@ public class Classifier {
 
 			//Loop through each possible profession, and calculate the probability for this person
 			for (Profession profession : Profession.values()) {
-				System.out.println("**************************PROFESSION*************************\n\n" + profession.getName());
-				System.out.println("**************************PROFESSIONMAPLENGTH*************************\n\n" + fullProfessionMap.size());
 				
 				double totalP = 0;
 				Map<String,Double> trainingMap = fullProfessionMap.get(profession.getName());
-				if (profession.getName().contains("footballer"))
-					System.out.println(trainingMap.keySet());
+				if (profession.getName().equals("footballer") && trainingMap == null){
+					System.out.println("FOOTBALLER IS NULL!!!!!!!!!!!!\n\n\n\n\n\n");
+				}
 
 				//Did we have data for this profession in training data?
 				if (trainingMap != null) {
-					//System.out.println("SHITSHITSHITSHIT!!!!!!!! THIS IS BULLSHIT!*********************" + 
-					//										"\n\n" + "Professions: " + profession.getName() +
-					//										"\n\n\n");
-
-					Set<String>	trainingKeys = trainingMap.keySet();
-
-					//StringIntegerList is not iterable, so turn it into an iterable object
-					Map<String,Integer> lemmaList = lemmaFreq.getMap();
-
-
+					
 					//For each lemma in this list, add the probability 
-					for (String st : trainingKeys) {
+					for (StringInteger strInt : lemmaList) {
 
 						//This method uses additive smoothing to account for values not found
 						//In training data, zero probability is at key: "0"
 						//If the set contains the feature, add its probability
-						if (lemmaList.containsKey(st)) {
-							totalP = totalP + ( Math.log(trainingMap.get(st)));
-
-//						} else if (false && trainingMap.get(ZERO_KEY) == null){
-//							throw new RuntimeException("NO zero found. Printing map for " + profession.getName() + " : \n" + trainingMap.toString());
-//							
-//							//If the set lacks the feature, add 1 - the probability of that feature
-						} else{
-
-							totalP = totalP + ( Math.log(1.0 - trainingMap.get(st)));
-						}
+						if (trainingMap.containsKey(strInt.getString())) {
+							totalP = totalP + ( strInt.getValue() * Math.log(trainingMap.get(strInt.getString())));
+						}else{
+							totalP += -15;
+						}					
 
 					}	//End of for each lemma
 
@@ -177,26 +158,21 @@ public class Classifier {
 					//No data for this profession
 					//Don't match this one
 					totalP = Double.NEGATIVE_INFINITY;
-					if (profession.getName().contains("footballer")){
-						System.out.println("FUCKFUCKFUCKFUCK!!!!!!!! THIS IS FUCKED UP!*********************" + 
-															"\n\n" + "Professions: " + profession.getName() +
-															"\n\n\n");
+					
 					}
-				}
+
 
 
 
 
 
 				//Add the log prior
-				totalP = totalP + (50 * Math.log(profession.getPrior()));
+				totalP = totalP + (Math.log(profession.getPrior()));
 
 				//Check if this new profession is probable and save if so
 				if (isGreater(topProbabilities, totalP)) {
 					insertP(topProbabilities, topNames, totalP, profession.getName());
 				}
-
-
 
 			}	//End of for-each-profession
 
@@ -346,16 +322,7 @@ public class Classifier {
 			if (professionMap.size() != tokens.length) {
 				throw new RuntimeException("Map contains " + professionMap.size() + " values, but exptected " + tokens.length + " based on tokens");
 			}
-			/*
-			if ( !professionMap.toString().contains(ZERO_KEY) )
-				throw new RuntimeException("No ZERO found in map text for " + splitLine[0] + ":\n"
-						+ "Map has " + professionMap.size() + " entries.\n"
-						+ professionMap.toString());
-			if ( !professionMap.containsKey(ZERO_KEY) )
-				throw new RuntimeException("No ZERO found in map keys for " + splitLine[0] + ":\n"
-						+ "Map has " + professionMap.size() + " entries.\n"
-						+ professionMap.toString());
-			*/
+			
 			
 			outputMap.put(splitLine[0], professionMap);
 			
@@ -363,16 +330,7 @@ public class Classifier {
 				throw new RuntimeException("COLLISION DETECTED IN OUTPUT MAP DURING BUILDING OF MAP AT LABEL " + splitLine[0]);
 		}
 
-//		if (false)
-//			throw new RuntimeException("I have maps for: " + outputMap.keySet().toString());
-//		if (false) {
-//			throw new RuntimeException("Read " + lineCount + " lines from input file and built " + outputMap.size() + " maps.");
-//		}
-		//String sizes = "footballer keys: \n";
-		//for(String key : outputMap.get("footballer").keySet()){
-		//	sizes += key + ": " + outputMap.get("footballer").get(key)+"\n";
-		//}
-		//throw new RuntimeException("HERE'S THE SIZE OF THE MAP: " + sizes);
+
 		return outputMap;
 	}
 
