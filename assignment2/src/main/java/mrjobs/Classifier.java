@@ -24,6 +24,8 @@ import util.StringDoubleList;
 import util.StringIntegerList;
 import util.StringIntegerList.StringInteger;
 
+import java.io.FileReader;
+
 
 /**
  * This class is used to classify articles passed in based on training previously done
@@ -35,6 +37,8 @@ public class Classifier {
 	
 	private static String DEFAULT_TRAINING_PATH = "hdfs://deerstalker.cs.brandeis.edu:54645/user/hadoop01/output/old_training/part-r-00000";
 	private static int OUTPUT_PROFESSION_NUMBER = 3;
+
+	private static String data_path;
 
 
 	/**
@@ -58,8 +62,10 @@ public class Classifier {
 		job.setMapOutputValueClass(Text.class);
 		FileInputFormat.addInputPath(job, new Path(args[0]));
 		FileOutputFormat.setOutputPath(job, new Path(args[1]));
+		data_path = args[2];
 
 		//Allows passing training data reference from command line
+		/*
 		if(args.length > 2){
 
 			String pathString = "hdfs://deerstalker.cs.brandeis.edu:54645/user/hadoop01/" + args[2] + "/part-r-00000";
@@ -71,7 +77,7 @@ public class Classifier {
 			job.addCacheFile(new Path(DEFAULT_TRAINING_PATH).toUri());
 
 		}
-
+*/
 		System.exit(job.waitForCompletion(true) ? 0 : 1);
 
 	}	//End of main()
@@ -79,7 +85,7 @@ public class Classifier {
 
 	public static class ClassifyMapper extends Mapper<Text, Text, Text, Text> {
 
-		private HashMap<String, Map<String, Double>> fullProfessionMap = new HashMap<String, Map<String, Double>>();
+		private HashMap<String, Map<String, Double>> fullProfessionMap;
 
 		@Override
 		protected void setup(Mapper<Text, Text, Text, Text>.Context context)
@@ -88,18 +94,25 @@ public class Classifier {
 			super.setup(context);
 
 			//Builds a map of people->profession
-			URI[] files = Job.getInstance(context.getConfiguration()).getCacheFiles();
-			FileSystem fs = FileSystem.get(context.getConfiguration());
-			System.out.println(new Path(files[0]));
-			BufferedReader reader = new BufferedReader( new InputStreamReader( fs.open(new Path(files[0])) ) );
+			//URI[] files = Job.getInstance(context.getConfiguration()).getCacheFiles();
+			//FileSystem fs = FileSystem.get(context.getConfiguration());
+			//System.out.println(new Path(files[0]));
+
+			//BufferedReader reader = new BufferedReader( new InputStreamReader( fs.open(new Path(files[0])) ) );
+			BufferedReader reader = new BufferedReader(new FileReader(data_path));
 			fullProfessionMap = buildJobMapWithoutRFS(reader);
+
 //			fullProfessionMap = buildJobMap(reader);
 			reader.close();
+
 		}
 
 		//        @Override
 		public void map(Text title, Text listText, Context context)
 				throws IOException, InterruptedException {
+
+			//throw new RuntimeException("HERE'S THE SIZE OF THE MAP: " + fullProfessionMap.get("footballer"));
+
 
 			StringIntegerList lemmaFreq = new StringIntegerList();
 
@@ -119,13 +132,20 @@ public class Classifier {
 
 			//Loop through each possible profession, and calculate the probability for this person
 			for (Profession profession : Profession.values()) {
-
+				System.out.println("**************************PROFESSION*************************\n\n" + profession.getName());
+				System.out.println("**************************PROFESSIONMAPLENGTH*************************\n\n" + fullProfessionMap.size());
+				
 				double totalP = 0;
 				Map<String,Double> trainingMap = fullProfessionMap.get(profession.getName());
-				
+				if (profession.getName().contains("footballer"))
+					System.out.println(trainingMap.keySet());
 
 				//Did we have data for this profession in training data?
 				if (trainingMap != null) {
+					//System.out.println("SHITSHITSHITSHIT!!!!!!!! THIS IS BULLSHIT!*********************" + 
+					//										"\n\n" + "Professions: " + profession.getName() +
+					//										"\n\n\n");
+
 					Set<String>	trainingKeys = trainingMap.keySet();
 
 					//StringIntegerList is not iterable, so turn it into an iterable object
@@ -157,6 +177,11 @@ public class Classifier {
 					//No data for this profession
 					//Don't match this one
 					totalP = Double.NEGATIVE_INFINITY;
+					if (profession.getName().contains("footballer")){
+						System.out.println("FUCKFUCKFUCKFUCK!!!!!!!! THIS IS FUCKED UP!*********************" + 
+															"\n\n" + "Professions: " + profession.getName() +
+															"\n\n\n");
+					}
 				}
 
 
@@ -164,8 +189,7 @@ public class Classifier {
 
 
 				//Add the log prior
-				totalP = totalP + Math.log(profession.getPrior());
-
+				totalP = totalP + (50 * Math.log(profession.getPrior()));
 
 				//Check if this new profession is probable and save if so
 				if (isGreater(topProbabilities, totalP)) {
@@ -186,7 +210,7 @@ public class Classifier {
 			}
 			professions = professions.substring(0, professions.length() - 2);
 			context.write(title, new Text(professions));
-
+			
 		}	//End of map()
 
 
@@ -344,7 +368,11 @@ public class Classifier {
 //		if (false) {
 //			throw new RuntimeException("Read " + lineCount + " lines from input file and built " + outputMap.size() + " maps.");
 //		}
-
+		//String sizes = "footballer keys: \n";
+		//for(String key : outputMap.get("footballer").keySet()){
+		//	sizes += key + ": " + outputMap.get("footballer").get(key)+"\n";
+		//}
+		//throw new RuntimeException("HERE'S THE SIZE OF THE MAP: " + sizes);
 		return outputMap;
 	}
 
