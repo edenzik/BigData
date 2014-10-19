@@ -38,7 +38,7 @@ public class Classifier {
 	private static String DEFAULT_TRAINING_PATH = "hdfs://deerstalker.cs.brandeis.edu:54645/user/hadoop01/output/old_training/part-r-00000";
 	private static int OUTPUT_PROFESSION_NUMBER = 3;
 	private static String data_path;
-	private static final double PENALTY = -15.0;
+	private static final double PENALTY = -20.0;
 
 
 
