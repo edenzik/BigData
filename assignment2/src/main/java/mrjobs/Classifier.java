@@ -37,6 +37,7 @@ public class Classifier {
 	
 	private static String DEFAULT_TRAINING_PATH = "hdfs://deerstalker.cs.brandeis.edu:54645/user/hadoop01/output/old_training/part-r-00000";
 	private static int OUTPUT_PROFESSION_NUMBER = 3;
+	private static String data_path;
 
 
 
@@ -76,6 +77,8 @@ public class Classifier {
 
 		}
 
+
+		//data_path = args[2];
 		System.exit(job.waitForCompletion(true) ? 0 : 1);
 
 	}	//End of main()
@@ -97,6 +100,8 @@ public class Classifier {
 			//System.out.println(new Path(files[0]));
 
 			BufferedReader reader = new BufferedReader( new InputStreamReader( fs.open(new Path(files[0])) ) );
+			
+			//BufferedReader reader = new BufferedReader( new FileReader(data_path));
 			fullProfessionMap = buildJobMapWithoutRFS(reader);
 
 //			fullProfessionMap = buildJobMap(reader);

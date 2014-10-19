@@ -35,23 +35,21 @@ import java.io.FileReader;
  * the code taking the lemma index filename as input, and output being the
  * inverted index.
  */
-public class Trainer {
+public class GetTestSet {
 
 	private static final String HDFS_HOME = "hdfs://deerstalker.cs.brandeis.edu:54645/user/hadoop01/";
 	// this is notably not final because it is possibly changed by a command line argument
 	private static String training_path = HDFS_HOME + "resources/profession_train.txt";
 	// String that is paired with the actual zero probability
-	public static final String ZERO_PROBABILITY_STRING = "ZERO";
-	// Numerator of probability of 0 probability for additive smoothing
-	private static final int ALPHA = 1;
+
 	private static String data_path = "resources/profession_train.txt";
 
-	public static class TrainerMapper extends Mapper<Text, Text, Text, StringIntegerList> {
+	public static class GetTestSetMapper extends Mapper<Text, Text, Text, Text> {
 
 		// Maps each title to a profession based on the input file
 		public static Map<String, Set<String>> titleProfessionMap = new HashMap<String, Set<String>>();
 		@Override
-		protected void setup(Mapper<Text, Text, Text, StringIntegerList>.Context context)
+		protected void setup(Mapper<Text, Text, Text, Text>.Context context)
 				throws IOException, InterruptedException {
 
 			super.setup(context);
@@ -61,7 +59,6 @@ public class Trainer {
 			FileSystem fs = FileSystem.get(context.getConfiguration());
 			BufferedReader reader = new BufferedReader(new InputStreamReader(fs.open(new Path(files[0]))));
 			//BufferedReader reader = new BufferedReader(new FileReader(data_path));
-
 			
 			titleProfessionMap = TitleProfessionParser.buildTitleProfessionMap(reader);
 		}
@@ -69,73 +66,19 @@ public class Trainer {
 		@Override
 		public void map(Text title, Text lemmaCountsText, Context context) throws IOException,
 		InterruptedException {
-			StringIntegerList lemmaCounts = new StringIntegerList();
-			lemmaCounts.readFromString(lemmaCountsText.toString());
 			Set<String> professions = titleProfessionMap.get(title.toString());
-			if(professions != null) {
-				for(String s: professions) {
-					context.write(new Text(s.toLowerCase().trim()), lemmaCounts);
-				}
-			}
-		}
-	}
-
-	public static class TrainerReducer extends
-	Reducer<Text, StringIntegerList, Text, StringDoubleList> {
-
-		@Override
-		public void reduce(Text profession, Iterable<StringIntegerList> lemmaFreqIter, Context context)
-				throws IOException, InterruptedException {
-			// merge all StringIntegerLists for a given profession s.t. each lemma
-			// has only one entry in the generated aggregate map
-			
-		
-			// This is used to account for the zero probability being added in.
-			// Because ALPHA is added to the numerator of each probability, we
-			// must add (ALPHA * # of lemmas) to our denominator so that our
-			// numerators still all sum up to our denominator
-			
-			//Bernouli Model
-			Map<String, Double> freqMap = new HashMap<String, Double>();
-			int articleCount = 0;
-			for(StringIntegerList l: lemmaFreqIter) {
-				articleCount++;
-				List<StringInteger> list = l.getIndices();
-					for(StringInteger i: list) {
-						String key = i.getString();
-						if(freqMap.get(key) == null) {
-							freqMap.put(key, 1.0);
-						} else {
-							freqMap.put(key, freqMap.get(key) + 1.0);
-						}
-					}
-			}
-
-			//Check on bernouli smoothing
-			double denominator = articleCount + ALPHA;
-			
-			// Map each lemma to (total # of occurences / total # of occurences of all lemmas)
-			// for a given profession
-			List<StringDouble> list = new ArrayList<StringDouble>();
-			
-			//double zero_probability = ALPHA / denominator;
-			
-			//list.add(new StringDouble(ZERO_PROBABILITY_STRING, zero_probability));
-
-			for(String s : freqMap.keySet()) {
-				double numerator = freqMap.get(s) + ALPHA;
-				double probability = numerator / denominator;
-				list.add(new StringDouble(s, probability));
-			}
+			if(professions == null) {
 	
-			StringDoubleList out = new StringDoubleList(list);
-			context.write(profession, out);
+				context.write(title, lemmaCountsText);
+				
+			}
 		}
 	}
 
+	
 	public static void main(String[] args) throws Exception{
 		Configuration conf = new Configuration();
-		Job job = Job.getInstance(conf, "trainer");
+		Job job = Job.getInstance(conf, "test filter");
 
 		// default assumes hard-coded training_data path
 		if(args.length == 2) {
@@ -147,14 +90,14 @@ public class Trainer {
 			job.addCacheFile(new Path(HDFS_HOME + args[2]).toUri());
 		}
 
-		job.setJarByClass(Trainer.class);
-		job.setMapperClass(TrainerMapper.class);
-		job.setReducerClass(TrainerReducer.class);
+		job.setJarByClass(GetTestSet.class);
+		job.setMapperClass(GetTestSetMapper.class);
 		job.setInputFormatClass(KeyValueTextInputFormat.class);
+		job.setNumReduceTasks(0);
 		// Map output types (though I'm not sure what the difference between these
 		// and setOutputKey/SetOutputValue are...)
 		job.setMapOutputKeyClass(Text.class);
-		job.setMapOutputValueClass(StringIntegerList.class);
+		job.setMapOutputValueClass(Text.class);
 		
 		FileInputFormat.addInputPath(job, new Path(args[0]));
 		FileOutputFormat.setOutputPath(job, new Path(args[1]));
