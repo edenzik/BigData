@@ -187,10 +187,22 @@ public class Classifier {
 			for (int i = 0; i < OUTPUT_PROFESSION_NUMBER; i++) {
 				String prof = topNames[i];
 				double total = topProbabilities[i];
-				professions = professions.concat(prof + "(" + total + "), ");
+				if (false) {
+					//Write labels with their probabilities
+					professions = professions.concat(prof + "(" + total + "), ");
+				} else {
+					//Write just labels
+					professions = professions.concat(prof + ", ");
+				}
 			}
-			professions = professions.substring(0, professions.length() - 2);
-			context.write(title, new Text(professions));
+			
+			//Correct output according to assignment requirements
+			professions = title.toString().concat(" : " + professions.substring(0, professions.length() - 2));
+			context.write(new Text(professions), new Text(""));
+			
+//			//Our old way of doing it
+//			professions = professions.substring(0, professions.length() - 2);
+//			context.write(title, new Text(professions));
 			
 		}	//End of map()
 
