@@ -110,6 +110,10 @@ public class ProfessionMatchEvaluator {
 		String line = "";
 		while ((line = input.readLine()) != null) {
 			line = line.replace("\t"," : ");
+			
+			//Extra parsing for modified output
+			line = line.replaceAll("\\([\\d\\.\\-]+?\\)", "");
+			
 			peopleProfession.put(parsePersonLine(line), parseProfessionLine(line));
 		}
 		return peopleProfession;

@@ -29,13 +29,13 @@ import util.StringIntegerList.StringInteger;
  * This class is used to classify articles passed in based on training previously done
  */
 public class Classifier {
-	private static final boolean debug = true;
+	private static final boolean debug = false;
 
 	//String name of the ZERO probability key for lookup
 	private static final String ZERO_KEY = Trainer.ZERO_PROBABILITY_STRING;
 	
 	private static final String DEFAULT_TRAINING_PATH = "hdfs://deerstalker.cs.brandeis.edu:54645/user/hadoop01/output/old_training/part-r-00000";
-	private static final int OUTPUT_PROFESSION_NUMBER = 5;
+	private static final int OUTPUT_PROFESSION_NUMBER = 3;
 
 
 	/**
@@ -199,10 +199,22 @@ public class Classifier {
 			for (int i = 0; i < OUTPUT_PROFESSION_NUMBER; i++) {
 				String prof = topNames[i];
 				double total = topProbabilities[i];
-				professions = professions.concat(prof + "(" + total + "), ");
+				if (debug) {
+					//Write labels with their probabilities
+					professions = professions.concat(prof + "(" + total + "), ");
+				} else {
+					//Write just labels
+					professions = professions.concat(prof + ", ");
+				}
 			}
-			professions = professions.substring(0, professions.length() - 2);
-			context.write(title, new Text(professions));
+			
+			//Correct output according to assignment requirements
+			professions = title.toString().concat(" : " + professions.substring(0, professions.length() - 2));
+			context.write(new Text(professions), new Text(""));
+			
+//			//Our old way of doing it
+//			professions = professions.substring(0, professions.length() - 2);
+//			context.write(title, new Text(professions));
 
 		}	//End of map()
 
