@@ -2,7 +2,7 @@ package util;
 
 /**
  * This enum lists all professions from our training data with their overall
- * probability of appearance in the training data.
+ * probability of appearance in the training data (prior).
  * 
  * @author Michael Partridge
  *
