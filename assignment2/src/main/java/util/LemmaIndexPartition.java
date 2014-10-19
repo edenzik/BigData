@@ -38,10 +38,10 @@ public class LemmaIndexPartition {
 			personProfession = new BufferedReader(new FileReader(args[1]));
 			
 			writers = new ArrayList<PrintWriter>();
-			int dist = 100;
+			double dist = 0.8;
 			
 			if (args.length > 2){
-				dist = Integer.parseInt(args[2]);
+				dist = Double.parseDouble(args[2]);
 				for (int arg = 3; arg<args.length; arg++){
 					writers.add(new PrintWriter(args[arg], "UTF-8"));
 				}
@@ -74,7 +74,7 @@ public class LemmaIndexPartition {
 		return output;
 	}
 
-	public static void parseLemmaPersonFreq(BufferedReader input, HashSet<String> desiredPeople, ArrayList<PrintWriter> writers, int dist) throws IOException{
+	public static void parseLemmaPersonFreq(BufferedReader input, HashSet<String> desiredPeople, ArrayList<PrintWriter> writers, double dist) throws IOException{
 		//Map<String,ArrayList<SimpleEntry<String,Integer>>> lemmaPeople = new HashMap<String,ArrayList<SimpleEntry<String,Integer>>>();
 		String line = "";
 		while ((line = input.readLine()) != null) {
