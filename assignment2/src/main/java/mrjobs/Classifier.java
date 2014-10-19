@@ -137,9 +137,6 @@ public class Classifier {
 				
 				double totalP = 0;
 				Map<String,Double> trainingMap = fullProfessionMap.get(profession.getName());
-				if (profession.getName().equals("footballer") && trainingMap == null){
-					System.out.println("FOOTBALLER IS NULL!!!!!!!!!!!!\n\n\n\n\n\n");
-				}
 
 				//Did we have data for this profession in training data?
 				if (trainingMap != null) {
