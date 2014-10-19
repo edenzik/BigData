@@ -57,7 +57,7 @@ public class Classifier {
 		Job job = Job.getInstance(conf, "classify");
 		job.setJarByClass(Classifier.class);
 		job.setMapperClass(ClassifyMapper.class);
-		job.setNumReduceTasks(0);
+		//job.setNumReduceTasks(0);
 		job.setInputFormatClass(KeyValueTextInputFormat.class);
 		job.setMapOutputKeyClass(Text.class);
 		job.setMapOutputValueClass(Text.class);
