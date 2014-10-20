@@ -54,6 +54,10 @@ public class TitleProfessionParser {
 	public static Set<String> getProfessions(String tpPair) {
 		String unparsedProfessions = tpPair.split(":")[1].trim();
 		String[] professions = unparsedProfessions.split(",");
+		// make sure that each profession is all lower case and trimmed
+		for(int i = 0; i < professions.length; ++i) {
+			professions[i] = professions[i].toLowerCase().trim();
+		}
 		return new HashSet<String>(Arrays.asList(professions));
 	}
 }

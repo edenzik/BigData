@@ -18,7 +18,7 @@ public class StringDoubleList implements Writable {
 	public static class StringDouble implements Writable {
 		private String s;
 		private double d;
-		public static Pattern p = Pattern.compile("(.+),(-?\\d+\\.\\d+)");
+		public static Pattern p = Pattern.compile("(.+),([-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?)");
 
 		public StringDouble() {
 		}
@@ -62,7 +62,7 @@ public class StringDoubleList implements Writable {
 
 	private List<StringDouble> indices;
 	private Map<String, Double> indiceMap;
-	private Pattern p = Pattern.compile("<([^>]+),(-?\\d+\\.\\d+)>");
+	private Pattern p = Pattern.compile("<([^>]+),([-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?)>");
 
 	public StringDoubleList() {
 		indices = new Vector<StringDouble>();
@@ -95,14 +95,17 @@ public class StringDoubleList implements Writable {
 		readFromString(indicesStr);
 	}
 
-	public void readFromString(String indicesStr) throws IOException {
+	public int readFromString(String indicesStr) throws IOException {
 		List<StringDouble> tempoIndices = new Vector<StringDouble>();
 		Matcher m = p.matcher(indicesStr);
+		int matches = 0;
 		while (m.find()) {
+			matches++;
 			StringDouble index = new StringDouble(m.group(1), Double.parseDouble(m.group(2)));
 			tempoIndices.add(index);
 		}
 		this.indices = tempoIndices;
+		return matches;
 	}
 
 	public List<StringDouble> getIndices() {
