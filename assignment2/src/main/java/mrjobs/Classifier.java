@@ -34,7 +34,7 @@ public class Classifier {
 
 	//String name of the ZERO probability key for lookup
 	private static final String ZERO_KEY = Trainer.ZERO_PROBABILITY_STRING;
-	
+
 	private static String DEFAULT_TRAINING_PATH = "hdfs://deerstalker.cs.brandeis.edu:54645/user/hadoop01/output/old_training/part-r-00000";
 	private static int OUTPUT_PROFESSION_NUMBER = 3;
 	private static String data_path;
@@ -65,7 +65,7 @@ public class Classifier {
 		FileOutputFormat.setOutputPath(job, new Path(args[1]));
 
 		//Allows passing training data reference from command line
-		
+
 		if(args.length > 2){
 
 			String pathString = "hdfs://deerstalker.cs.brandeis.edu:54645/user/hadoop01/" + args[2] + "/part-r-00000";
@@ -101,11 +101,11 @@ public class Classifier {
 			//System.out.println(new Path(files[0]));
 
 			BufferedReader reader = new BufferedReader( new InputStreamReader( fs.open(new Path(files[0])) ) );
-			
+
 			//BufferedReader reader = new BufferedReader( new FileReader(data_path));
 			fullProfessionMap = buildJobMapWithoutRFS(reader);
 
-//			fullProfessionMap = buildJobMap(reader);
+			//			fullProfessionMap = buildJobMap(reader);
 			reader.close();
 
 		}
@@ -135,13 +135,13 @@ public class Classifier {
 
 			//Loop through each possible profession, and calculate the probability for this person
 			for (Profession profession : Profession.values()) {
-				
+
 				double totalP = 0;
 				Map<String,Double> trainingMap = fullProfessionMap.get(profession.getName());
 
 				//Did we have data for this profession in training data?
 				if (trainingMap != null) {
-					
+
 					//For each lemma in this list, add the probability 
 					for (StringInteger strInt : lemmaList) {
 
@@ -161,8 +161,8 @@ public class Classifier {
 					//No data for this profession
 					//Don't match this one
 					totalP = Double.NEGATIVE_INFINITY;
-					
-					}
+
+				}
 
 
 
@@ -193,15 +193,15 @@ public class Classifier {
 					professions = professions.concat(prof + ", ");
 				}
 			}
-			
+
 			//Correct output according to assignment requirements
 			professions = title.toString().concat(" : " + professions.substring(0, professions.length() - 2));
 			context.write(new Text(professions), new Text(""));
-			
-//			//Our old way of doing it
-//			professions = professions.substring(0, professions.length() - 2);
-//			context.write(title, new Text(professions));
-			
+
+			//			//Our old way of doing it
+			//			professions = professions.substring(0, professions.length() - 2);
+			//			context.write(title, new Text(professions));
+
 		}	//End of map()
 
 
@@ -280,14 +280,14 @@ public class Classifier {
 			StringDoubleList list = new StringDoubleList();
 
 			int linesRead = list.readFromString(splitLine[1]);
-			
+
 			if (! (list.toString().contains(ZERO_KEY)) )
-					throw new RuntimeException("No ZERO found in list for " + splitLine[0] + ":\n"
-							+ "length of input string is " + splitLine[1].length() + "\n"
-							+ "This is line number " + lineCount + "\n"
-							+ "readFromString returned a count of " + linesRead + "\n"
-							+ "List has " + list.getIndices().size() + " elements\n"
-							+ list.toString());
+				throw new RuntimeException("No ZERO found in list for " + splitLine[0] + ":\n"
+						+ "length of input string is " + splitLine[1].length() + "\n"
+						+ "This is line number " + lineCount + "\n"
+						+ "readFromString returned a count of " + linesRead + "\n"
+						+ "List has " + list.getIndices().size() + " elements\n"
+						+ list.toString());
 
 			outputMap.put(splitLine[0], list.getMap());
 			/*
@@ -295,20 +295,20 @@ public class Classifier {
 				throw new RuntimeException("No ZERO found in map text for " + splitLine[0] + ":\n" + list.getMap().toString());
 			if ( !list.getMap().containsKey(ZERO_KEY) )
 				throw new RuntimeException("No ZERO found in map keys for " + splitLine[0] + ":\n" + list.getMap().toString());
-			*/
+			 */
 			if ( !(lineCount == outputMap.size()) )
 				throw new RuntimeException("COLLISION DETECTED IN OUTPUT MAP DURING BUILDING OF MAP AT LABEL " + splitLine[0]);
 		}
 
-//		if (false)
-//			throw new RuntimeException("I have maps for: " + outputMap.keySet().toString());
-//		if (false) {
-//			throw new RuntimeException("Read " + lineCount + " lines from input file and built " + outputMap.size() + " maps.");
-//		}
+		//		if (false)
+		//			throw new RuntimeException("I have maps for: " + outputMap.keySet().toString());
+		//		if (false) {
+		//			throw new RuntimeException("Read " + lineCount + " lines from input file and built " + outputMap.size() + " maps.");
+		//		}
 
 		return outputMap;
 	}
-	
+
 	private static HashMap<String, Map<String, Double>> buildJobMapWithoutRFS(BufferedReader reader) throws IOException {
 		int lineCount = 0;
 
@@ -328,19 +328,19 @@ public class Classifier {
 
 			String[] tokens = splitLine[1].substring(1, splitLine[1].length() - 1).split(">,<");
 			Map<String, Double> professionMap = new HashMap<String, Double>();
-			
+
 			for (String tok : tokens) {
 				String[] sd = tok.split(",");
 				professionMap.put(sd[0], Double.parseDouble(sd[1]));
 			}
-			
+
 			if (professionMap.size() != tokens.length) {
 				throw new RuntimeException("Map contains " + professionMap.size() + " values, but exptected " + tokens.length + " based on tokens");
 			}
-			
-			
+
+
 			outputMap.put(splitLine[0], professionMap);
-			
+
 			if ( lineCount != outputMap.size() )
 				throw new RuntimeException("COLLISION DETECTED IN OUTPUT MAP DURING BUILDING OF MAP AT LABEL " + splitLine[0]);
 		}

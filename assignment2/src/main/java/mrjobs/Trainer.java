@@ -62,7 +62,7 @@ public class Trainer {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(fs.open(new Path(files[0]))));
 			//BufferedReader reader = new BufferedReader(new FileReader(data_path));
 
-			
+
 			titleProfessionMap = TitleProfessionParser.buildTitleProfessionMap(reader);
 		}
 
@@ -88,38 +88,38 @@ public class Trainer {
 				throws IOException, InterruptedException {
 			// merge all StringIntegerLists for a given profession s.t. each lemma
 			// has only one entry in the generated aggregate map
-			
-		
+
+
 			// This is used to account for the zero probability being added in.
 			// Because ALPHA is added to the numerator of each probability, we
 			// must add (ALPHA * # of lemmas) to our denominator so that our
 			// numerators still all sum up to our denominator
-			
+
 			//Bernouli Model
 			Map<String, Double> freqMap = new HashMap<String, Double>();
 			int articleCount = 0;
 			for(StringIntegerList l: lemmaFreqIter) {
 				articleCount++;
 				List<StringInteger> list = l.getIndices();
-					for(StringInteger i: list) {
-						String key = i.getString();
-						if(freqMap.get(key) == null) {
-							freqMap.put(key, 1.0);
-						} else {
-							freqMap.put(key, freqMap.get(key) + 1.0);
-						}
+				for(StringInteger i: list) {
+					String key = i.getString();
+					if(freqMap.get(key) == null) {
+						freqMap.put(key, 1.0);
+					} else {
+						freqMap.put(key, freqMap.get(key) + 1.0);
 					}
+				}
 			}
 
 			//Check on bernouli smoothing
 			double denominator = articleCount + ALPHA;
-			
+
 			// Map each lemma to (total # of occurences / total # of occurences of all lemmas)
 			// for a given profession
 			List<StringDouble> list = new ArrayList<StringDouble>();
-			
+
 			//double zero_probability = ALPHA / denominator;
-			
+
 			//list.add(new StringDouble(ZERO_PROBABILITY_STRING, zero_probability));
 
 			for(String s : freqMap.keySet()) {
@@ -127,7 +127,7 @@ public class Trainer {
 				double probability = numerator / denominator;
 				list.add(new StringDouble(s, probability));
 			}
-	
+
 			StringDoubleList out = new StringDoubleList(list);
 			context.write(profession, out);
 		}
@@ -155,7 +155,7 @@ public class Trainer {
 		// and setOutputKey/SetOutputValue are...)
 		job.setMapOutputKeyClass(Text.class);
 		job.setMapOutputValueClass(StringIntegerList.class);
-		
+
 		FileInputFormat.addInputPath(job, new Path(args[0]));
 		FileOutputFormat.setOutputPath(job, new Path(args[1]));
 		System.exit(job.waitForCompletion(true) ? 0 : 1);
