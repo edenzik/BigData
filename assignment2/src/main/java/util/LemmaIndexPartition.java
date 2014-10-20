@@ -15,11 +15,11 @@ import java.lang.Math;
 
 
 /**
-* Reads in a lemma frequency pair files (Philipp Moog	<german,2>,<die,1>,<philipp,1>)
+* Reads in a lemma frequency pair files ("Philipp Moog	<german,2>,<die,1>,<philipp,1>")
 * Reads in people occuptation file (Paul Francis Anderson : catholic bishop)
-* Subtracts from lemma frequency pair file all those which are not in people occuptation file.
+* Subtracts from lemma frequency pair file all those which are not in people occupation file.
 * Accepts 2 or more arguments: 
-* java LemmaIndexPartition lemmaFreqPair_file.txt personProfession_file.txt [frequency distribution (ex. 50)] [output_file1.txt] [output_file2.txt]
+* java LemmaIndexPartition [lemma_index] [professions] [percentage split] [output_1] [output_2]
 * java LemmaIndexPartition ../take_home/lemma_index_aggregate ../conversion/profession_train_converted_to_utf_8.txt 50 file1.txt file2.txt
 * 
 * @author edenzik
@@ -27,10 +27,9 @@ import java.lang.Math;
 */
 public class LemmaIndexPartition {
 	
-	/** Main class is used for unit testing only
-	 * @param args may be used to pass an ascii character
-	 * @return unicode character
-	 */
+	/** Main class is used for converting and partitioning 
+	*	Args used to pass file names and the split
+	*/
 	public static void main(String[] args) throws UnsupportedEncodingException, IOException{
 		BufferedReader personProfession = null;
 		BufferedReader lemmaFreq = null;
@@ -63,6 +62,7 @@ public class LemmaIndexPartition {
 		
 	}
 	
+	//Converts to a lemma frequency before writing
 	public static String toLemmaFreqPairs(ArrayList<SimpleEntry<String,Integer>> personFreqList){
 		StringBuilder sb = new StringBuilder();
 		for (SimpleEntry<String,Integer> entry : personFreqList){
@@ -71,21 +71,21 @@ public class LemmaIndexPartition {
 		return sb.toString().replace("><",">,<");
 	}
 	
+	//Create a lemma frequency from the key
 	public static String toLemmaFreq(SimpleEntry<String,ArrayList<SimpleEntry<String,Integer>>> lemmaPersonFreq){
-		String output = lemmaPersonFreq.getKey() + "\t" + toLemmaFreqPairs(lemmaPersonFreq.getValue());
-		return output;
+		return lemmaPersonFreq.getKey() + "\t" + toLemmaFreqPairs(lemmaPersonFreq.getValue());
 	}
 
+	//reads in lemma frequency
 	public static void parseLemmaPersonFreq(BufferedReader input, HashSet<String> desiredPeople, ArrayList<PrintWriter> writers, int dist) throws IOException{
-		//Map<String,ArrayList<SimpleEntry<String,Integer>>> lemmaPeople = new HashMap<String,ArrayList<SimpleEntry<String,Integer>>>();
 		String line = "";
 		while ((line = input.readLine()) != null) {
 			SimpleEntry<String,ArrayList<SimpleEntry<String,Integer>>> entry = parseLemmaPersonFreqLine(line);
-			
 			if (personExists(entry.getKey(), desiredPeople)) randomWrite(toLemmaFreq(entry), writers, dist);
 		}
 	}
 	
+	//Writes randomly with some likleyhood according to a percentage (dist)
 	public static void randomWrite(String line, ArrayList<PrintWriter> writers, int dist){
 		Random generator = new Random(); 
 		int random = generator.nextInt(100);
@@ -94,6 +94,7 @@ public class LemmaIndexPartition {
 		writers.get(random).println(line);
 	}
 
+	//Parses the document - a mega method
 	public static SimpleEntry<String,ArrayList<SimpleEntry<String,Integer>>> parseLemmaPersonFreqLine(String line){
 		String[] lemmaValues = line.split("\t");
 		ArrayList<SimpleEntry<String,Integer>> peopleFreq = new ArrayList<SimpleEntry<String,Integer>>();
@@ -109,7 +110,6 @@ public class LemmaIndexPartition {
 		SimpleEntry<String,ArrayList<SimpleEntry<String,Integer>>> entry = new SimpleEntry<String,ArrayList<SimpleEntry<String,Integer>>>(lemmaValues[0],peopleFreq);
 		return entry;
 	}
-
 
 	public static HashSet<String> parsePersonProfession(BufferedReader input) throws IOException{
 		HashSet<String> desiredPeople = new HashSet<String>();
