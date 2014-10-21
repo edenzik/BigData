@@ -26,30 +26,29 @@ import util.StringDoubleList.StringDouble;
 import util.StringIntegerList;
 import util.StringIntegerList.StringInteger;
 import util.TitleProfessionParser;
-import util.TrainerHelper;
-import java.io.FileReader;
 
 
 /**
- * This class is used for Section C.2 of assignment 1. You are supposed to run
- * the code taking the lemma index filename as input, and output being the
- * inverted index.
+ * This class is used for Section 1 of Assignment 2 to perform the training task on the lemma index.
  */
 public class Trainer {
 
+	// HDFS home directory
 	private static final String HDFS_HOME = "hdfs://deerstalker.cs.brandeis.edu:54645/user/hadoop01/";
-	// this is notably not final because it is possibly changed by a command line argument
+	// this is notably NOT final because it is possibly changed by a command line argument
 	private static String training_path = HDFS_HOME + "resources/profession_train.txt";
 	// String that is paired with the actual zero probability
 	public static final String ZERO_PROBABILITY_STRING = "ZERO";
 	// Numerator of probability of 0 probability for additive smoothing
 	private static final int ALPHA = 1;
-	private static String data_path = "resources/profession_train.txt";
 
+	// The actual map task of taking a our index of people -> {lemma -> freq}
+	// and converting it into an index of profession -> {lemma -> freq}
 	public static class TrainerMapper extends Mapper<Text, Text, Text, StringIntegerList> {
 
 		// Maps each title to a profession based on the input file
 		public static Map<String, Set<String>> titleProfessionMap = new HashMap<String, Set<String>>();
+
 		@Override
 		protected void setup(Mapper<Text, Text, Text, StringIntegerList>.Context context)
 				throws IOException, InterruptedException {
@@ -60,8 +59,6 @@ public class Trainer {
 			URI[] files = Job.getInstance(context.getConfiguration()).getCacheFiles();
 			FileSystem fs = FileSystem.get(context.getConfiguration());
 			BufferedReader reader = new BufferedReader(new InputStreamReader(fs.open(new Path(files[0]))));
-			//BufferedReader reader = new BufferedReader(new FileReader(data_path));
-
 
 			titleProfessionMap = TitleProfessionParser.buildTitleProfessionMap(reader);
 		}
@@ -80,21 +77,17 @@ public class Trainer {
 		}
 	}
 
+	// The reducer task takes an index of profession -> {lemma, freq} and generates
+	// a binomial probability model whereby the probability for a given lemma is
+	// the (# of articles that the lemma appears in) / (total # of articles).
+	// The output is of the format profession -> {lemma, probability}
 	public static class TrainerReducer extends
 	Reducer<Text, StringIntegerList, Text, StringDoubleList> {
 
 		@Override
 		public void reduce(Text profession, Iterable<StringIntegerList> lemmaFreqIter, Context context)
 				throws IOException, InterruptedException {
-			// merge all StringIntegerLists for a given profession s.t. each lemma
-			// has only one entry in the generated aggregate map
-
-
-			// This is used to account for the zero probability being added in.
-			// Because ALPHA is added to the numerator of each probability, we
-			// must add (ALPHA * # of lemmas) to our denominator so that our
-			// numerators still all sum up to our denominator
-
+			
 			//Bernouli Model
 			Map<String, Double> freqMap = new HashMap<String, Double>();
 			int articleCount = 0;
@@ -111,17 +104,13 @@ public class Trainer {
 				}
 			}
 
-			//Check on bernouli smoothing
-			double denominator = articleCount + ALPHA;
-
 			// Map each lemma to (total # of occurences / total # of occurences of all lemmas)
 			// for a given profession
 			List<StringDouble> list = new ArrayList<StringDouble>();
 
-			//double zero_probability = ALPHA / denominator;
-
-			//list.add(new StringDouble(ZERO_PROBABILITY_STRING, zero_probability));
-
+			//Check on bernouli smoothing
+			double denominator = articleCount + ALPHA;
+			
 			for(String s : freqMap.keySet()) {
 				double numerator = freqMap.get(s) + ALPHA;
 				double probability = numerator / denominator;
@@ -133,6 +122,8 @@ public class Trainer {
 		}
 	}
 
+	// Main method to handle normal hadoop setup, and to also ensure
+	// that the necessary training data is cached properly on HDFS
 	public static void main(String[] args) throws Exception{
 		Configuration conf = new Configuration();
 		Job job = Job.getInstance(conf, "trainer");
