@@ -28,8 +28,8 @@ import java.util.Arrays;
  * Roger Blonder : animator
  * David Brown (scientist) : biologist, geneticist
  * And another name profession pair from a different file:
- * Accepts 2 or more arguments:
- * java ProfessionMatchEvaluator personProfessionControl.txt personProfessionTest.txt outputResult.txt
+ * Accepts 3 arguments:
+ * java ProfessionMatchEvaluator [PersonProfessionControl] [personProfessionTest] [OutputResultName]
  * Example from the evaluate folder:
  * java ProfessionMatchEvaluator run006_agg.txt ../conversion/profession_train_converted_to_utf_8.txt compare_1.txt
  *
@@ -38,10 +38,7 @@ import java.util.Arrays;
  */
 public class ProfessionMatchEvaluator {
 
-	/** Main class is used for unit testing only
-	 * @param args may be used to pass an ascii character
-	 * @return unicode character
-	 */
+	//Reads in the files
 	public static void main(String[] args) throws UnsupportedEncodingException, IOException{
 		BufferedReader personProfessionControl = null;
 		BufferedReader personProfessionTest = null;
@@ -60,10 +57,11 @@ public class ProfessionMatchEvaluator {
 			personProfessionTest.close();
 			writer.close();
 
-		} else System.out.println("Please specify the location of the inverted index and the profession file.");
+		} else System.out.println("Please specify the locations of the files.");
 		
 	}
 
+	//Compares two professions, prints out result
 	public static void comparePersonProfessions(HashMap<String, HashSet<String>> first, HashMap<String, HashSet<String>> second, PrintWriter writer){
 		int[] result;
 		int hits = 0;
@@ -95,6 +93,7 @@ public class ProfessionMatchEvaluator {
 		writer.println("RATIO:\t" + (double) correctGuess/ (double) totalProf);
 	}
 
+	//Compares two professions
 	public static int[] comparePersonProfessions(HashSet<String> first, HashSet<String> second){
 		int match = 0;
 		int total = first.size();
@@ -105,6 +104,7 @@ public class ProfessionMatchEvaluator {
 		return result;
 	}
 
+	//reads in person, profession
 	public static HashMap<String, HashSet<String>> parsePersonProfession(BufferedReader input) throws IOException{
 		HashMap<String, HashSet<String>> peopleProfession = new HashMap<String, HashSet<String>>();
 		String line = "";

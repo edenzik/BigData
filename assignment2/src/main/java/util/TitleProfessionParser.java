@@ -30,7 +30,6 @@ public class TitleProfessionParser {
 		while((titleProfessionPair = br.readLine()) != null){
 			map.put(getTitle(titleProfessionPair), getProfessions(titleProfessionPair));
 		}
-
 		return map;
 	}
 

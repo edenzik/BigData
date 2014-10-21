@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+//Tests training data
 public class TrainingDataTester {
 
 	private static final String TRAINING_DATA_PATH="training_data";
@@ -17,7 +18,6 @@ public class TrainingDataTester {
 		BufferedReader br = new BufferedReader(new FileReader(TRAINING_DATA_PATH));
 		String nextLine = null;
 		Map<String, Map<String, Double>> professionLemmaMap = buildMap(br);
-		
 	}
 	
 	public static Map<String, Map<String, Double>> buildMap(BufferedReader br) throws IOException {
