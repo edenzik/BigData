@@ -28,12 +28,9 @@ import util.StringIntegerList.StringInteger;
  */
 public class Classifier {
 
-
 	private static String DEFAULT_TRAINING_PATH = "hdfs://deerstalker.cs.brandeis.edu:54645/user/hadoop01/output/old_training/part-r-00000";
 	private static int OUTPUT_PROFESSION_NUMBER = 3;
 	private static final double PENALTY = -35.0;
-
-
 
 	/**
 	 * Classifier uses training data to classify people
@@ -57,7 +54,6 @@ public class Classifier {
 		FileOutputFormat.setOutputPath(job, new Path(args[1]));
 
 		//Allows passing training data reference from command line
-
 		if(args.length > 2){
 
 			String pathString = "hdfs://deerstalker.cs.brandeis.edu:54645/user/hadoop01/" + args[2] + "/part-r-00000";
@@ -74,9 +70,14 @@ public class Classifier {
 
 	}	//End of main()
 
-
+	/**
+	 * Mapper class performs all classifying actions and outputs to reducer only for consolidating output to one file
+	 * @author Michael Partridge
+	 */
 	public static class ClassifyMapper extends Mapper<Text, Text, Text, Text> {
 
+		//This map will contain all training data for classification
+		//Setup method populates this map and map method uses it
 		private HashMap<String, Map<String, Double>> fullProfessionMap;
 
 		@Override
@@ -98,29 +99,32 @@ public class Classifier {
 
 		}
 
-		//        @Override
+		/**
+		 * map method uses the profession data map created in setup to classify each person (key)
+		 */
+		@Override
 		public void map(Text title, Text listText, Context context)
 				throws IOException, InterruptedException {
 
+			//Build a list of lemmaa-frequency pairs for classifying
 			StringIntegerList lemmaFreq = new StringIntegerList();
-
 			lemmaFreq.readFromString(listText.toString());
 			List<StringInteger> lemmaList = lemmaFreq.getIndices();
-			//These hold the top (so far) 3 professions and probabilities for this person
+
+			//These hold the top (so far) 3 professions and probabilities for this person for final outputting
 			String[] topNames = new String[OUTPUT_PROFESSION_NUMBER];
 			double[] topProbabilities = new double[OUTPUT_PROFESSION_NUMBER];
 
 			//Set topProbabilities to negative infinity
-			//This way any new value will be greater
+			//This way any new value compared will be greater
 			for (int i = 0; i < topProbabilities.length; i++) {
 				topProbabilities[i] = Double.NEGATIVE_INFINITY;
 			}
 
-
-
 			//Loop through each possible profession, and calculate the probability for this person
 			for (Profession profession : Profession.values()) {
 
+				//Set initial probability (log value) to 0 and get cloned map of this data
 				double totalP = 0;
 				Map<String,Double> trainingMap = fullProfessionMap.get(profession.getName());
 
@@ -143,12 +147,12 @@ public class Classifier {
 
 
 				} else {
-					//No data for this profession
-					//Don't match this one
+					//No data for this profession, don't classify this one
+					//This may be acceptable depending on the training data. Small training data sets
+					//may not contain data for all professions
 					totalP = Double.NEGATIVE_INFINITY;
 
 				}
-
 
 				//Add the log prior
 				totalP = totalP + (Math.log(profession.getPrior()));
@@ -164,9 +168,9 @@ public class Classifier {
 			String professions = "";
 			for (int i = 0; i < OUTPUT_PROFESSION_NUMBER; i++) {
 				String prof = topNames[i];
-				
-					//Write just labels
-					professions = professions.concat(prof + ", ");
+
+				//Write just labels
+				professions = professions.concat(prof + ", ");
 			}
 
 			//Correct output according to assignment requirements
@@ -229,45 +233,65 @@ public class Classifier {
 			}
 		}
 
-
-
 	}	//End of insertP
-	
 
-	private static HashMap<String, Map<String, Double>> buildJobMapWithoutRFS(BufferedReader reader) throws IOException {
+	/**
+	 * This method reads the training data file and builds it into a map of maps, one for each 
+	 * profession
+	 * @param reader Reader opened on input file stream
+	 * @return Map of profession data
+	 * @throws IOException For any file reading error
+	 * @throws RuntimeException If any data validation checks fail
+	 */
+	private static HashMap<String, Map<String, Double>> buildJobMapWithoutRFS(BufferedReader reader) 
+			throws IOException {
+
+		//Count number of lines read in for validation
 		int lineCount = 0;
 
-
+		//Map for all profession data to return
 		HashMap<String, Map<String, Double>> outputMap = new HashMap<String, Map<String, Double>>(1000);
 
 		//This loop builds each sub map for each profession
 		while (reader.ready()) {
 
 			String inputLine = reader.readLine();
+
+			//Used for validating the map before returning
 			lineCount++;
 
+			//Split input line into title and data
 			String[] splitLine = inputLine.split("\t");
 
+			//Split data line and remove formatting/delimiter characters
 			String[] tokens = splitLine[1].substring(1, splitLine[1].length() - 1).split(">,<");
+
+			//Map to store data from this input line
 			Map<String, Double> professionMap = new HashMap<String, Double>();
 
+			//Put input data into map
 			for (String tok : tokens) {
 				String[] sd = tok.split(",");
 				professionMap.put(sd[0], Double.parseDouble(sd[1]));
 			}
 
+			//Check that output map contains a key/value pair for each token in this person's file
 			if (professionMap.size() != tokens.length) {
-				throw new RuntimeException("Map contains " + professionMap.size() + " values, but exptected " + tokens.length + " based on tokens");
+				throw new RuntimeException("Map contains " + professionMap.size() + " values, but "
+						+ "exptected " + tokens.length + " based on tokens");
 			}
 
+			//Store this inner map in the outer map
 			outputMap.put(splitLine[0], professionMap);
 
+			//Verify that a sub map exists for each line (article data) read
 			if ( lineCount != outputMap.size() )
 				throw new RuntimeException("COLLISION DETECTED IN OUTPUT MAP DURING BUILDING OF MAP AT LABEL " + splitLine[0]);
-		}
+
+		}	//Completed reading input file
 
 		return outputMap;
-	}
+	}	//end of buildJobMapWithoutRFS()
 
 
 
