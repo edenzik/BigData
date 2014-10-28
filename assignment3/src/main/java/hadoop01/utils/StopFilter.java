@@ -1,5 +1,6 @@
 package hadoop01.utils;
 
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -39,19 +40,30 @@ public class StopFilter {
 
 			}
 			stopReader.close();
+			
+			System.out.println("Completed reading stop word list.");
+			System.out.println("Parsing input file");
 
 			BufferedReader inputReader = new BufferedReader(new FileReader(args[1]));
 			FileWriter writer = new FileWriter(args[2]);
 
+			int lines = 0;
+			
 			while (inputReader.ready()) {
 
 				String nextLine = inputReader.readLine().toLowerCase();
 				nextLine = nextLine.replaceAll("[^a-z ]", " ");
 				for (String word : nextLine.split(" ")) {
-					if (!word.equals(" ") && !word.equals("")) {
+					if (!word.equals(" ") && !word.equals("") && !stopSet.contains(word)) {
 						writer.write(word + " ");
 					}
 
+				}
+				
+				lines++;
+				
+				if (lines % 50000 == 0) {
+					System.out.println("" + lines + " lines written.");
 				}
 
 				writer.write("\n");
