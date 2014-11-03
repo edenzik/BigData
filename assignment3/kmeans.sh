@@ -36,7 +36,7 @@ mahout/bin/mahout kmeans -i filtered_tfidf/l2_${NGRAM}gram/tfidf-vectors/ -c clu
 
 # Dump normal kmeans output
 printf "DUMPING job: ${KMEANS_PATH}\n\n"
-mahout/bin/mahout clusterdump -d filtered_tfidf/l2_${NGRAM}gram/dictionary.file-0 -dt sequencefile -i clustering_output/$KMEANS_PATH/clusters-2-final -n 10 -b 100 -o clusterdump_output/${KMEANS_PATH}.out | tee -a clusterdump_output/logs/$KMEANS_PATH.log
+mahout/bin/mahout clusterdump -d filtered_tfidf/l2_${NGRAM}gram/dictionary.file-0 -dt sequencefile -i clustering_output/$KMEANS_PATH/clusters-*-final -n 10 -b 100 -o clusterdump_output/${KMEANS_PATH}.out | tee -a clusterdump_output/logs/$KMEANS_PATH.log
 
 # Run Fuzzy kmeans
 printf "EXECUTING job: ${FKMEANS_PATH}\n\n"
@@ -44,4 +44,4 @@ mahout/bin/mahout fkmeans -i filtered_tfidf/l2_${NGRAM}gram/tfidf-vectors/ -c cl
 
 # Dump Fuzzy means output
 printf "DUMPING job: ${FKMEANS_PATH} {cd: $CD, x: $X, ngram: $NGRAM, m: $M}\n\n"
-mahout/bin/mahout clusterdump -d filtered_tfidf/l2_${NGRAM}gram/dictionary.file-0 -dt sequencefile -i clustering_output/${FKMEANS_PATH}/clusters-2-final -n 10 -b 100 -o clusterdump_output/${FKMEANS_PATH}.out | tee -a clusterdump_output/logs/$FKMEANS_PATH.log
+mahout/bin/mahout clusterdump -d filtered_tfidf/l2_${NGRAM}gram/dictionary.file-0 -dt sequencefile -i clustering_output/${FKMEANS_PATH}/clusters-*-final -n 10 -b 100 -o clusterdump_output/${FKMEANS_PATH}.out | tee -a clusterdump_output/logs/$FKMEANS_PATH.log
