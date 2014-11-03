@@ -18,7 +18,6 @@ import org.apache.mahout.common.distance.EuclideanDistanceMeasure;
 import org.apache.mahout.math.NamedVector;
 import org.apache.mahout.math.RandomAccessSparseVector;
 import org.apache.mahout.math.Vector;
-import org.apache.mahout.math.Vector.Element;
 import org.apache.mahout.math.VectorWritable;
 import org.apache.mahout.math.stats.OnlineSummarizer;
 /**
@@ -66,7 +65,7 @@ public class ClusterEval {
 
 		//Read in vectors
 		SequenceFile.Reader reader = new SequenceFile.Reader(fs, vectorsPath, conf);
-		LongWritable key = new LongWritable();
+		Text key = new Text();
 		VectorWritable value = new VectorWritable();
 		while (reader.next(key, value)) {
 			//Not sure whether vectors are NamedVectors or RandomAccessSparseVectors
@@ -78,7 +77,7 @@ public class ClusterEval {
 		
 		//Read in centroids
 		reader = new SequenceFile.Reader(fs, centroidsPath, conf);
-		LongWritable ckey = new LongWritable();
+		Text ckey = new Text();
 		VectorWritable cvalue = new VectorWritable();
 		while (reader.next(ckey, cvalue)) {
 			NamedVector namedVector = (NamedVector)cvalue.get();
