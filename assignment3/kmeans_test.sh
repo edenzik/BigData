@@ -3,16 +3,18 @@
 # Runs multiple k-means and fuzzy k-means mahout clustering jobs
 # to test different parameters. This uses kmeans.sh
 
+./kmeans.sh .005 10 1 1.01 Cosine
+
 # Test distance measure
-./kmeans.sh .05 10 1 1.1 Cosine
-./kmeans.sh .05 10 1 1.1 Manhattan
-./kmeans.sh .05 10 1 1.1 WeightedManhattan
-./kmeans.sh .05 10 1 1.1 Chebyshev
-./kmeans.sh .05 10 1 1.1 Mahalanobis
-./kmeans.sh .05 10 1 1.1 Minkowski
-./kmeans.sh .05 10 1 1.1 Euclidean
-./kmeans.sh .05 10 1 1.1 Weighted
-./kmeans.sh .05 10 1 1.1 WeightedEuclidean
+# ./kmeans.sh .05 10 1 1.1 Cosine
+# ./kmeans.sh .05 10 1 1.1 Manhattan
+# ./kmeans.sh .05 10 1 1.1 WeightedManhattan
+# ./kmeans.sh .05 10 1 1.1 Chebyshev
+# ./kmeans.sh .05 10 1 1.1 Mahalanobis
+# ./kmeans.sh .05 10 1 1.1 Minkowski
+# ./kmeans.sh .05 10 1 1.1 Euclidean
+# ./kmeans.sh .05 10 1 1.1 Weighted
+# ./kmeans.sh .05 10 1 1.1 WeightedEuclidean
 
 # Test fuzziness
 # ./kmeans.sh .05 10 1 1.1
