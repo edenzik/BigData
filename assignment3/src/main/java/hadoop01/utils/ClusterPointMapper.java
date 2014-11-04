@@ -59,9 +59,7 @@ public class ClusterPointMapper {
 
 					
 					
-					//Print all matches in sorted order for fuzzy
-					
-					//TODO: sort matches based on match strength
+					//Print all matches in sorted order for fuzzy					
 					List<Entry<Integer, Double>> fuzzyMatchList = 
 							new ArrayList<Entry<Integer, Double>>();
 					for (Entry<Integer, Double> e : fuzzyMatch.entrySet()) {
@@ -71,11 +69,15 @@ public class ClusterPointMapper {
 					
 					Collections.sort(fuzzyMatchList, new ValueComparator());
 					
+					//Concatenate the output line
+					String output = "";
 					for (Entry<Integer, Double> e : fuzzyMatchList) {
-						
+						output = output.concat(e.getKey() + ":" + e.getValue());
+						output = output.concat(", ");
 					}
+					output = output.substring(0, output.length() - 2);
 					
-					
+					fwriter.write(output + "\n");
 					
 				}
 				
