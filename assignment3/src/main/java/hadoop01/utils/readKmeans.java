@@ -1,8 +1,3 @@
-/**
- * 
- */
-package kmeansParser;
-
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -18,24 +13,21 @@ import java.util.regex.Matcher;
  */
 public class readKmeans {
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
+	public HashMap<String, SimpleEntry<Integer, Double>> readKMeansFile(String fileLocation){
 		try {
-			String filename = args[0];
-			System.out.println("Processing Kmeans File..." + filename);
-			HashMap<String, SimpleEntry<Integer, Double>> output = reader(new BufferedReader(new FileReader(args[0])));
-			System.out.println(output.get("money"));
+			//System.out.println("Processing Kmeans File..." + filename);
+			return parseKMeansFile(new BufferedReader(new FileReader(fileLocation)));
+			//System.out.println(output.get("money"));
 		}catch (ArrayIndexOutOfBoundsException e) {
 			System.out.println("No filename given.");
 		}catch (FileNotFoundException e) {
 			System.out.println("File not found.");
 		}
+		return null;
 
 	}
 	
-	private static HashMap<String, SimpleEntry<Integer, Double>> reader(BufferedReader br){
+	private static HashMap<String, SimpleEntry<Integer, Double>> parseKMeansFile(BufferedReader br){
 		HashMap<String, SimpleEntry<Integer, Double>> output = new HashMap<String, SimpleEntry<Integer, Double>>();
 		StringBuilder sb = new StringBuilder();
 		String line;
@@ -44,11 +36,11 @@ public class readKmeans {
 				sb.append(line);
 				sb.append(System.lineSeparator());
 			}
-			String clusterPattern = ":\\w+-\\d+";
+			String clusterPattern = ":\\w+-\\d+";			//Split each cluster
 			String[] clusters = sb.toString().split(clusterPattern);
 			int currentCluster = 1;
 			for (String cluster :clusters){
-				String linePattern = "\\s+(\\w+)\\s+=>\\s*(\\d.\\d+)";
+				String linePattern = "\\s+(\\w+)\\s+=>\\s*(\\d.\\d+)";		//Split 
 				Pattern r = Pattern.compile(linePattern);
 				Matcher m = r.matcher(cluster);
 				while (m.find()){
