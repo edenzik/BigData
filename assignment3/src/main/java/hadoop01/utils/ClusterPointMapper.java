@@ -7,12 +7,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 
 public class ClusterPointMapper {
 	
@@ -43,19 +42,41 @@ public class ClusterPointMapper {
 				HashMap<Integer, Integer> kmeansMatch = new HashMap<Integer, Integer>();
 				HashMap<Integer, Double> fuzzyMatch = new HashMap<Integer, Double>();
 				
+				//Read the line and split into tokens
 				String line = reader.readLine();
 				String[] tokens = line.split(" ");
 				
+				//For each token (feature) in the review
 				for (int i = 0; i <= tokens.length - NgramNumber; i++) {
 					
-					//Make token by assembling Ngram
+					//Normalize token by assembling Ngram
 					String token = tokens[i];
 					for (int x = 1; x < NgramNumber; x++) {
 						token = token.concat(" " + tokens[i + x]);			
 					}
 					
 					//Match token against maps
+					Set<SimpleEntry<Integer, Double>> kmatches = kmeansMatch.get(token);
+					Set<SimpleEntry<Integer, Double>> fmatches = fuzzyMatch.get(token);
+
+					//Update hashMaps with matched data
+					//Update kmeansMatch
+					for (SimpleEntry<Integer, Double> s : kmatches) {
+						if (kmeansMatch.containsKey(s.getKey())) {
+							kmeansMatch.put(s.getKey(), kmeansMatch.get(s.getKey()) + 1);
+						} else {
+							kmeansMatch.put(s.getKey(), 1);
+						}
+					}
 					
+					//Update fuzzyMatch
+					for (SimpleEntry<Integer, Double> s : fmatches) {
+						if (fuzzyMatch.containsKey(s.getKey())) {
+							fuzzyMatch.put(s.getKey(), fuzzyMatch.get(s.getKey()) + s.getValue());
+						} else {
+							fuzzyMatch.put(s.getKey(), s.getValue());
+						}
+					}
 					
 					
 					
