@@ -40,7 +40,7 @@ public class readKmeans {
 			String[] clusters = sb.toString().split(clusterPattern);
 			int currentCluster = 1;
 			for (String cluster :clusters){
-				String linePattern = "\\s+(\\w+)\\s+=>\\s*(\\d.\\d+)";		//Split 
+				String linePattern = "\\s+(\\w+\\s*\\w*)\\s+=>\\s*(\\d.\\d+)";		//Split 
 				Pattern r = Pattern.compile(linePattern);
 				Matcher m = r.matcher(cluster);
 				while (m.find()){
