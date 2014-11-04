@@ -12,6 +12,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
+import com.google.common.collect.Sets;
+
 public class ClusterPointMapper {
 	
 	private final static int NgramNumber = 1;
@@ -37,6 +39,12 @@ public class ClusterPointMapper {
 			int linesRead = 0;
 			
 			System.out.println("kcluster map has " + kclusterMap.size() + " entries.");
+			//Print out the map for debugging
+			for (String s : kclusterMap.keySet()) {
+				System.out.print(s + " ");
+			}
+			System.out.println();
+			
 			System.out.println("fkcluster map has " + fclusterMap.size() + " entries.");
 			
 			System.out.println("Completed building maps, reading input");
