@@ -5,6 +5,7 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -26,6 +27,7 @@ public class ClusterPointMapper {
 			BufferedReader reader = new BufferedReader(new FileReader(args[1]));
 			BufferedWriter kwriter = new BufferedWriter(new FileWriter("kmeans_output.txt"));
 			BufferedWriter fwriter = new BufferedWriter(new FileWriter("fkmeans_output.txt"));
+			
 			while (reader.ready()) {
 				//Structures for matches to clusters
 				HashMap<Integer, Integer> kmeansMatch = new HashMap<Integer, Integer>();
@@ -44,6 +46,10 @@ public class ClusterPointMapper {
 					
 					//Match token against map
 					//TODO: Match tokens against both maps
+					HashMap<String, SimpleEntry<Integer, Double>> kclusterMap;
+					HashMap<String, SimpleEntry<Integer, Double>> fclusterMap;
+					
+					
 					
 					
 					//Print best match for kmeans
