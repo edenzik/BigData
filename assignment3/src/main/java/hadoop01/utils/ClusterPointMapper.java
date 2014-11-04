@@ -5,7 +5,13 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map.Entry;
 
 public class ClusterPointMapper {
 	
@@ -13,14 +19,18 @@ public class ClusterPointMapper {
 
 	public static void main(String[] args) {
 
-		//			Map centerMap = MAP GENERATING CODE HERE
+		//			Map kmeansMap = TODO: MAP GENERATING CODE HERE
+//					Map fuzzyMap = TODO: MAP GENERATING CODE HERE
 
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader(args[1]));
-			BufferedWriter writer = new BufferedWriter(new FileWriter("kmeans_output.txt"));
+			BufferedWriter kwriter = new BufferedWriter(new FileWriter("kmeans_output.txt"));
+			BufferedWriter fwriter = new BufferedWriter(new FileWriter("fkmeans_output.txt"));
 			while (reader.ready()) {
+				//Structures for matches to clusters
 				HashMap<Integer, Integer> kmeansMatch = new HashMap<Integer, Integer>();
 				HashMap<Integer, Double> fuzzyMatch = new HashMap<Integer, Double>();
+				
 				String line = reader.readLine();
 				String[] tokens = line.split(" ");
 				
@@ -33,7 +43,38 @@ public class ClusterPointMapper {
 					}
 					
 					//Match token against map
-					Object matchInfo = 
+					//TODO: Match tokens against both maps
+					
+					
+					//Print best match for kmeans
+					int bestCluster = 1;
+					for (Entry<Integer, Integer> e : kmeansMatch.entrySet()) {
+						if (e.getValue() > kmeansMatch.get(bestCluster)) {
+							//Found a new best match
+							bestCluster = e.getKey();
+						}					
+					}
+					kwriter.write(String.valueOf(bestCluster) + "\n");
+					
+
+					
+					
+					//Print all matches in sorted order for fuzzy
+					
+					//TODO: sort matches based on match strength
+					List<Entry<Integer, Double>> fuzzyMatchList = 
+							new ArrayList<Entry<Integer, Double>>();
+					for (Entry<Integer, Double> e : fuzzyMatch.entrySet()) {
+						fuzzyMatchList.add(e);
+					}
+					
+					
+					Collections.sort(fuzzyMatchList, new ValueComparator());
+					
+					for (Entry<Integer, Double> e : fuzzyMatchList) {
+						
+					}
+					
 					
 					
 				}
@@ -43,12 +84,15 @@ public class ClusterPointMapper {
 
 			}
 
-			reader.close(); writer.flush(); writer.close();
+			reader.close(); 
+			kwriter.flush(); kwriter.close();
+			fwriter.flush(); fwriter.close();
 
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
 	}
+
 
 }
