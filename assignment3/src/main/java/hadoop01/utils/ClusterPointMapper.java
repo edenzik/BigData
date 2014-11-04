@@ -11,7 +11,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Set;
 
 public class ClusterPointMapper {
 	
@@ -23,31 +22,35 @@ public class ClusterPointMapper {
 	 */
 	public static void main(String[] args) {
 
-		//			Map kmeansMap = TODO: MAP GENERATING CODE HERE
-//					Map fuzzyMap = TODO: MAP GENERATING CODE HERE
-
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader(args[2]));
 			BufferedWriter kwriter = new BufferedWriter(new FileWriter("kmeans_output.txt"));
 			BufferedWriter fwriter = new BufferedWriter(new FileWriter("fkmeans_output.txt"));
 			
-			//Match token against map
+			//Import maps from cluster dumps
 			HashMap<String, List<SimpleEntry<Integer, Double>>> kclusterMap = 
 					readKmeans.readKMeansFile(args[0]);
 			HashMap<String, List<SimpleEntry<Integer, Double>>> fclusterMap = 
 					readKmeans.readKMeansFile(args[1]);;
 			
+			//Keeps track of lines read to show progress to user
 			int linesRead = 0;
-					
+			
+			System.out.println("kcluster map has " + kclusterMap.size() + " entries.");
+			System.out.println("fkcluster map has " + fclusterMap.size() + " entries.");
+			
 			System.out.println("Completed building maps, reading input");
 			
+			
+			//Loops once for each input record
 			while (reader.ready()) {
+				
 				//Structures for matches to clusters
 				HashMap<Integer, Integer> kmeansMatch = new HashMap<Integer, Integer>();
 				HashMap<Integer, Double> fuzzyMatch = new HashMap<Integer, Double>();
 				
 				//Populate initial maps
-				for (int i = 1; i < 10; i++) {
+				for (int i = 1; i <= 10; i++) {
 					kmeansMatch.put(i, 0);
 					fuzzyMatch.put(i, 0.0);
 				}
@@ -57,7 +60,7 @@ public class ClusterPointMapper {
 				String[] tokens = line.split(" ");
 				
 				//Print when lines read reaches a big interval
-				if (linesRead++ % 10000 == 0) {
+				if (++linesRead % 10000 == 0) {
 					System.out.println("Read in " + linesRead + " lines.");
 				}
 				
@@ -93,6 +96,9 @@ public class ClusterPointMapper {
 						//Update fuzzyMatch
 						for (SimpleEntry<Integer, Double> s : fmatches) {
 							if (fuzzyMatch.containsKey(s.getKey())) {
+								
+								System.out.println("Found a match!");	//For debugging
+								
 								fuzzyMatch.put(
 										s.getKey(),
 										fuzzyMatch.get(s.getKey())
