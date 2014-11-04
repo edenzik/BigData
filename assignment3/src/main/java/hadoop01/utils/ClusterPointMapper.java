@@ -36,7 +36,8 @@ public class ClusterPointMapper {
 					readKmeans.readKMeansFile(args[0]);
 			HashMap<String, List<SimpleEntry<Integer, Double>>> fclusterMap = 
 					readKmeans.readKMeansFile(args[1]);;
-					
+			
+			int linesRead = 0;
 					
 			System.out.println("Completed building maps, reading input");
 			
@@ -48,6 +49,11 @@ public class ClusterPointMapper {
 				//Read the line and split into tokens
 				String line = reader.readLine();
 				String[] tokens = line.split(" ");
+				
+				//Print when lines read reaches a big interval
+				if (linesRead++ % 10000 == 0) {
+					System.out.println("Read in " + linesRead + " lines.");
+				}
 				
 				
 				//For each token (feature) in the review
