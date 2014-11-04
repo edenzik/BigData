@@ -1,1 +1,7 @@
+hadoop01\utils\ClusterPointMapper.class
 hadoop01\mrjobs\DummyMrJob.class
+hadoop01\utils\StopFilter.class
+hadoop01\utils\ClusterEval.class
+hadoop01\utils\DummyUtils.class
+hadoop01\utils\ValueComparator.class
+hadoop01\utils\readKmeans.class
