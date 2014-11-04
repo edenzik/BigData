@@ -46,6 +46,12 @@ public class ClusterPointMapper {
 				HashMap<Integer, Integer> kmeansMatch = new HashMap<Integer, Integer>();
 				HashMap<Integer, Double> fuzzyMatch = new HashMap<Integer, Double>();
 				
+				//Populate initial maps
+				for (int i = 1; i < 10; i++) {
+					kmeansMatch.put(i, 0);
+					fuzzyMatch.put(i, 0.0);
+				}
+				
 				//Read the line and split into tokens
 				String line = reader.readLine();
 				String[] tokens = line.split(" ");
@@ -69,11 +75,6 @@ public class ClusterPointMapper {
 					List<SimpleEntry<Integer, Double>> kmatches = kclusterMap.get(token);
 					List<SimpleEntry<Integer, Double>> fmatches = fclusterMap.get(token);
 					
-					//Populate initial maps
-					for (int x = 1; i < 10; i++) {
-						kmeansMatch.put(i, 0);
-						fuzzyMatch.put(i, 0.0);
-					}
 
 					if (kmatches != null) {
 						//Update hashMaps with matched data
