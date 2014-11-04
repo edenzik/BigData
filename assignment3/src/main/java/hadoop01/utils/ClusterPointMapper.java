@@ -18,6 +18,10 @@ public class ClusterPointMapper {
 	
 	private final static int NgramNumber = 1;
 
+	/**
+	 * Prints output file from the cluster dumps and original input
+	 * @param args 0: kmeans dump, 1: fuzzy dump, 2: filtered review text
+	 */
 	public static void main(String[] args) {
 
 		//			Map kmeansMap = TODO: MAP GENERATING CODE HERE
@@ -29,8 +33,10 @@ public class ClusterPointMapper {
 			BufferedWriter fwriter = new BufferedWriter(new FileWriter("fkmeans_output.txt"));
 			
 			//Match token against map
-			HashMap<String, SimpleEntry<Integer, Double>> kclusterMap;
-			HashMap<String, SimpleEntry<Integer, Double>> fclusterMap;
+			HashMap<String, SimpleEntry<Integer, Double>> kclusterMap = readKmeans.readKMeansFile(
+					args[0]);
+			HashMap<String, SimpleEntry<Integer, Double>> fclusterMap = readKmeans.readKMeansFile(
+					args[1]);;
 			
 			while (reader.ready()) {
 				//Structures for matches to clusters
@@ -45,12 +51,10 @@ public class ClusterPointMapper {
 					//Make token by assembling Ngram
 					String token = tokens[i];
 					for (int x = 1; x < NgramNumber; x++) {
-						token = token.concat(" " + tokens[i + x]);
-						
-						
-						
-						
+						token = token.concat(" " + tokens[i + x]);			
 					}
+					
+					//Match token against maps
 					
 					
 					
