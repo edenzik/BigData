@@ -36,6 +36,9 @@ public class ClusterPointMapper {
 					readKmeans.readKMeansFile(args[0]);
 			HashMap<String, List<SimpleEntry<Integer, Double>>> fclusterMap = 
 					readKmeans.readKMeansFile(args[1]);;
+					
+					
+			System.out.println("Completed building maps, reading input");
 			
 			while (reader.ready()) {
 				//Structures for matches to clusters
@@ -45,6 +48,7 @@ public class ClusterPointMapper {
 				//Read the line and split into tokens
 				String line = reader.readLine();
 				String[] tokens = line.split(" ");
+				
 				
 				//For each token (feature) in the review
 				for (int i = 0; i <= tokens.length - NgramNumber; i++) {
@@ -58,23 +62,37 @@ public class ClusterPointMapper {
 					//Match token against maps
 					List<SimpleEntry<Integer, Double>> kmatches = kclusterMap.get(token);
 					List<SimpleEntry<Integer, Double>> fmatches = fclusterMap.get(token);
+					
+					//Populate initial maps
+					for (int x = 1; i < 10; i++) {
+						kmeansMatch.put(i, 0);
+						fuzzyMatch.put(i, 0.0);
+					}
 
-					//Update hashMaps with matched data
-					//Update kmeansMatch
-					for (SimpleEntry<Integer, Double> s : kmatches) {
-						if (kmeansMatch.containsKey(s.getKey())) {
-							kmeansMatch.put(s.getKey(), kmeansMatch.get(s.getKey()) + 1);
-						} else {
-							kmeansMatch.put(s.getKey(), 1);
+					if (kmatches != null) {
+						//Update hashMaps with matched data
+						//Update kmeansMatch
+						for (SimpleEntry<Integer, Double> s : kmatches) {
+							if (kmeansMatch.containsKey(s.getKey())) {
+								kmeansMatch.put(s.getKey(),
+										kmeansMatch.get(s.getKey()) + 1);
+							} else {
+								kmeansMatch.put(s.getKey(), 1);
+							}
 						}
 					}
 					
-					//Update fuzzyMatch
-					for (SimpleEntry<Integer, Double> s : fmatches) {
-						if (fuzzyMatch.containsKey(s.getKey())) {
-							fuzzyMatch.put(s.getKey(), fuzzyMatch.get(s.getKey()) + s.getValue());
-						} else {
-							fuzzyMatch.put(s.getKey(), s.getValue());
+					if (fmatches != null) {
+						//Update fuzzyMatch
+						for (SimpleEntry<Integer, Double> s : fmatches) {
+							if (fuzzyMatch.containsKey(s.getKey())) {
+								fuzzyMatch.put(
+										s.getKey(),
+										fuzzyMatch.get(s.getKey())
+												+ s.getValue());
+							} else {
+								fuzzyMatch.put(s.getKey(), s.getValue());
+							}
 						}
 					}
 					
