@@ -4,6 +4,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
@@ -13,7 +15,7 @@ import java.util.regex.Matcher;
  */
 public class readKmeans {
 
-	public static HashMap<String, SimpleEntry<Integer, Double>> readKMeansFile(String fileLocation){
+	public static HashMap<String, List<SimpleEntry<Integer, Double>>> readKMeansFile(String fileLocation){
 		try {
 			//System.out.println("Processing Kmeans File..." + filename);
 			return parseKMeansFile(new BufferedReader(new FileReader(fileLocation)));
@@ -27,8 +29,8 @@ public class readKmeans {
 
 	}
 	
-	private static HashMap<String, SimpleEntry<Integer, Double>> parseKMeansFile(BufferedReader br){
-		HashMap<String, SimpleEntry<Integer, Double>> output = new HashMap<String, SimpleEntry<Integer, Double>>();
+	private static HashMap<String, List<SimpleEntry<Integer, Double>>> parseKMeansFile(BufferedReader br){
+		HashMap<String, List<SimpleEntry<Integer, Double>>> output = new HashMap<String, List<SimpleEntry<Integer, Double>>>();
 		StringBuilder sb = new StringBuilder();
 		String line;
 		try {
@@ -45,7 +47,11 @@ public class readKmeans {
 				Matcher m = r.matcher(cluster);
 				while (m.find()){
 					//System.out.println(m.group(1));
-					output.put(m.group(1), new SimpleEntry<Integer, Double>(Integer.valueOf(currentCluster), Double.parseDouble(m.group(2))));
+					if(!output.containsKey(m.group(1))){
+						output.put(m.group(1), (new ArrayList<SimpleEntry<Integer, Double>>()));
+					}
+
+					(output.get(m.group(1))).add(new SimpleEntry<Integer, Double>(Integer.valueOf(currentCluster), Double.parseDouble(m.group(2))));
 					
 				}
 				currentCluster++;
