@@ -24,9 +24,13 @@ public class ClusterPointMapper {
 //					Map fuzzyMap = TODO: MAP GENERATING CODE HERE
 
 		try {
-			BufferedReader reader = new BufferedReader(new FileReader(args[1]));
+			BufferedReader reader = new BufferedReader(new FileReader(args[2]));
 			BufferedWriter kwriter = new BufferedWriter(new FileWriter("kmeans_output.txt"));
 			BufferedWriter fwriter = new BufferedWriter(new FileWriter("fkmeans_output.txt"));
+			
+			//Match token against map
+			HashMap<String, SimpleEntry<Integer, Double>> kclusterMap;
+			HashMap<String, SimpleEntry<Integer, Double>> fclusterMap;
 			
 			while (reader.ready()) {
 				//Structures for matches to clusters
@@ -42,52 +46,51 @@ public class ClusterPointMapper {
 					String token = tokens[i];
 					for (int x = 1; x < NgramNumber; x++) {
 						token = token.concat(" " + tokens[i + x]);
+						
+						
+						
+						
 					}
 					
-					//Match token against map
-					//TODO: Match tokens against both maps
-					HashMap<String, SimpleEntry<Integer, Double>> kclusterMap;
-					HashMap<String, SimpleEntry<Integer, Double>> fclusterMap;
 					
 					
 					
 					
-					//Print best match for kmeans
-					int bestCluster = 1;
-					for (Entry<Integer, Integer> e : kmeansMatch.entrySet()) {
-						if (e.getValue() > kmeansMatch.get(bestCluster)) {
-							//Found a new best match
-							bestCluster = e.getKey();
-						}					
-					}
-					kwriter.write(String.valueOf(bestCluster) + "\n");
 					
+				}	//End of this record
+				
+				//Print best match for kmeans
+				int bestCluster = 1;
+				for (Entry<Integer, Integer> e : kmeansMatch.entrySet()) {
+					if (e.getValue() > kmeansMatch.get(bestCluster)) {
+						//Found a new best match
+						bestCluster = e.getKey();
+					}					
+				}
+				kwriter.write(String.valueOf(bestCluster) + "\n");
+				
 
-					
-					
-					//Print all matches in sorted order for fuzzy					
-					List<Entry<Integer, Double>> fuzzyMatchList = 
-							new ArrayList<Entry<Integer, Double>>();
-					for (Entry<Integer, Double> e : fuzzyMatch.entrySet()) {
-						fuzzyMatchList.add(e);
-					}
-					
-					
-					Collections.sort(fuzzyMatchList, new ValueComparator());
-					
-					//Concatenate the output line
-					String output = "";
-					for (Entry<Integer, Double> e : fuzzyMatchList) {
-						output = output.concat(e.getKey() + ":" + e.getValue());
-						output = output.concat(", ");
-					}
-					output = output.substring(0, output.length() - 2);
-					
-					fwriter.write(output + "\n");
-					
+				
+				
+				//Print all matches in sorted order for fuzzy					
+				List<Entry<Integer, Double>> fuzzyMatchList = 
+						new ArrayList<Entry<Integer, Double>>();
+				for (Entry<Integer, Double> e : fuzzyMatch.entrySet()) {
+					fuzzyMatchList.add(e);
 				}
 				
 				
+				Collections.sort(fuzzyMatchList, new ValueComparator());
+				
+				//Concatenate the output line
+				String output = "";
+				for (Entry<Integer, Double> e : fuzzyMatchList) {
+					output = output.concat(e.getKey() + ":" + e.getValue());
+					output = output.concat(", ");
+				}
+				output = output.substring(0, output.length() - 2);
+				
+				fwriter.write(output + "\n");
 
 
 			}

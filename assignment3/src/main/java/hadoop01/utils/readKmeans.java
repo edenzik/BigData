@@ -13,7 +13,7 @@ import java.util.regex.Matcher;
  */
 public class readKmeans {
 
-	public HashMap<String, SimpleEntry<Integer, Double>> readKMeansFile(String fileLocation){
+	public static HashMap<String, SimpleEntry<Integer, Double>> readKMeansFile(String fileLocation){
 		try {
 			//System.out.println("Processing Kmeans File..." + filename);
 			return parseKMeansFile(new BufferedReader(new FileReader(fileLocation)));
