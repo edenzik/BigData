@@ -32,10 +32,10 @@ public class ClusterPointMapper {
 			BufferedWriter fwriter = new BufferedWriter(new FileWriter("fkmeans_output.txt"));
 			
 			//Match token against map
-			HashMap<String, SimpleEntry<Integer, Double>> kclusterMap = readKmeans.readKMeansFile(
-					args[0]);
-			HashMap<String, SimpleEntry<Integer, Double>> fclusterMap = readKmeans.readKMeansFile(
-					args[1]);;
+			HashMap<String, List<SimpleEntry<Integer, Double>>> kclusterMap = 
+					readKmeans.readKMeansFile(args[0]);
+			HashMap<String, List<SimpleEntry<Integer, Double>>> fclusterMap = 
+					readKmeans.readKMeansFile(args[1]);;
 			
 			while (reader.ready()) {
 				//Structures for matches to clusters
@@ -56,8 +56,8 @@ public class ClusterPointMapper {
 					}
 					
 					//Match token against maps
-					Set<SimpleEntry<Integer, Double>> kmatches = kmeansMatch.get(token);
-					Set<SimpleEntry<Integer, Double>> fmatches = fuzzyMatch.get(token);
+					List<SimpleEntry<Integer, Double>> kmatches = kclusterMap.get(token);
+					List<SimpleEntry<Integer, Double>> fmatches = fclusterMap.get(token);
 
 					//Update hashMaps with matched data
 					//Update kmeansMatch

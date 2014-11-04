@@ -1,4 +1,1 @@
-hadoop01\utils\StopFilter.class
-hadoop01\utils\DummyUtils.class
-hadoop01\utils\ClusterEval.class
 hadoop01\mrjobs\DummyMrJob.class
