@@ -12,8 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
-import com.google.common.collect.Sets;
-
 public class ClusterPointMapper {
 	
 	private final static int NgramNumber = 1;
