@@ -10,7 +10,7 @@ public class ValueComparator implements Comparator<Entry<Integer, Double>> {
 	}
 
 	public int compare(Entry<Integer, Double> e1, Entry<Integer, Double> e2) {
-		if (e1.getValue() > e2.getValue()) {
+		if (e1.getValue() < e2.getValue()) {
 			return 1;
 		} else if (e1.getValue() == e2.getValue()) {
 			return 0;
