@@ -5,19 +5,33 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.AbstractMap.SimpleEntry;
-import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.regex.Pattern;
+import java.util.Map;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author edenzik
  *
  */
 public class readKmeans {
+	
+	// Main method used for unit testing only
+	public static void main(String[] args) {
+		String FILE_LOCATION = "clusterdump.out";
+		Map<String, List<SimpleEntry<Integer, Double>>> m = readKMeansFile(FILE_LOCATION);
+		int numVals = 0;
+		// Test to make sure that there are 100 cluster values
+		for(List<SimpleEntry<Integer, Double>> l: m.values()) {
+			numVals += l.size();
+		}
+		assert(numVals == 100);
+		System.out.println(m);
+	}
 
-	public static HashMap<String, List<SimpleEntry<Integer, Double>>> readKMeansFile(String fileLocation){
+	public static Map<String, List<SimpleEntry<Integer, Double>>> readKMeansFile(String fileLocation){
 		try {
 			//System.out.println("Processing Kmeans File..." + filename);
 			return parseKMeansFile(new BufferedReader(new FileReader(fileLocation)));
@@ -31,8 +45,8 @@ public class readKmeans {
 
 	}
 	
-	private static HashMap<String, List<SimpleEntry<Integer, Double>>> parseKMeansFile(BufferedReader br){
-		HashMap<String, List<SimpleEntry<Integer, Double>>> output = new HashMap<String, List<SimpleEntry<Integer, Double>>>();
+	private static Map<String, List<SimpleEntry<Integer, Double>>> parseKMeansFile(BufferedReader br){
+		Map<String, List<SimpleEntry<Integer, Double>>> output = new HashMap<String, List<SimpleEntry<Integer, Double>>>();
 		StringBuilder sb = new StringBuilder();
 		String line;
 		try {
@@ -48,12 +62,14 @@ public class readKmeans {
 				Pattern r = Pattern.compile(linePattern);
 				Matcher m = r.matcher(cluster);
 				while (m.find()){
-					//System.out.println(m.group(1));
-					if(!output.containsKey(m.group(1))){
-						output.put(m.group(1), (new ArrayList<SimpleEntry<Integer, Double>>()));
+					// ALWAYS TRIM YOUR STRINGS
+					String next = m.group(1).trim();
+					//System.out.println(next);
+					if(!output.containsKey(next)){
+						output.put(next, (new ArrayList<SimpleEntry<Integer, Double>>()));
 					}
 
-					(output.get(m.group(1))).add(new SimpleEntry<Integer, Double>(Integer.valueOf(currentCluster), Double.parseDouble(m.group(2))));
+					(output.get(next)).add(new SimpleEntry<Integer, Double>(Integer.valueOf(currentCluster), Double.parseDouble(m.group(2).trim())));
 					
 				}
 				currentCluster++;

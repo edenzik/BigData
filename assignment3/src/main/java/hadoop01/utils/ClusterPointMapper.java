@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 public class ClusterPointMapper {
@@ -28,10 +29,10 @@ public class ClusterPointMapper {
 			BufferedWriter fwriter = new BufferedWriter(new FileWriter("fkmeans_output.txt"));
 			
 			//Import maps from cluster dumps
-			HashMap<String, List<SimpleEntry<Integer, Double>>> kclusterMap = 
+			Map<String, List<SimpleEntry<Integer, Double>>> kclusterMap = 
 					readKmeans.readKMeansFile(args[0]);
-			HashMap<String, List<SimpleEntry<Integer, Double>>> fclusterMap = 
-					readKmeans.readKMeansFile(args[1]);;
+//			Map<String, List<SimpleEntry<Integer, Double>>> fclusterMap = 
+//					readKmeans.readKMeansFile(args[1]);
 			
 			//Keeps track of lines read to show progress to user
 			int linesRead = 0;
@@ -43,7 +44,7 @@ public class ClusterPointMapper {
 			}
 			System.out.println();
 			
-			System.out.println("fkcluster map has " + fclusterMap.size() + " entries.");
+//			System.out.println("fkcluster map has " + fclusterMap.size() + " entries.");
 			
 			System.out.println("Completed building maps, reading input");
 			
@@ -82,7 +83,7 @@ public class ClusterPointMapper {
 					
 					//Match token against maps
 					List<SimpleEntry<Integer, Double>> kmatches = kclusterMap.get(token);
-					List<SimpleEntry<Integer, Double>> fmatches = fclusterMap.get(token);
+//					List<SimpleEntry<Integer, Double>> fmatches = fclusterMap.get(token);
 					
 
 					if (kmatches != null) {
@@ -98,22 +99,22 @@ public class ClusterPointMapper {
 						}
 					}
 					
-					if (fmatches != null) {
-						//Update fuzzyMatch
-						for (SimpleEntry<Integer, Double> s : fmatches) {
-							if (fuzzyMatch.containsKey(s.getKey())) {
-								
-								System.out.println("Found a match!");	//For debugging
-								
-								fuzzyMatch.put(
-										s.getKey(),
-										fuzzyMatch.get(s.getKey())
-												+ s.getValue());
-							} else {
-								fuzzyMatch.put(s.getKey(), s.getValue());
-							}
-						}
-					}
+////					if (fmatches != null) {
+//						//Update fuzzyMatch
+//						for (SimpleEntry<Integer, Double> s : fmatches) {
+//							if (fuzzyMatch.containsKey(s.getKey())) {
+//								
+//								System.out.println("Found a match!");	//For debugging
+//								
+//								fuzzyMatch.put(
+//										s.getKey(),
+//										fuzzyMatch.get(s.getKey())
+//												+ s.getValue());
+//							} else {
+//								fuzzyMatch.put(s.getKey(), s.getValue());
+//							}
+//						}
+//					}
 					
 					
 					
