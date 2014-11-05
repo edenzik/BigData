@@ -1,4 +1,7 @@
-C:\Users\Michael\workspace\BigData\assignment3\src\main\java\hadoop01\mrjobs\DummyMrJob.java
-C:\Users\Michael\workspace\BigData\assignment3\src\main\java\hadoop01\utils\ClusterEval.java
-C:\Users\Michael\workspace\BigData\assignment3\src\main\java\hadoop01\utils\StopFilter.java
-C:\Users\Michael\workspace\BigData\assignment3\src\main\java\hadoop01\utils\DummyUtils.java
+/Users/kahliloppenheimer/dev/student/cosi129a/github/BigData/Assignment3/src/main/java/hadoop01/utils/ClusterPointMapper.java
+/Users/kahliloppenheimer/dev/student/cosi129a/github/BigData/Assignment3/src/main/java/hadoop01/utils/ValueComparator.java
+/Users/kahliloppenheimer/dev/student/cosi129a/github/BigData/Assignment3/src/main/java/hadoop01/utils/ClusterEval.java
+/Users/kahliloppenheimer/dev/student/cosi129a/github/BigData/Assignment3/src/main/java/hadoop01/utils/readKmeans.java
+/Users/kahliloppenheimer/dev/student/cosi129a/github/BigData/Assignment3/src/main/java/hadoop01/utils/StopFilter.java
+/Users/kahliloppenheimer/dev/student/cosi129a/github/BigData/Assignment3/src/main/java/hadoop01/mrjobs/DummyMrJob.java
+/Users/kahliloppenheimer/dev/student/cosi129a/github/BigData/Assignment3/src/main/java/hadoop01/utils/DummyUtils.java

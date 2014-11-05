@@ -10,8 +10,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 public class ClusterPointMapper {
 	
@@ -23,28 +23,54 @@ public class ClusterPointMapper {
 	 */
 	public static void main(String[] args) {
 
-		//			Map kmeansMap = TODO: MAP GENERATING CODE HERE
-//					Map fuzzyMap = TODO: MAP GENERATING CODE HERE
-
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader(args[2]));
 			BufferedWriter kwriter = new BufferedWriter(new FileWriter("kmeans_output.txt"));
 			BufferedWriter fwriter = new BufferedWriter(new FileWriter("fkmeans_output.txt"));
 			
-			//Match token against map
-			HashMap<String, SimpleEntry<Integer, Double>> kclusterMap = readKmeans.readKMeansFile(
-					args[0]);
-			HashMap<String, SimpleEntry<Integer, Double>> fclusterMap = readKmeans.readKMeansFile(
-					args[1]);;
+			//Import maps from cluster dumps
+			Map<String, List<SimpleEntry<Integer, Double>>> kclusterMap = 
+					readKmeans.readKMeansFile(args[0]);
+//			Map<String, List<SimpleEntry<Integer, Double>>> fclusterMap = 
+//					readKmeans.readKMeansFile(args[1]);
 			
+			//Keeps track of lines read to show progress to user
+			int linesRead = 0;
+			
+			System.out.println("kcluster map has " + kclusterMap.size() + " entries.");
+			//Print out the map for debugging
+			for (String s : kclusterMap.keySet()) {
+				System.out.print(s + " ");
+			}
+			System.out.println();
+			
+//			System.out.println("fkcluster map has " + fclusterMap.size() + " entries.");
+			
+			System.out.println("Completed building maps, reading input");
+			
+			
+			//Loops once for each input record
 			while (reader.ready()) {
+				
 				//Structures for matches to clusters
 				HashMap<Integer, Integer> kmeansMatch = new HashMap<Integer, Integer>();
 				HashMap<Integer, Double> fuzzyMatch = new HashMap<Integer, Double>();
 				
+				//Populate initial maps
+				for (int i = 1; i <= 10; i++) {
+					kmeansMatch.put(i, 0);
+					fuzzyMatch.put(i, 0.0);
+				}
+				
 				//Read the line and split into tokens
 				String line = reader.readLine();
 				String[] tokens = line.split(" ");
+				
+				//Print when lines read reaches a big interval
+				if (++linesRead % 10000 == 0) {
+					System.out.println("Read in " + linesRead + " lines.");
+				}
+				
 				
 				//For each token (feature) in the review
 				for (int i = 0; i <= tokens.length - NgramNumber; i++) {
@@ -56,27 +82,39 @@ public class ClusterPointMapper {
 					}
 					
 					//Match token against maps
-					Set<SimpleEntry<Integer, Double>> kmatches = kmeansMatch.get(token);
-					Set<SimpleEntry<Integer, Double>> fmatches = fuzzyMatch.get(token);
+					List<SimpleEntry<Integer, Double>> kmatches = kclusterMap.get(token);
+//					List<SimpleEntry<Integer, Double>> fmatches = fclusterMap.get(token);
+					
 
-					//Update hashMaps with matched data
-					//Update kmeansMatch
-					for (SimpleEntry<Integer, Double> s : kmatches) {
-						if (kmeansMatch.containsKey(s.getKey())) {
-							kmeansMatch.put(s.getKey(), kmeansMatch.get(s.getKey()) + 1);
-						} else {
-							kmeansMatch.put(s.getKey(), 1);
+					if (kmatches != null) {
+						//Update hashMaps with matched data
+						//Update kmeansMatch
+						for (SimpleEntry<Integer, Double> s : kmatches) {
+							if (kmeansMatch.containsKey(s.getKey())) {
+								kmeansMatch.put(s.getKey(),
+										kmeansMatch.get(s.getKey()) + 1);
+							} else {
+								kmeansMatch.put(s.getKey(), 1);
+							}
 						}
 					}
 					
-					//Update fuzzyMatch
-					for (SimpleEntry<Integer, Double> s : fmatches) {
-						if (fuzzyMatch.containsKey(s.getKey())) {
-							fuzzyMatch.put(s.getKey(), fuzzyMatch.get(s.getKey()) + s.getValue());
-						} else {
-							fuzzyMatch.put(s.getKey(), s.getValue());
-						}
-					}
+////					if (fmatches != null) {
+//						//Update fuzzyMatch
+//						for (SimpleEntry<Integer, Double> s : fmatches) {
+//							if (fuzzyMatch.containsKey(s.getKey())) {
+//								
+//								System.out.println("Found a match!");	//For debugging
+//								
+//								fuzzyMatch.put(
+//										s.getKey(),
+//										fuzzyMatch.get(s.getKey())
+//												+ s.getValue());
+//							} else {
+//								fuzzyMatch.put(s.getKey(), s.getValue());
+//							}
+//						}
+//					}
 					
 					
 					
