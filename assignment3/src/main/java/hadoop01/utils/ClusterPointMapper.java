@@ -142,6 +142,16 @@ public class ClusterPointMapper {
 					fuzzyMatchList.add(e);
 				}
 				
+				//Get total of all counts for normalizing
+				double totalCount = 0.0;
+				for (int clusterNum : fuzzyMatch.keySet()) {
+					totalCount += fuzzyMatch.get(clusterNum);
+				}
+				
+				//Divide all values by total to normalize
+				for (int clusterNum : fuzzyMatch.keySet()) {
+					fuzzyMatch.put(clusterNum, fuzzyMatch.get(clusterNum)/totalCount);
+				}
 				
 				Collections.sort(fuzzyMatchList, new ValueComparator());
 				
