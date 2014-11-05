@@ -38,11 +38,6 @@ public class ClusterPointMapper {
 			int linesRead = 0;
 			
 			System.out.println("kcluster map has " + kclusterMap.size() + " entries.");
-			//Print out the map for debugging
-			for (String s : kclusterMap.keySet()) {
-				System.out.print(s + " ");
-			}
-			System.out.println();
 			
 			System.out.println("fkcluster map has " + fclusterMap.size() + " entries.");
 			
