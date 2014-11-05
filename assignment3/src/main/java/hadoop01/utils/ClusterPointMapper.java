@@ -103,9 +103,6 @@ public class ClusterPointMapper {
 						//Update fuzzyMatch
 						for (SimpleEntry<Integer, Double> s : fmatches) {
 							if (fuzzyMatch.containsKey(s.getKey())) {
-								
-								System.out.println("Found a match!");	//For debugging
-								
 								fuzzyMatch.put(
 										s.getKey(),
 										fuzzyMatch.get(s.getKey())
