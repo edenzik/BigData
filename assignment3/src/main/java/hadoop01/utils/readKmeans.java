@@ -56,7 +56,9 @@ public class readKmeans {
 			}
 			String clusterPattern = ":\\w+-\\d+";			//Split each cluster
 			String[] clusters = sb.toString().split(clusterPattern);
-			int currentCluster = 1;
+			System.out.println(clusters.length);
+			System.out.println(clusters[0]);
+			int currentCluster = 0;
 			for (String cluster :clusters){
 				String linePattern = "\\s+(\\w+\\s*\\w*)\\s+=>\\s*(\\d.\\d+)";		//Split 
 				Pattern r = Pattern.compile(linePattern);
