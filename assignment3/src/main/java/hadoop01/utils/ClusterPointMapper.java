@@ -148,8 +148,8 @@ public class ClusterPointMapper {
 								
 				//Divide all values by total to normalize
 				for (int clusterNum : fuzzyMatch.keySet()) {
-					fuzzyMatch.put(clusterNum, fuzzyMatch.get(clusterNum)/totalCount);
-					if ((fuzzyMatch.get(clusterNum)) != (fuzzyMatch.get(clusterNum))) {
+					fuzzyMatch.put(clusterNum, Double.fuzzyMatch.get(clusterNum) / totalCount);
+					if ((fuzzyMatch.get(clusterNum)) == Double.NaN) {
 						throw new RuntimeException("Error, tried to place NaN in map");
 					}
 				}
@@ -166,7 +166,7 @@ public class ClusterPointMapper {
 				//Concatenate the output line
 				String output = "";
 				for (Entry<Integer, Double> e : fuzzyMatchList) {
-					if (e.getValue() != e.getValue()) {
+					if (e.getValue() == Double.NaN) {
 						throw new RuntimeException("Error, NaN value in list");
 					}
 					output = output.concat(e.getKey() + ":" + e.getValue());
