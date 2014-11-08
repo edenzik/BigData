@@ -66,12 +66,6 @@ public class ClusterPointMapper {
 					System.out.println("Read in " + linesRead + " lines.");
 				}
 				
-				//Debugging statement
-				if (linesRead == 36) {
-					System.out.println("Contents of this line: " + line);
-				}
-				
-				
 				//For each token (feature) in the review
 				for (int i = 0; i <= tokens.length - NgramNumber; i++) {
 					
@@ -85,8 +79,6 @@ public class ClusterPointMapper {
 					List<SimpleEntry<Integer, Double>> kmatches = kclusterMap.get(token);
 					List<SimpleEntry<Integer, Double>> fmatches = fclusterMap.get(token);
 
-//					validateList(fmatches);
-					
 
 					if (kmatches != null) {
 						//Update hashMaps with matched data
@@ -149,9 +141,6 @@ public class ClusterPointMapper {
 				//Divide all values by total to normalize
 				for (int clusterNum : fuzzyMatch.keySet()) {
 					fuzzyMatch.put(clusterNum, Double.fuzzyMatch.get(clusterNum) / totalCount);
-					if ((fuzzyMatch.get(clusterNum)) == Double.NaN) {
-						throw new RuntimeException("Error, tried to place NaN in map");
-					}
 				}
 				
 				//Turn map into a list for sorting
@@ -166,9 +155,6 @@ public class ClusterPointMapper {
 				//Concatenate the output line
 				String output = "";
 				for (Entry<Integer, Double> e : fuzzyMatchList) {
-					if (e.getValue() == Double.NaN) {
-						throw new RuntimeException("Error, NaN value in list");
-					}
 					output = output.concat(e.getKey() + ":" + e.getValue());
 					output = output.concat(", ");
 				}
@@ -188,14 +174,6 @@ public class ClusterPointMapper {
 
 	}
 	
-//	private static void validateList(List<SimpleEntry<Integer, Double>> fmatches) {
-//		for (SimpleEntry se : fmatches) {
-//			if (isNaN(se.getValue())) {
-//				
-//			}
-//		}
-//		
-//	}
 
 	public static boolean isNaN(double x) {
 		return x != x;
