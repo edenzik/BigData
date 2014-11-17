@@ -1,0 +1,53 @@
+#To set as global gitignore in os x, simply run:
+#git config --global core.excludesfile '~/.gitignore_global'
+#compiled source #
+###################
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+*.class
+ 
+# Packages #
+############
+# it's better to unpack these files and commit the raw source
+# git has its own built in compression methods
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+ 
+# Logs and databases #
+######################
+*.log
+*.sql
+*.sqlite
+ 
+# OS generated files #
+######################
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# General detritus
+*.pdf
+ 
+# codekit #
+###########
+.metadata/
+.sass-cache/
+.codekit-config.json
+config.codekit
+
+# Maven specific
+target/*
