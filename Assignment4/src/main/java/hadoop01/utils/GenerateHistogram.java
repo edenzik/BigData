@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -18,24 +19,37 @@ public class GenerateHistogram {
 	public static Map<Integer, Integer> item_to_reviews;
 	// position of item_id in each CSV line (i.e. second value is index 1)
 	public static final int ITEM_ID_IDX= 1;
+	// output stream for histogram
+	public static PrintStream output;
 
+	// input: input_file, output_file (or none for stdout)
+	// output: map of num_reviews -> num_items
 	public static void main(String[] args) throws IOException {
 		// Ensure only 1 arg passed
-		if(args.length != 1) {
-			throw new IllegalArgumentException("You must supply 1 argument, the CSV file");
+		if(args.length != 1 || args.length != 2) {
+			throw new IllegalArgumentException("args: input file, outputfile (optional)");
 		}
 		
+		// Verify input file
 		INPUT_CSV_FILE = new File(args[0]);
 		// Ensure file is readable
 		if(!INPUT_CSV_FILE.canRead()) {
 			throw new IOException("Cannot read: " + INPUT_CSV_FILE);
 		}
+		
+		// Verify printstream
+		if(args.length == 2) {
+			output = new PrintStream(args[1]);
+		} else {
+			output = System.out;
+		}
 		item_to_reviews = new HashMap<Integer, Integer>();
 		populateItemToReviews();
-		TreeMap<Integer, Set<Integer>> reviewFrequencies = new TreeMap(reverseMap(item_to_reviews));
+		TreeMap<Integer, Set<Integer>> reviewFrequencies =
+				new TreeMap<Integer, Set<Integer>>(reverseMap(item_to_reviews));
 		// Print histogram results
 		for(Integer i: reviewFrequencies.keySet()) {
-			System.out.println(i + ": " + reviewFrequencies.get(i).size());
+			output.println(i + "\t" + reviewFrequencies.get(i).size());
 		}
 		
 	}
