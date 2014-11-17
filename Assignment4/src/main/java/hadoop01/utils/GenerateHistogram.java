@@ -26,7 +26,7 @@ public class GenerateHistogram {
 	// output: map of num_reviews -> num_items
 	public static void main(String[] args) throws IOException {
 		// Ensure only 1 arg passed
-		if(args.length != 1 || args.length != 2) {
+		if(args.length < 1 || args.length > 2) {
 			throw new IllegalArgumentException("args: input file, outputfile (optional)");
 		}
 		
