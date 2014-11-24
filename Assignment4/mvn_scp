@@ -1,0 +1,4 @@
+#!/bin/bash
+mvn package
+jar_path=$(ls -1 target | grep -Eo "Assignment[0-9]-[0-9]\.[0-9]\.[0-9]-SNAPSHOT.jar" | sort -nr | head -1)
+scp target/$jar_path hadoop01@deerstalker.cs.brandeis.edu:~/
