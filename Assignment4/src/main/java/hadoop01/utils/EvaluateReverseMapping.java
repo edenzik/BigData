@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -33,15 +34,18 @@ public class EvaluateReverseMapping {
 		if(!originalRec.canRead() || !reversedRec.canRead()) {
 			throw new IOException("Can not read files!");
 		}
-		
+
+		System.out.println("Building original map...");
 		Map<Integer, Integer> originalMap = buildMap(originalRec);
+		System.out.println("Building reversed map...");
 		Map<Integer, Integer> reversedMap = buildMap(reversedRec);
-		
+
+		System.out.println("Evaluating Cardinalities");
 		if(!cardinalitiesMatch(originalMap, reversedMap)) {
 			System.err.println("Cardinality mismatch!");
 		}
 	}
-	
+
 	/**
 	 * Returns whether or not the cardinalities of set of keys + values for each
 	 * map matches
@@ -52,11 +56,22 @@ public class EvaluateReverseMapping {
 	 */
 	private static boolean cardinalitiesMatch(
 			Map<Integer, Integer> originalMap, Map<Integer, Integer> reversedMap) {
-		Set<Integer> originalSet = originalMap.keySet();
-		originalSet.addAll(originalMap.values());
-		Set<Integer> reversedSet = reversedMap.keySet();
-		reversedSet.addAll(reversedMap.values());
-		myAssert(originalSet.size() == reversedSet.size());
+		// Set to contain the union of the set of keys and values (duplicates
+		// will be removed). Notably this set has to be seperate from what is
+		// returned by Map::keySet(), because that map is read-only.
+		Set<Integer> originalAgg = new HashSet<Integer>();
+		originalAgg.addAll(originalMap.keySet());
+		originalAgg.addAll(originalMap.values());
+		
+		Set<Integer> reversedAgg = new HashSet<Integer>();
+		reversedAgg.addAll(reversedMap.keySet());
+		reversedAgg.addAll(reversedMap.values());
+		
+		System.out.println("Original cardinality = " + originalAgg.size());
+		System.out.println("Reversed cardinality = " + reversedAgg.size());
+		
+		System.out.println("reversed - original = " + (reversedAgg.size() - originalAgg.size()));
+		
 		return true;
 	}
 
@@ -77,10 +92,10 @@ public class EvaluateReverseMapping {
 			String nextLine = null;
 			while((nextLine = br.readLine()) != null) {
 				String[] splitLine = nextLine.split("\\s+");
-				myAssert(nextLine.length() == 3);
+				myAssert(splitLine.length == 3);
 				map.put(Integer.parseInt(splitLine[0].trim()),
 						Integer.parseInt(splitLine[1].trim()));
-				
+
 			}
 		} catch(IOException e) {
 			e.printStackTrace();
@@ -93,7 +108,7 @@ public class EvaluateReverseMapping {
 		}
 		return map;
 	}
-	
+
 	/**
 	 * Throws an error if the passed boolean is false
 	 * 
