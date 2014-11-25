@@ -18,6 +18,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 /**
@@ -69,22 +70,30 @@ public class FormatFinalOutput {
 		// Set of assigned item ids in order presented in file
 		System.out.println("Reading in assigned items...");
 		Set<String> origAssignedIIDSet = getAssignedItemSet(assignedItemFile);
+		//System.out.println(origAssignedIIDSet);
 		System.out.println("Converting assigned items to their relative ids...");
 		Set<Integer> relAssignedIIDSet = getRelativeIIDSet(origAssignedIIDSet, itemIdDictFile);
+		//System.out.println(relAssignedIIDSet);
+		if(origAssignedIIDSet.size() != relAssignedIIDSet.size()) {
+			throw new Error("Some assigned items not in dictionary");
+		}
 
 		// Filter out non-relevant recommendations
 		System.out.println("Filtering assigned item recommendations");
 		List<int[]> filteredRecs = filterItemRecs(inputRecommendationsFile, relAssignedIIDSet);
 
+		System.out.println("Filtered recs = " + filteredRecs);
+
 		// Map of relevant item ids to original ids
 		System.out.println("Building relevant itemID dictionary...");
 		Map<Integer, String> itemIdDict = getItemIdDict(itemIdDictFile, filteredRecs);
+		//System.out.println(itemIdDict);
 
 		// Map of assigned original ids to their recommendations (capped at 10 each)
 		System.out.println("Reformatting assigned item recommendations...");
 		Map<String, List<String>> formattedItemRecs =
 				formatRecommendations(filteredRecs, itemIdDict, relAssignedIIDSet);
-		
+
 		// Reorders map to be in the same order as the input
 		System.out.println("Reordering assigned item recommendations...");
 		Map<String, List<String>> reorderedItemRecs = reorderMap(formattedItemRecs, origAssignedIIDSet);
@@ -107,7 +116,7 @@ public class FormatFinalOutput {
 		BufferedReader br = new BufferedReader(new FileReader(inputRecs));
 		String nextLine = null;
 		while((nextLine = br.readLine()) != null) {
-			String[] splitLine = nextLine.split("\\w+");
+			String[] splitLine = nextLine.split("\\s+");
 			if(splitLine.length == 3) {
 				Integer IID = Integer.parseInt(splitLine[0].trim());
 				Integer recID = Integer.parseInt(splitLine[1].trim());
@@ -131,16 +140,32 @@ public class FormatFinalOutput {
 	private static void printMap(
 			Map<String, List<String>> map, File outputFile) throws FileNotFoundException, UnsupportedEncodingException {
 		PrintWriter out = new PrintWriter(outputFile, "UTF-8");
+		System.out.println(map);
 		for(String s: map.keySet()) {
 			StringBuilder nextLine = new StringBuilder();
 			nextLine.append(s);
 			System.out.println("s = " + s + "\tmap.get(s) = " + map.get(s));
-			for(String t : map.get(s)) {
+			List<String> recs = map.get(s);
+			if(recs == null) {
+				recs = getRandomTen(map.keySet());
+			}
+			for(String t : recs) {
 				nextLine.append("," + t);
 			}
 			out.println(nextLine);
 		}
 		out.close();
+	}
+
+	private static List<String> getRandomTen(Set<String> set) {
+		Random rand = new Random();
+		List<String> old = new ArrayList<String>(set);
+		List<String> newList = new ArrayList<String>();
+		for(int i = 0; i < 10; ++i) {
+			int idx = rand.nextInt(old.size());
+			newList.add(old.get(idx));
+		}
+		return newList;
 	}
 
 	/**
@@ -190,6 +215,7 @@ public class FormatFinalOutput {
 		for(String s: origAssignedIIDSet) {
 			reorderedMap.put(s, unorderedMap.get(s));
 		}
+		System.out.println(reorderedMap);
 		return reorderedMap;
 	}
 
@@ -211,6 +237,7 @@ public class FormatFinalOutput {
 				relevantIIDs.add(i);
 			}
 		}
+		System.out.println(relevantIIDs);
 
 		Map<Integer, String> itemIdDict = new HashMap<Integer, String>();
 		BufferedReader br = new BufferedReader(new FileReader(itemIdDictFile));
