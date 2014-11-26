@@ -1,4 +1,7 @@
 #!/bin/bash
+
+# Utility script to couple together the actions of building and scp'ing the
+# built jar to the server
 mvn package
 jar_path=$(ls -1 target | grep -Eo "Assignment[0-9]-[0-9]\.[0-9]\.[0-9]-SNAPSHOT.jar" | sort -nr | head -1)
 scp target/$jar_path hadoop01@deerstalker.cs.brandeis.edu:~/
